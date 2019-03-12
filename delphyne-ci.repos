@@ -1,0 +1,5 @@
+repositories:
+  delphyne        : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',          version: 'bmarchi/ci_with_colcon' }
+  delphyne_gui    : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne-gui.git',      version: 'hidmic/bringing-malidrive' }
+  malidrive       : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/malidrive.git',         version: 'hidmic/exposing-malidrive' }
+  proj4           : { type: 'git', url: 'https://github.com/OSGeo/proj.4.git',                          version: '5.2.0'  }
