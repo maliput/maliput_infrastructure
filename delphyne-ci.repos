@@ -1,5 +1,5 @@
 repositories:
-  delphyne        : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',          version: 'hidmic/bringing-malidrive' }
-  delphyne_gui    : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne-gui.git',      version: 'hidmic/bringing-malidrive' }
-  malidrive       : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/malidrive.git',         version: 'hidmic/exposing-malidrive' }
+  delphyne        : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',          version: 'master' }
+  delphyne_gui    : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne-gui.git',      version: 'master' }
+  malidrive       : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/malidrive.git',         version: 'master' }
   proj4           : { type: 'git', url: 'https://github.com/OSGeo/proj.4.git',                          version: '5.2.0'  }
