@@ -1,0 +1,14 @@
+repositories:
+  drake           : { type: 'git', url: 'https://github.com/RobotLocomotion/drake.git',                 version: 'master' }
+  ign_cmake       : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-cmake.git',         version: 'ign-cmake1' }
+  ign_tools       : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-tools.git',         version: 'ign-tools0' }
+  ign_math        : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-math.git',          version: 'ign-math5' }
+  ign_common      : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-common.git',        version: 'ign-common2' }
+  ign_msgs        : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-msgs.git',          version: 'ign-msgs2' }
+  ign_transport   : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-transport.git',     version: 'ign-transport5' }
+  ign_rendering   : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-rendering.git',     version: 'ign-rendering0' }
+  ign_gui         : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-gui.git',           version: 'ign-gui0' }
+  delphyne        : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',          version: 'master' }
+  delphyne_gui    : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne-gui.git',      version: 'master' }
+  malidrive       : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/malidrive.git',         version: 'master' }
+  proj4           : { type: 'git', url: 'https://github.com/OSGeo/proj.4.git',                          version: '5.2.0'  }
