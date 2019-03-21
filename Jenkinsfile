@@ -8,14 +8,12 @@ node('delphyne-linux-bionic-unprovisioned') {
   timeout(60) {
     ansiColor('xterm') {
       try {
-        withEnv(["REPOS_FILE=./index/dsim-ci.repos"]) {
-          stage('checkout') {
-            dir('index') {
-               checkout scm
-            }
+        stage('checkout') {
+          dir('index') {
+            checkout scm
           }
-          load './index/ci/jenkins/pipeline.groovy'
         }
+        load './index/ci/jenkins/pipeline.groovy'
       } finally {
         cleanWs(notFailBuild: true)
       }
