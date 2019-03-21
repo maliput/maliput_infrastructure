@@ -29,7 +29,8 @@ rm -f "$SSH_IDENTITY_FILE"
 if [ "$CHANGE_BRANCH" != "" ]; then
     echo "**** Merging custom branch $CHANGE_BRANCH into default branches ****"
     vcs custom src --args branch --track "$CHANGE_BRANCH" || true
-    vcs custom src --args merge -q "$CHANGE_BRANCH" || true
+    vcs custom src --args merge --no-edit "$CHANGE_BRANCH" || true
+    [ -z "$(vcs diff -s src)" ] || exit 1
 else
     echo "**** Using default branches ****"
 fi
