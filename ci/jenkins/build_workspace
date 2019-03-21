@@ -20,7 +20,7 @@ chmod 0755 $GIT_SSH_FILE
 export GIT_SSH=$GIT_SSH_FILE
 
 mkdir -p src
-vcs import src < ./index/dsim-ci.repos
+vcs import --force src < ./index/dsim-ci.repos
 
 unset GIT_SSH
 rm -f "$GIT_SSH_FILE"
