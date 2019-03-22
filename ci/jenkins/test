@@ -6,6 +6,5 @@ source /opt/drake/setup.bash
 
 source ./install/setup.bash
 
-colcon test --event-handlers=console_direct+ \
-       --return-code-on-test-failure \
-       --packages-skip PROJ4
+colcon test --event-handlers=console_direct+ --return-code-on-test-failure \
+       --packages-skip PROJ4 ${COLCON_TEST_EXTRA_ARGS:-}
