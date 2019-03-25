@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -euo pipefail
+
+source /opt/drake/setup.bash
+
+colcon build --parallel-workers $( getconf _NPROCESSORS_ONLN ) ${COLCON_BUILD_EXTRA_ARGS:-}

@@ -1,0 +1,64 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# The setup_early script installs just the necessary bootstrap dependencies to
+# be able to build the workspace.  All other dependencies will be installed
+# during setup_late.
+
+export DEBIAN_FRONTEND='noninteractive'
+
+# We've seen the "default" keyserver (p80.pool.sks-keyservers.net) fail somewhat
+# often.  This function will try the default, followed by some alternates to
+# reduce the number of times builds fail because of key problems.
+get_key() {
+    success=0
+    for keyserver in hkp://p80.pool.sks-keyservers.net:80 hkp://pgp.mit.edu:80 hkp://keyserver.ubuntu.com:80 ; do
+        sudo apt-key adv --keyserver $keyserver --recv-keys $1 || continue
+        success=1
+        break
+    done
+
+    if [ $success -eq 0 ]; then
+        exit 1
+    fi
+}
+
+# Install the common dependencies and ignition libraries.
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable bionic main" > /etc/apt/sources.list.d/gazebo-stable.list'
+get_key D2486D2DD83DB69272AFE98867170598AF249743
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+get_key 421C365BD9FF1F717815A3895523BAEEB01FA116
+sudo apt-get update -qq
+sudo apt-get install -y --no-install-recommends $(tr '\n' ' ' <<EOF
+awscli
+curl
+git
+libignition-gui0-dev
+libignition-rendering0-dev
+libignition-common2-dev
+libignition-tools-dev
+libignition-cmake1-dev
+libignition-math5-dev
+libignition-transport5-dev
+mercurial
+pkg-config
+pycodestyle
+pylint3
+python3-vcstool
+python3-colcon-common-extensions
+EOF
+)
+
+# Downloads drake binary and untars it into the install directory.
+RELEASE_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz"
+
+curl $RELEASE_URL | sudo tar xvz -C /opt
+
+# Generates setup.bash for installed drake.
+sudo tee /opt/drake/setup.bash > /dev/null <<EOF
+export PYTHONPATH="/opt/drake/lib/python3.6/site-packages:\${PYTHONPATH:-}"
+export LD_LIBRARY_PATH="/opt/drake/lib:\${LD_LIBRARY_PATH:-}"
+export CMAKE_PREFIX_PATH="/opt/drake:\${CMAKE_PREFIX_PATH:-}"
+export PATH="/opt/drake/bin:\${PATH:-}"
+EOF
