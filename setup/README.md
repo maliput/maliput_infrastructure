@@ -36,7 +36,7 @@ You finished! Everything is ready! :)
 
 1. Go to your workspace folder. 
     - If you created a docker container, run `./start_ws.sh`. You should be on your container now sitting on your home directory. `cd` to your workspace directory.
-2. Run `colcon build --packages-up-to delphyne-gui` (in case you decided to use drake's binary, then run: `colcon build --cmake-args -DWITH_PYTHON_VERSION=3 --packages-up-to delphyne-gui`)
+2. Run `colcon build --packages-up-to delphyne-gui` (in case you decided to use **drake's source**, then run: `colcon build --cmake-args -DWITH_PYTHON_VERSION=3 --packages-up-to delphyne-gui`)
 3. Once it finishes, run `source install/setup.bash`. **DON'T FORGET TO DO THIS, OTHERWISE NO DEMO WILL WORK.**
 
 You can checkout our examples by typing delphyne on your shell and press **TAB** to display the options.
