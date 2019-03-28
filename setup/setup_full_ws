@@ -1,0 +1,8 @@
+#! /bin/bash
+
+SCRIPT_PATH=$(dirname $(realpath $0))
+INDEX_PATH=$(realpath $SCRIPT_PATH/..)
+
+$SCRIPT_PATH/generate_setup_script \
+    --inside-docker dsim-full:latest \
+    --repos $INDEX_PATH/dsim-all.repos | sh

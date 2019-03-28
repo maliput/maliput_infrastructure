@@ -1,4 +1,4 @@
-# Delphyne
+# Maliput
 
 ## How to create the workspace
 
