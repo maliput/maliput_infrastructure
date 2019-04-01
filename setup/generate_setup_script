@@ -117,6 +117,7 @@ pull_apt_keys() {
     done
 
     if [ $success -eq 0 ]; then
+        echo "Failed to pull from keyservers"
         exit 1
     fi
 }
