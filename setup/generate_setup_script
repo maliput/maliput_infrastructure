@@ -221,6 +221,9 @@ source ~/.bashrc
 # Let the user know this is another environment.
 export PS1="($(basename $WORKSPACE_PATH) env) \\$PS1"
 
+# Update path to locate pycodestyle.
+export PATH="\\$PATH:~/.local/bin"
+
 @% if with_drake_nightly %@
 # Source Drake installation.
 source /opt/drake/setup.bash
