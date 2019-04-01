@@ -11,7 +11,8 @@ import subprocess
 
 DOCKERIZED_SETUP_SCRIPT_TEMPLATE = """\
 #!/bin/bash
-set -euo pipefail
+set -eu
+set -o pipefail
 
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
@@ -97,7 +98,8 @@ OUTER_EOF
 
 SETUP_SCRIPT_TEMPLATE = """\
 #!/bin/bash
-set -euo pipefail
+set -eu
+set -o pipefail
 
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
@@ -191,17 +193,21 @@ echo ">>> Done cloning source repositories."
 
 @% if with_drake_nightly %@
 echo ">>> Installing latest drake nightly prerequisites..."
-yes | sudo /opt/drake/share/drake/setup/install_prereqs || true
+set +o pipefail
+yes | sudo /opt/drake/share/drake/setup/install_prereqs
+set -o pipefail
 echo ">>> Done installing latest drake nightly."
 @% endif %@
 
 mkdir -p $WORKSPACE_PATH/src
 PREREQ_SCRIPTS=$(find $WORKSPACE_PATH/src -name 'install_prereqs*')
-if [ -z "$PREREQ_SCRIPTS" ]; then
+if [ ! -z "$PREREQ_SCRIPTS" ]; then
 echo ">>> Installing source repositories prerequisites..."
+set +o pipefail
 for script in "$PREREQ_SCRIPTS"; do
     yes | sudo $script
 done
+set -o pipefail
 echo ">>> Done installing source repositories prerequisites."
 fi
 
