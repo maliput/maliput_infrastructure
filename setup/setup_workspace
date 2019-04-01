@@ -5,4 +5,4 @@ INDEX_PATH=$(realpath $SCRIPT_PATH/..)
 
 $SCRIPT_PATH/generate_setup_script \
     --with-drake-nightly --with-stable-ignition \
-    --repos $INDEX_PATH/dsim-ci.repos | sh -s $@
+    --repos $INDEX_PATH/dsim-ci.repos | bash -s $@

@@ -13,7 +13,7 @@ DOCKERIZED_SETUP_SCRIPT_TEMPLATE = """\
 #!/bin/bash
 set -euo pipefail
 
-WORKSPACE_PATH=${1:-$(pwd)}
+WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
 WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
 USER=$(whoami)
@@ -69,7 +69,7 @@ docker run --privileged --net=host --runtime=nvidia \\
   --name $CONTAINER_NAME -w $WORKSPACE_PATH \\
   -v /home/$USER/.ssh:/home/$USER/.ssh \\
   -v $WORKSPACE_PATH:$WORKSPACE_PATH \\
-  -it $IMAGE_NAME /bin/sh -c "exec $WORKSPACE_PATH/setup"
+  -it $IMAGE_NAME $WORKSPACE_PATH/setup
 
 rm $WORKSPACE_PATH/setup
 
@@ -83,13 +83,11 @@ docker rm $CONTAINER_NAME > /dev/null
 echo ">>> Done building $IMAGE_NAME docker image."
 
 cat > $WORKSPACE_SCRIPT <<OUTER_EOF
-#!/bin/bash
 # Bring up workspace as necessary
 
 xhost +
 docker run --privileged --rm --net=host \\\\
     -e DISPLAY=\\$DISPLAY --runtime=nvidia \\\\
-    --hostname $(basename $WORKSPACE_PATH)_container \\\\
     -w $WORKSPACE_PATH -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
     -v /home/$USER/.ssh:/home/$USER/.ssh \\\\
     -v /tmp/.X11-unix:/tmp/.X11-unix:ro \$@ \\\\
@@ -99,9 +97,9 @@ OUTER_EOF
 
 SETUP_SCRIPT_TEMPLATE = """\
 #!/bin/bash
-set -eo pipefail
+set -euo pipefail
 
-WORKSPACE_PATH=${1:-$(pwd)}
+WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
 WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
 
@@ -207,6 +205,15 @@ echo ">>> Done installing source repositories prerequisites."
 fi
 
 cat > $WORKSPACE_RCFILE <<EOF
+# Source system wide rcfile.
+source /etc/bash.bashrc
+
+# Source user specific rcfile.
+source ~/.bashrc
+
+# Let the user know this is another environment.
+export PS1="($(basename $WORKSPACE_PATH) env) $PS1"
+
 @% if with_drake_nightly %@
 # Source Drake installation.
 source /opt/drake/setup.bash
