@@ -1,0 +1,306 @@
+#!/usr/bin/env python3
+
+import argparse
+import jinja2
+import os
+import re
+import sys
+
+import subprocess
+
+
+DOCKERIZED_SETUP_SCRIPT_TEMPLATE = """\
+#!/bin/bash
+set -eu
+set -o pipefail
+
+WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
+WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
+WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
+USER=$(whoami)
+USERID=$(id -u)
+
+IMAGE_NAME=@{ image_name }@
+echo ">>> Building $IMAGE_NAME docker image..."
+
+if [ -z "$(docker images -q $IMAGE_NAME 2>/dev/null)" ]; then
+
+echo ">>>>>> Building base $IMAGE_NAME docker image..."
+docker build -t $IMAGE_NAME -<<OUTER_EOF
+FROM nvidia/opengl:1.0-glvnd-runtime-ubuntu18.04
+
+# Setup nvidia runtime
+ENV NVIDIA_VISIBLE_DEVICES \\${NVIDIA_VISIBLE_DEVICES:-all}
+ENV NVIDIA_DRIVER_CAPABILITIES \\
+   \\${NVIDIA_DRIVER_CAPABILITIES:+\\$NVIDIA_DRIVER_CAPABILITIES,}graphics
+
+# Setup environment
+ENV TERM linux
+ENV DEBIAN_FRONTEND noninteractive
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+RUN apt update
+RUN apt install -y locales
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+
+# Install base system dependencies
+RUN apt install -y sudo tmux openssh-server software-properties-common \\
+   bash-completion debian-keyring debian-archive-keyring
+
+# Create a user with passwordless sudo
+RUN adduser --uid $USERID --gecos "Maliput Developer" --disabled-password $USER
+RUN adduser $USER sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN echo "export QT_X11_NO_MITSHM=1" >> /home/$USER/.bashrc
+
+USER $USER
+OUTER_EOF
+
+fi
+
+echo ">>>>>> Updating $IMAGE_NAME docker image in temporary container..."
+CONTAINER_NAME="${IMAGE_NAME//:/_}_build_$(date +%s)"
+
+cat > $WORKSPACE_PATH/setup <<"OUTER_EOF"
+@{ base_script }@
+OUTER_EOF
+chmod +x $WORKSPACE_PATH/setup
+
+docker run --privileged --net=host --runtime=nvidia \\
+  --name $CONTAINER_NAME -w $WORKSPACE_PATH \\
+  -v /home/$USER/.ssh:/home/$USER/.ssh \\
+  -v $WORKSPACE_PATH:$WORKSPACE_PATH \\
+  -it $IMAGE_NAME $WORKSPACE_PATH/setup
+
+rm $WORKSPACE_PATH/setup
+
+echo ">>>>>> Committing $IMAGE_NAME docker image..."
+docker commit $CONTAINER_NAME $IMAGE_NAME
+
+echo ">>>>>> Cleaning up temporary container..."
+docker stop $CONTAINER_NAME > /dev/null
+docker rm $CONTAINER_NAME > /dev/null
+
+echo ">>> Done building $IMAGE_NAME docker image."
+
+cat > $WORKSPACE_SCRIPT <<OUTER_EOF
+# Bring up workspace as necessary
+
+xhost +
+docker run --privileged --rm --net=host \\\\
+    -e DISPLAY=\\$DISPLAY --runtime=nvidia \\\\
+    -w $WORKSPACE_PATH -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
+    -v /home/$USER/.ssh:/home/$USER/.ssh \\\\
+    -v /tmp/.X11-unix:/tmp/.X11-unix:ro \$@ \\\\
+    -it $IMAGE_NAME /bin/bash --rcfile $WORKSPACE_RCFILE
+OUTER_EOF
+"""
+
+SETUP_SCRIPT_TEMPLATE = """\
+#!/bin/bash
+set -eu
+set -o pipefail
+
+WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
+WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
+WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
+
+echo ">>> Installing base dependencies..."
+
+# We've seen the "default" keyserver (p80.pool.sks-keyservers.net) fail somewhat
+# often.  This function will try the default, followed by some alternates to
+# reduce the number of times builds fail because of key problems.
+pull_apt_keys() {
+    success=0
+    for keyserver in hkp://p80.pool.sks-keyservers.net:80 hkp://pgp.mit.edu:80 hkp://keyserver.ubuntu.com:80 ; do
+        sudo apt-key adv --keyserver $keyserver --recv-keys $1 || continue
+        success=1
+        break
+    done
+
+    if [ $success -eq 0 ]; then
+        echo "Failed to pull from keyservers"
+        exit 1
+    fi
+}
+
+echo ">>>>>> Updating apt sources..."
+echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | \\
+   sudo tee --append /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
+pull_apt_keys D2486D2DD83DB69272AFE98867170598AF249743
+
+echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -cs) main" | \\
+   sudo tee --append /etc/apt/sources.list.d/ros-latest.list > /dev/null
+pull_apt_keys 421C365BD9FF1F717815A3895523BAEEB01FA116
+
+sudo apt update
+
+echo ">>>>>> Installing common tools..."
+export DEBIAN_FRONTEND=noninteractive
+
+sudo apt install -y \\
+   curl \\
+   git \\
+   mercurial \\
+   python3  \\
+   python3-pip \\
+   python3-setuptools \\
+   python3-vcstool \\
+   python3-colcon-common-extensions
+
+@% if with_drake_nightly %@
+echo ">>>>>> Installing latest drake nightly..."
+sudo mkdir -p /opt/drake
+
+echo ">>>>>>>>> Downloading drake nightly tarball..."
+(cd /tmp && curl -O https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz)
+
+echo ">>>>>>>>> Extracting drake nightly tarball..."
+sudo tar xvz -f /tmp/drake-latest-bionic.tar.gz -C /opt/drake --strip 1
+rm /tmp/drake-latest-bionic.tar.gz
+
+sudo tee /opt/drake/setup.bash > /dev/null <<EOF
+export PYTHONPATH="/opt/drake/lib/python3.6/site-packages:\\${PYTHONPATH:-}"
+export LD_LIBRARY_PATH="/opt/drake/lib:\\${LD_LIBRARY_PATH:-}"
+export CMAKE_PREFIX_PATH="/opt/drake:\\${CMAKE_PREFIX_PATH:-}"
+export PATH="/opt/drake/bin:\\${PATH:-}"
+EOF
+@% endif %@
+
+@% if with_stable_ignition %@
+echo ">>>>>> Installing stable ignition libraries..."
+sudo apt install -y \\
+    libignition-gui0-dev \\
+    libignition-rendering0-dev \\
+    libignition-common2-dev \\
+    libignition-tools-dev \\
+    libignition-cmake1-dev \\
+    libignition-math5-dev \\
+    libignition-transport5-dev
+@% endif %@
+echo ">>> Done installing dependencies."
+
+@% if repos %@
+echo ">>> Cloning source repositories..."
+mkdir -p $WORKSPACE_PATH/src
+@% for content in repos %@
+vcs import $WORKSPACE_PATH/src <<EOF 
+@{ content }@
+EOF
+@% endfor %@
+echo ">>> Done cloning source repositories."
+@% endif %@
+
+@% if with_drake_nightly %@
+echo ">>> Installing latest drake nightly prerequisites..."
+set +o pipefail
+yes | sudo /opt/drake/share/drake/setup/install_prereqs
+set -o pipefail
+echo ">>> Done installing latest drake nightly."
+@% endif %@
+
+mkdir -p $WORKSPACE_PATH/src
+PREREQ_SCRIPTS=$(find $WORKSPACE_PATH/src -name 'install_prereqs*')
+if [ ! -z "$PREREQ_SCRIPTS" ]; then
+echo ">>> Installing source repositories prerequisites..."
+set +o pipefail
+for script in "$PREREQ_SCRIPTS"; do
+    yes | sudo $script
+done
+set -o pipefail
+echo ">>> Done installing source repositories prerequisites."
+fi
+
+cat > $WORKSPACE_RCFILE <<EOF
+# Source system wide rcfile.
+source /etc/bash.bashrc
+
+# Source user specific rcfile.
+source ~/.bashrc
+
+# Let the user know this is another environment.
+export PS1="($(basename $WORKSPACE_PATH) env) \\$PS1"
+
+# Update path to locate pycodestyle.
+export PATH="\\$PATH:~/.local/bin"
+
+@% if with_drake_nightly %@
+# Source Drake installation.
+source /opt/drake/setup.bash
+@% endif %@
+EOF
+
+cat > $WORKSPACE_SCRIPT <<EOF
+# Bring up workspace as necessary
+
+/bin/bash --rcfile $WORKSPACE_RCFILE
+EOF
+"""
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Bootstrap maliput development workspace',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        '-o', '--output', type=argparse.FileType('w'),
+        default=sys.stdout, help='Output for generated script.'
+    )
+    parser.add_argument(
+        '-r', '--repos', type=argparse.FileType('r'), action='append',
+        default=[], help='Repos files to import into the workspace.'
+    )
+    parser.add_argument(
+        '--inside-docker', nargs='?', metavar='image-name',
+        const='$(basename $WORKSPACE_PATH)', default=None,
+        help='Setup workspace within a docker container.',
+    )
+    parser.add_argument(
+        '--with-drake-nightly', action='store_true', default=False,
+        help="Install latest drake nightly tarball."
+    )
+    parser.add_argument(
+        '--with-stable-ignition', action='store_true', default=False,
+        help='Install stable ignition debian binaries.',
+    )
+    parser.add_argument(
+        '--with-deb', dest='with_debians', action='append', default=[],
+        help='Install additional debian dependencies.'
+    )
+    args = parser.parse_args()
+
+    env = jinja2.Environment(
+        block_start_string="@%", block_end_string="%@",
+        variable_start_string="@{", variable_end_string="}@",
+        comment_start_string="@#", comment_end_string="@#"
+    )
+    if args.inside_docker is not None:
+        template = env.from_string(DOCKERIZED_SETUP_SCRIPT_TEMPLATE)
+        generate_base_setup_script = [__file__]
+        for repo_file in args.repos:
+            generate_base_setup_script.extend(['-r', repo_file.name])
+        if args.with_drake_nightly:
+            generate_base_setup_script.append('--with-drake-nightly')
+        if args.with_stable_ignition:
+            generate_base_setup_script.append('--with-stable-ignition')
+        for deb in args.with_debians:
+            generate_base_setup_script.extend(['--with-deb', path])
+        context = {
+            'image_name': args.inside_docker,
+            'base_script': subprocess.check_output(
+                generate_base_setup_script).decode()
+        }
+    else:
+        context = {
+            'repos': [repo_file.read().strip('\n') for repo_file in args.repos],
+            'with_debians': args.with_debians,
+            'with_drake_nightly': args.with_drake_nightly,
+            'with_stable_ignition': args.with_stable_ignition,
+        }
+        template = env.from_string(SETUP_SCRIPT_TEMPLATE)
+    args.output.write(
+        re.sub(os.linesep + '{3,}', os.linesep * 2,
+               template.render(**context)) + os.linesep
+    )
+    if os.path.isfile(args.output.name):
+        os.chmod(args.output.name, 0o755)

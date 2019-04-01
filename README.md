@@ -1,8 +1,6 @@
 # dsim_repos_index
 Driving simulation repository for workspace .repo indexes, Makefiles, etc.
 
-# Setup
+## Maliput workspace setup
 
-## Delphyne
-
-To build delphyne, go [here](https://github.com/ToyotaResearchInstitute/dsim-repos-index/tree/master/setup/delphyne/README.md).
+See [here](https://github.com/ToyotaResearchInstitute/dsim-repos-index/tree/master/setup/README.md) for details on how to setup a maliput development workspace.

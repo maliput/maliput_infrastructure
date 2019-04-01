@@ -1,0 +1,15 @@
+#!/bin/bash
+
+SCRIPT_PATH=$(dirname $(realpath $0))
+INDEX_PATH=$(realpath $SCRIPT_PATH/..)
+SETUP_PATH=$(mktemp /tmp/setup.XXXXXX)
+
+$SCRIPT_PATH/generate_setup_script \
+    --inside-docker dsim-devel:latest \
+    --with-drake-nightly --with-stable-ignition \
+    --repos $INDEX_PATH/dsim-ci.repos -o $SETUP_PATH
+
+# Execution must be done this way to let signals reach docker.
+$SETUP_PATH $@
+
+rm $SETUP_PATH
