@@ -1,0 +1,9 @@
+#!/bin/bash
+
+SCRIPT_PATH=$(dirname $(realpath $0))
+INDEX_PATH=$(realpath $SCRIPT_PATH/..)
+
+$SCRIPT_PATH/generate_setup_script \
+    --inside-docker dsim-devel:latest \
+    --with-drake-nightly --with-stable-ignition \
+    --repos $INDEX_PATH/dsim-ci.repos | sh -s $@
