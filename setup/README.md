@@ -10,13 +10,14 @@
 
 * To get all necessary scripts and repos files, clone this repo locally at some path.
 
-* To actually use the scripts, make sure you have `jinja2` installed:
+* To actually use the scripts, make sure you have the following packages installed:
 
 ```sh
 sudo apt install python3-jinja2
+sudo apt install pciutils
 ```
-
-* To use dockerized workspaces, make sure [nvidia-docker2](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)) is installed.
+* Dockerized workspaces require *nvidia-docker2*, so make sure you have an NVIDIA card and the drivers installed.
+You can check out [nvidia-docker2 installation instructions](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)) if needed
 
 ## Basic setup
 

@@ -1,0 +1,2 @@
+repositories:
+  drake           : { type: 'git', url: 'https://github.com/RobotLocomotion/drake.git',                 version: 'master' }
