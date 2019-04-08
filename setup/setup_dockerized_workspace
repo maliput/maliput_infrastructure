@@ -5,7 +5,7 @@ INDEX_PATH=$(realpath $SCRIPT_PATH/..)
 SETUP_PATH=$(mktemp /tmp/setup.XXXXXX)
 
 $SCRIPT_PATH/generate_setup_script \
-    --inside-docker dsim-devel:latest \
+    --inside-docker maliput-devel:latest \
     --with-drake-nightly --with-stable-ignition \
     --repos $INDEX_PATH/maliput.repos -o $SETUP_PATH
 
