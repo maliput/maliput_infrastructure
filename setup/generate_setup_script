@@ -17,9 +17,7 @@ set -o pipefail
 
 echo ">>> Checking videocard"
 
-CMD_RETURN_VAL=$(lspci | grep -A 2 -i "VGA" | grep -q -e NVIDIA)
-
-if [ ! ${CMD_RETURN_VAL} ]; then
+if ! lspci | grep -A 2 -i "VGA" | grep -q -e NVIDIA; then
   echo "NVIDIA card detected"
 else
   echo "NVIDIA card not found. Not going to make a docker workspace."
