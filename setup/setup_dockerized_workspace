@@ -7,7 +7,7 @@ SETUP_PATH=$(mktemp /tmp/setup.XXXXXX)
 $SCRIPT_PATH/generate_setup_script \
     --inside-docker dsim-devel:latest \
     --with-drake-nightly --with-stable-ignition \
-    --repos $INDEX_PATH/dsim-ci.repos -o $SETUP_PATH
+    --repos $INDEX_PATH/maliput.repos -o $SETUP_PATH
 
 # Execution must be done this way to let signals reach docker.
 $SETUP_PATH $@

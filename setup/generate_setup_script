@@ -11,8 +11,48 @@ import subprocess
 
 DOCKERIZED_SETUP_SCRIPT_TEMPLATE = """\
 #!/bin/bash
+
 set -eu
 set -o pipefail
+
+echo ">>> Checking videocard"
+
+CMD_RETURN_VAL=$(lspci | grep -A 2 -i "VGA" | grep -q -e NVIDIA)
+
+if [ ! ${CMD_RETURN_VAL} ]; then
+  echo "NVIDIA card detected"
+else
+  echo "NVIDIA card not found. Not going to make a docker workspace."
+  exit 1
+fi
+
+echo ">>> Checking if nvidia-docker is installed"
+
+if dpkg -s nvidia-docker > /dev/null 2>&1; then
+  echo "nvidia-docker 1.0 will be removed. Are you sure you want to proceed? This will delete all your images that use nvidia.(y/n)"
+  read remove_nvidia_docker
+  if [ "$remove_nvidia_docker" != "${remove_nvidia_docker#[Yy]}" ]; then
+    docker volume ls -q -f driver=nvidia-docker | xargs -r -I{} -n1 docker ps -q -a -f volume={} | xargs -r docker rm -f
+    sudo apt-get purge nvidia-docker
+  else
+    echo "Not going to proceed with the setup. nvidia-docker2 is required."
+    exit 1
+  fi
+fi
+
+echo ">>> Checking if nvidia-docker2 is installed"
+if ! dpkg -s nvidia-docker2 > /dev/null 2>&1; then
+  echo ">>>> Installing nvidia-docker2"
+  curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | \
+    sudo apt-key add -
+  distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+  curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \
+    sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+  sudo apt-get update
+  sudo apt-get install nvidia-docker2
+  sudo pkill -SIGHUP dockerd
+  sudo service docker restart
+fi
 
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
