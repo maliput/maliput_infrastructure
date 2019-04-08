@@ -16,6 +16,9 @@
 sudo apt install python3-jinja2
 sudo apt install pciutils
 ```
+
+* To pull private repositories, the current user default SSH keys will be used (and thus assumed as both necessary and suficient for the purpose).
+
 * Dockerized workspaces require *nvidia-docker2*, so make sure you have an NVIDIA card and the drivers installed.
 You can check out [nvidia-docker2 installation instructions](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)) if needed
 
