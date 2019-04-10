@@ -162,14 +162,25 @@ pull_apt_keys() {
     fi
 }
 
-echo ">>>>>> Updating apt sources..."
-echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | \\
-   sudo tee --append /etc/apt/sources.list.d/gazebo-stable.list > /dev/null
-pull_apt_keys D2486D2DD83DB69272AFE98867170598AF249743
+install_apt_repo() {
+  REPO_NAME=$1
+  REPO_URL=$2
+  REPO_KEY=$3
 
-echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -cs) main" | \\
-   sudo tee --append /etc/apt/sources.list.d/ros-latest.list > /dev/null
-pull_apt_keys 421C365BD9FF1F717815A3895523BAEEB01FA116
+  if ! grep -q "^deb .*$REPO_URL" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+    echo "deb $REPO_URL $(lsb_release -cs) main" | \\
+      sudo tee --append /etc/apt/sources.list.d/$REPO_NAME.list > /dev/null
+    pull_apt_keys $REPO_KEY
+    echo "Apt Repo '$REPO_NAME'..........................installed"
+  else
+    echo "Apt Repo '$REPO_NAME'..........................found"
+  fi
+}
+
+echo ">>>>>> Updating apt sources..."
+
+install_apt_repo "gazebo-stable" "http://packages.osrfoundation.org/gazebo/ubuntu-stable" "D2486D2DD83DB69272AFE98867170598AF249743"
+install_apt_repo "ros-latest" "http://packages.ros.org/ros/ubuntu" "421C365BD9FF1F717815A3895523BAEEB01FA116"
 
 sudo apt update
 
@@ -187,7 +198,10 @@ sudo apt install -y \\
    python3-colcon-common-extensions
 
 @% if with_drake_nightly %@
-echo ">>>>>> Installing latest drake nightly..."
+echo ">>>>>> Cleaning any existing install of drake nightly in '/opt/drake'"
+sudo rm -rf /opt/drake
+
+echo ">>>>>> Installing latest drake nightly into '/opt/drake'"
 sudo mkdir -p /opt/drake
 
 echo ">>>>>>>>> Downloading drake nightly tarball..."
