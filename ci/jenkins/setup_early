@@ -50,10 +50,42 @@ python3-colcon-common-extensions
 EOF
 )
 
-# Downloads drake binary and untars it into the install directory.
-RELEASE_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz"
+DRAKE_VERSION=$(python3 <<EOS
+import yaml
+with open('./index/drake.repos', 'r') as f:
+    data = yaml.load(f.read())
+    print(data['repositories']['drake']['version'])
+EOS
+)
 
-curl $RELEASE_URL | sudo tar xvz -C /opt
+# Downloads drake binary from the right location and extracts it below /opt
+if [[ "$DRAKE_VERSION" != "master" ]]; then    
+    if [[ "$DRAKE_VERSION" =~ [0-9a-f]+ ]]; then
+        DRAKE_COMMIT_DATE=$(python3 <<EOS
+import json
+from urllib.request import urlopen
+with urlopen('https://api.github.com/repos/RobotLocomotion/drake/commits/$DRAKE_VERSION') as f:
+    data = json.loads(f.read().decode())
+    date = data['commit']['committer']['date']
+    print(date.replace('-', '')[:8])
+EOS
+)   
+    else
+         DRAKE_COMMIT_DATE=$(python3 <<EOS
+import json
+from urllib.request import urlopen
+with urlopen('https://api.github.com/repos/RobotLocomotion/drake/branches/$DRAKE_VERSION') as f:
+    data = json.loads(f.read().decode())
+    date = data['commit']['commit']['committer']['date']
+    print(date.replace('-', '')[:8])
+EOS
+)
+    fi
+    DRAKE_RELEASE_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-$DRAKE_COMMIT_DATE-bionic.tar.gz"
+else
+    DRAKE_RELEASE_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz"
+fi
+curl $DRAKE_RELEASE_URL | sudo tar xvz -C /opt
 
 # Generates setup.bash for installed drake.
 sudo tee /opt/drake/setup.bash > /dev/null <<EOF
