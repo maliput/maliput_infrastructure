@@ -275,7 +275,7 @@ source /etc/bash.bashrc
 source ~/.bashrc
 
 # Let the user know this is another environment.
-export PS1="($(basename $WORKSPACE_PATH) env) \\$PS1"
+export PS1="($(basename $WORKSPACE_PATH) env) \\${PS1:-}"
 
 @% if with_drake_nightly %@
 # Source Drake installation.
