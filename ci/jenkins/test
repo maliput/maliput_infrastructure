@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-source /opt/drake/setup.bash
+source ./.bashrc
 
 source ./install/setup.bash
 

@@ -19,8 +19,7 @@ EOF
 chmod 0755 $GIT_SSH_FILE
 export GIT_SSH=$GIT_SSH_FILE
 
-mkdir -p src
-vcs import --force src < ./index/maliput.repos
+./index/setup/setup_workspace
 
 unset GIT_SSH
 rm -f "$GIT_SSH_FILE"
