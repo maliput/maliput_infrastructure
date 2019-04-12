@@ -19,7 +19,29 @@ EOF
 chmod 0755 $GIT_SSH_FILE
 export GIT_SSH=$GIT_SSH_FILE
 
+MERGE_BACK_SCRIPT=$(mktemp /tmp/merge_back_XXXXXX)
+cat > $MERGE_BACK_SCRIPT <<EOF
+if [ ! -z "$CHANGE_BRANCH" ]; then
+    echo ">>> Merging custom branch $CHANGE_BRANCH into default branches"
+    vcs custom src --args branch -f $CHANGE_BRANCH origin/$CHANGE_BRANCH > /dev/null || true
+    vcs custom src --args merge --no-edit $CHANGE_BRANCH  > /dev/null || true
+    DIFF=\$(vcs diff -s src | tr -d '.\n')
+    if [ ! -z "$DIFF" ]; then
+       echo "Have merge conflicts!"
+       echo $DIFF
+       exit 1
+    fi
+fi
+EOF
+chmod 0755 $MERGE_BACK_SCRIPT
+
+export POST_CLONE_HOOK=$MERGE_BACK_SCRIPT
+
 ./index/setup/setup_workspace
+
+unset POST_CLONE_HOOK
+
+rm -f "$MERGE_BACK_SCRIPT"
 
 unset GIT_SSH
 rm -f "$GIT_SSH_FILE"
