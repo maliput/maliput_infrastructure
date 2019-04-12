@@ -20,9 +20,22 @@ DOCKERIZED_SETUP_SCRIPT_TEMPLATE = """\
 set -eu
 set -o pipefail
 
+WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
+WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
+WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
+
+echo ">>> Checking if $WORKSPACE_PATH is empty or doesnt exists to build the workspace there"
+if [ ! -d "$WORKSPACE_PATH" ] || [ -z "$(ls -A "$WORKSPACE_PATH" | grep -v 'setup')" ]; then
+    echo ">>>> Creating directory"
+    mkdir -p $WORKSPACE_PATH
+else
+    echo ">>>> Directory is not empty. Not going to build the workspace"
+    exit 1
+fi
+
 echo ">>> Checking videocard"
 
-if ! lspci | grep -A 2 -i "VGA" | grep -q -e NVIDIA; then
+if [ ! -z "$(lspci | grep -A 2 -i "VGA" | grep -e NVIDIA)" ]; then
   echo "NVIDIA card detected"
 else
   echo "NVIDIA card not found. Not going to make a docker workspace."
@@ -31,7 +44,7 @@ fi
 
 echo ">>> Checking if nvidia-docker is installed"
 
-if dpkg -s nvidia-docker > /dev/null 2>&1; then
+if [ "$(dpkg -l | grep -c -E 'nvidia-docker')" -eq 1 ] && [ "$(dpkg -l | grep -c -E 'nvidia-docker2')" -eq 0 ]; then
   echo "nvidia-docker 1.0 will be removed. Are you sure you want to proceed? This will delete all your images that use nvidia.(y/n)"
   read remove_nvidia_docker
   if [ "$remove_nvidia_docker" != "${remove_nvidia_docker#[Yy]}" ]; then
@@ -44,7 +57,7 @@ if dpkg -s nvidia-docker > /dev/null 2>&1; then
 fi
 
 echo ">>> Checking if nvidia-docker2 is installed"
-if ! dpkg -s nvidia-docker2 > /dev/null 2>&1; then
+if [ "$(dpkg -l | grep -c -E 'nvidia-docker2')" -eq 0 ]; then
   echo ">>>> Installing nvidia-docker2"
   curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | \
     sudo apt-key add -
@@ -57,9 +70,6 @@ if ! dpkg -s nvidia-docker2 > /dev/null 2>&1; then
   sudo service docker restart
 fi
 
-WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
-WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
-WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
 USER=$(whoami)
 USERID=$(id -u)
 
@@ -185,7 +195,7 @@ install_apt_repo() {
 echo ">>>>>> Updating apt sources..."
 
 install_apt_repo "gazebo-stable" "http://packages.osrfoundation.org/gazebo/ubuntu-stable" "D2486D2DD83DB69272AFE98867170598AF249743"
-install_apt_repo "ros-latest" "http://packages.ros.org/ros/ubuntu" "421C365BD9FF1F717815A3895523BAEEB01FA116"
+install_apt_repo "ros2-latest" "http://packages.ros.org/ros2/ubuntu" "421C365BD9FF1F717815A3895523BAEEB01FA116"
 
 sudo apt update
 
@@ -199,7 +209,8 @@ sudo apt install -y \\
    python3  \\
    python3-setuptools \\
    python3-vcstool \\
-   python3-colcon-common-extensions
+   python3-colcon-common-extensions \\
+   libzip-dev
 
 @% if with_drake_nightly %@
 echo ">>>>>> Cleaning any existing install of drake nightly in '/opt/drake'"
@@ -254,12 +265,23 @@ set +o pipefail
 yes | sudo /opt/drake/share/drake/setup/install_prereqs
 set -o pipefail
 echo ">>> Done installing latest drake nightly."
+@% else %@
+if [ -d "$WORKSPACE_PATH/src/drake" ]; then
+echo ">>> Installing drake source repository prerequisities..."
+set +o pipefail
+yes | sudo $WORKSPACE_PATH/src/drake/setup/ubuntu/install_prereqs.sh
+set -o pipefail
+echo ">>> Done installing drake source repository prerequisites."
+fi
 @% endif %@
 
 mkdir -p $WORKSPACE_PATH/src
-PREREQ_SCRIPTS=$(find $WORKSPACE_PATH/src -name 'install_prereqs*')
+PREREQ_SCRIPTS=$(find $WORKSPACE_PATH/src -name 'install_prereqs*' ! -path "$WORKSPACE_PATH/src/drake/*")
 if [ ! -z "$PREREQ_SCRIPTS" ]; then
 echo ">>> Installing source repositories prerequisites..."
+echo ">>>> The following scripts will be executed"
+echo "$PREREQ_SCRIPTS"
+echo ">>>>"
 set +o pipefail
 for script in "$PREREQ_SCRIPTS"; do
     yes | sudo $script
