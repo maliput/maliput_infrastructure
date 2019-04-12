@@ -247,6 +247,17 @@ EOF
 echo ">>> Done cloning source repositories."
 @% endif %@
 
+if [ ! -z "$CHANGE_BRANCH" ]; then
+    echo ">>> Merging custom branch $CHANGE_BRANCH into default branches"
+    vcs custom src --args branch -f $CHANGE_BRANCH origin/$CHANGE_BRANCH > /dev/null || true
+    vcs custom src --args merge --no-edit $CHANGE_BRANCH  > /dev/null || true
+    if [ ! -z "$(vcs diff -s src | tr -d '.\n')" ]; then
+       vcs diff -s src
+       echo "Have merge conflicts"
+       exit 1
+    fi
+fi
+
 @% if with_drake_nightly %@
 echo ">>> Installing drake binary prerequisites..."
 set +o pipefail
