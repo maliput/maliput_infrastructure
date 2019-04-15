@@ -240,7 +240,7 @@ echo ">>> Done installing dependencies."
 echo ">>> Cloning source repositories..."
 mkdir -p $WORKSPACE_PATH/src
 @% for content in repos %@
-vcs import $WORKSPACE_PATH/src <<EOF 
+vcs import --force $WORKSPACE_PATH/src <<EOF
 @{ content }@
 EOF
 @% endfor %@
