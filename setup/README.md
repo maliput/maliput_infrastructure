@@ -61,3 +61,31 @@ path/to/dsim-repos-index/setup/generate_setup_script -h
 
 The output of this script is pure bash code that can be verified, modified and executed. It
 is also self contained and thus portable.
+
+## How to build your workspace
+
+1. Make sure you `source bringup`.
+
+2. Once you are sitting in the workspace, run the following if you are using **drake's binary**
+
+```sh
+colcon build
+```
+If you are using **drake's source** then run:
+```sh
+colcon build --cmake-args -DWITH_PYTHON_VERSION=3
+```
+
+3. Finally, run
+```sh
+source install/setup.bash
+```
+
+**Note:** We recommend you to run `delphyne-gazoo` and `delphyne-mali` (type them on your terminal) to see if everything is working properly.
+
+## How to build and run tests
+
+At the moment tests are built by default, so once colcon finishes building, you can run
+```sh
+colcon test --event-handlers=console_direct+ --return-code-on-test-failure --packages-skip PROJ4
+```
