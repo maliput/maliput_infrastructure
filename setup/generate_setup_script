@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 
 import argparse
-import jinja2
 import os
 import re
 import sys
 
 import subprocess
+
+import jinja2
+import json
+import yaml
+
+from urllib.request import urlopen
 
 
 DOCKERIZED_SETUP_SCRIPT_TEMPLATE = """\
@@ -200,15 +205,15 @@ sudo apt install -y \\
 echo ">>>>>> Cleaning any existing install of drake nightly in '/opt/drake'"
 sudo rm -rf /opt/drake
 
-echo ">>>>>> Installing latest drake nightly into '/opt/drake'"
+echo ">>>>>> Installing drake nightly into '/opt/drake'"
 sudo mkdir -p /opt/drake
 
-echo ">>>>>>>>> Downloading drake nightly tarball..."
-(cd /tmp && curl -O https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz)
+echo ">>>>>>>>> Downloading drake tarball..."
+curl -o /tmp/drake.tar.gz @{ with_drake_nightly }@
 
 echo ">>>>>>>>> Extracting drake nightly tarball..."
-sudo tar xvz -f /tmp/drake-latest-bionic.tar.gz -C /opt/drake --strip 1
-rm /tmp/drake-latest-bionic.tar.gz
+sudo tar xvz -f /tmp/drake.tar.gz -C /opt/drake --strip 1
+rm /tmp/drake.tar.gz
 
 sudo tee /opt/drake/setup.bash > /dev/null <<EOF
 export PYTHONPATH="/opt/drake/lib/python3.6/site-packages:\\${PYTHONPATH:-}"
@@ -235,15 +240,16 @@ echo ">>> Done installing dependencies."
 echo ">>> Cloning source repositories..."
 mkdir -p $WORKSPACE_PATH/src
 @% for content in repos %@
-vcs import $WORKSPACE_PATH/src <<EOF 
+vcs import --force $WORKSPACE_PATH/src <<EOF
 @{ content }@
 EOF
 @% endfor %@
+${POST_CLONE_HOOK:-}
 echo ">>> Done cloning source repositories."
 @% endif %@
 
 @% if with_drake_nightly %@
-echo ">>> Installing latest drake nightly prerequisites..."
+echo ">>> Installing drake binary prerequisites..."
 set +o pipefail
 yes | sudo /opt/drake/share/drake/setup/install_prereqs
 set -o pipefail
@@ -270,7 +276,7 @@ source /etc/bash.bashrc
 source ~/.bashrc
 
 # Let the user know this is another environment.
-export PS1="($(basename $WORKSPACE_PATH) env) \\$PS1"
+export PS1="($(basename $WORKSPACE_PATH) env) \\${PS1:-}"
 
 @% if with_drake_nightly %@
 # Source Drake installation.
@@ -284,6 +290,24 @@ cat > $WORKSPACE_SCRIPT <<EOF
 /bin/bash --rcfile $WORKSPACE_RCFILE
 EOF
 """
+
+
+def deduce_drake_nightly_url(version):
+    """Determine drake nightly binaries download URL for a given commit or branch."""
+    if version == 'master':
+        return 'https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz'
+    if re.match(r'[0-9a-f]{12,}', version) is not None:
+        with urlopen('https://api.github.com/repos/RobotLocomotion/drake/commits/' + version) as f:
+            data = json.loads(f.read().decode())
+            commit_date = data['commit']['committer']['date']
+    else:
+        with urlopen('https://api.github.com/repos/RobotLocomotion/drake/branches/' + version) as f:
+            data = json.loads(f.read().decode())
+            commit_date = data['commit']['commit']['committer']['date']
+    return 'https://drake-packages.csail.mit.edu/drake/nightly/drake-{}-bionic.tar.gz'.format(
+        commit_date.replace('-', '')[:8]
+    )
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -304,8 +328,9 @@ if __name__ == '__main__':
         help='Setup workspace within a docker container.',
     )
     parser.add_argument(
-        '--with-drake-nightly', action='store_true', default=False,
-        help="Install latest drake nightly tarball."
+        '--with-drake-nightly', action='store', default=None,
+        help=('Install drake nightly tarball, either from a given URL '
+              'or from a the URL that matches the version in .repos file')
     )
     parser.add_argument(
         '--with-stable-ignition', action='store_true', default=False,
@@ -328,17 +353,26 @@ if __name__ == '__main__':
         for repo_file in args.repos:
             generate_base_setup_script.extend(['-r', repo_file.name])
         if args.with_drake_nightly:
-            generate_base_setup_script.append('--with-drake-nightly')
+            generate_base_setup_script.extend([
+                '--with-drake-nightly', args.with_drake_nightly
+            ])
         if args.with_stable_ignition:
             generate_base_setup_script.append('--with-stable-ignition')
         for deb in args.with_debians:
-            generate_base_setup_script.extend(['--with-deb', path])
+            generate_base_setup_script.extend(['--with-deb', deb])
         context = {
             'image_name': args.inside_docker,
             'base_script': subprocess.check_output(
                 generate_base_setup_script).decode()
         }
     else:
+        if args.with_drake_nightly is not None:
+            if os.path.isfile(args.with_drake_nightly):
+                with open(args.with_drake_nightly, 'r') as f:
+                    data = yaml.load(f.read())
+                    args.with_drake_nightly = deduce_drake_nightly_url(
+                        data['repositories']['drake']['version']
+                    )
         context = {
             'repos': [repo_file.read().strip('\n') for repo_file in args.repos],
             'with_debians': args.with_debians,
