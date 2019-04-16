@@ -37,7 +37,7 @@ chmod 0755 $MERGE_BACK_SCRIPT
 
 export POST_CLONE_HOOK=$MERGE_BACK_SCRIPT
 
-./index/setup/setup_workspace
+./index/setup/setup_workspace -i
 
 unset POST_CLONE_HOOK
 

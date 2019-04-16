@@ -25,7 +25,7 @@ WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
 WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
 
 echo ">>> Checking if $WORKSPACE_PATH is empty or doesnt exists to build the workspace there"
-if [ ! -d "$WORKSPACE_PATH" ] || [ -z "$(ls -A "$WORKSPACE_PATH" | grep -v 'setup')" ]; then
+if [ ! -d "$WORKSPACE_PATH" ] || [ "$(ls -A "$WORKSPACE_PATH" | wc -l)" -eq 0 ]; then
     echo ">>>> Creating directory"
     mkdir -p $WORKSPACE_PATH
 else
@@ -154,9 +154,30 @@ SETUP_SCRIPT_TEMPLATE = """\
 set -eu
 set -o pipefail
 
+IGNORE_DIRECTORY_CONTENT=0
+while getopts "i" opt
+   do
+     case $opt in
+        i)
+        IGNORE_DIRECTORY_CONTENT=1
+        shift;;
+     esac
+done
+
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
 WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
+
+# This script can be called by docker if used, and if that happens, a setup file is generated.
+
+echo ">>> Checking if $WORKSPACE_PATH is empty or doesnt exists to build the workspace there"
+if [ ! -d "$WORKSPACE_PATH" ] || [ -z "$(ls -A "$WORKSPACE_PATH" | grep -v 'setup')" ] || [ "$IGNORE_DIRECTORY_CONTENT" -eq 1 ]; then
+    echo ">>>> Creating directory"
+    mkdir -p $WORKSPACE_PATH
+else
+    echo ">>>> Directory is not empty. Not going to build the workspace"
+    exit 1
+fi
 
 echo ">>> Installing base dependencies..."
 
