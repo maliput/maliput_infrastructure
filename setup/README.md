@@ -21,6 +21,8 @@ sudo apt install pciutils
 
 * Dockerized workspaces require *nvidia-docker2*, so make sure you have an NVIDIA card and the drivers installed.
 You can check out [nvidia-docker2 installation instructions](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0)) if needed
+On Ubuntu Xenial hosts, you may also need to install docker from their repository. Instructions can be found
+[at this helpful post](https://gist.github.com/Brainiarc7/a8ab5f89494d053003454efc3be2d2ef)
 
 ## Basic setup
 
