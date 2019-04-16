@@ -5,4 +5,4 @@ INDEX_PATH=$(realpath $SCRIPT_PATH/..)
 
 $SCRIPT_PATH/generate_setup_script --with-stable-ignition \
     --with-drake-nightly $INDEX_PATH/drake.repos \
-    --repos $INDEX_PATH/maliput.repos | bash -s $@
+    --repos $INDEX_PATH/maliput.repos | bash -s -- $@
