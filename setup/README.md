@@ -41,6 +41,11 @@ path/to/dsim-repos-index/setup/setup_dockerized_workspace path/to/my/workspace
 Both operations will setup a `colcon` like workspace that uses binaries for
 upstream dependencies whenever possible.
 
+Note: You can add `-i` to any of the above scripts to force the installation on a given path:
+```sh
+setup_dockerized_workspace -i /path/to/workspace
+```
+
 To bring up any of these workspaces, run:
 
 ```sh
