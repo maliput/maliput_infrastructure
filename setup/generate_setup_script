@@ -20,12 +20,22 @@ DOCKERIZED_SETUP_SCRIPT_TEMPLATE = """\
 set -eu
 set -o pipefail
 
+IGNORE_DIRECTORY_CONTENT=0
+while getopts "i" opt
+   do
+     case $opt in
+        i)
+        IGNORE_DIRECTORY_CONTENT=1
+        shift;;
+     esac
+done
+
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
 WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
 
 echo ">>> Checking if $WORKSPACE_PATH is empty or doesnt exists to build the workspace there"
-if [ ! -d "$WORKSPACE_PATH" ] || [ "$(ls -A "$WORKSPACE_PATH" | wc -l)" -eq 0 ]; then
+if [ ! -d "$WORKSPACE_PATH" ] || [ "$(ls -A "$WORKSPACE_PATH" | wc -l)" -eq 0 ] || [ "$IGNORE_DIRECTORY_CONTENT" -eq 1 ]; then
     echo ">>>> Creating directory"
     mkdir -p $WORKSPACE_PATH
 else
