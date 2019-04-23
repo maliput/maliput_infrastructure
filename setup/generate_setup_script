@@ -21,11 +21,13 @@ set -eu
 set -o pipefail
 
 IGNORE_DIRECTORY_CONTENT=0
-while getopts "i" opt
+while getopts "ij" opt
    do
      case $opt in
         i)
         IGNORE_DIRECTORY_CONTENT=1
+        shift;;
+        j)
         shift;;
      esac
 done
@@ -33,6 +35,9 @@ done
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
 WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
+IMAGE_NAME=@{ image_name }@
+
+if [ -z "$(docker images -q @{ image_name }@)" ]; then
 
 echo ">>> Checking if $WORKSPACE_PATH is empty or doesnt exists to build the workspace there"
 if [ ! -d "$WORKSPACE_PATH" ] || [ "$(ls -A "$WORKSPACE_PATH" | wc -l)" -eq 0 ] || [ "$IGNORE_DIRECTORY_CONTENT" -eq 1 ]; then
@@ -83,7 +88,6 @@ fi
 USER=$(whoami)
 USERID=$(id -u)
 
-IMAGE_NAME=@{ image_name }@
 echo ">>> Building $IMAGE_NAME docker image..."
 
 if [ -z "$(docker images -q $IMAGE_NAME 2>/dev/null)" ]; then
@@ -124,6 +128,11 @@ fi
 echo ">>>>>> Updating $IMAGE_NAME docker image in temporary container..."
 CONTAINER_NAME="${IMAGE_NAME//:/_}_build_$(date +%s)"
 
+else
+echo ">>>>>> Updating workspace"
+CONTAINER_NAME="${IMAGE_NAME//:/_}_build_$(date +%s)"
+fi
+
 cat > $WORKSPACE_PATH/setup <<"OUTER_EOF"
 @{ base_script }@
 OUTER_EOF
@@ -133,7 +142,7 @@ docker run --privileged --net=host --runtime=nvidia \\
   --name $CONTAINER_NAME -w $WORKSPACE_PATH \\
   -v /home/$USER/.ssh:/home/$USER/.ssh \\
   -v $WORKSPACE_PATH:$WORKSPACE_PATH \\
-  -it $IMAGE_NAME $WORKSPACE_PATH/setup
+  -it $IMAGE_NAME $WORKSPACE_PATH/setup -i
 
 rm $WORKSPACE_PATH/setup
 
@@ -165,11 +174,15 @@ set -eu
 set -o pipefail
 
 IGNORE_DIRECTORY_CONTENT=0
-while getopts "i" opt
+CI=0
+while getopts "ij" opt
    do
      case $opt in
         i)
         IGNORE_DIRECTORY_CONTENT=1
+        shift;;
+        j)
+        CI=1
         shift;;
      esac
 done
@@ -291,9 +304,16 @@ echo ">>> Done installing dependencies."
 echo ">>> Cloning source repositories..."
 mkdir -p $WORKSPACE_PATH/src
 @% for content in repos %@
+if [ "$CI" -eq 1 ]; then
+echo ">>>> Force clone repositories"
 vcs import --force $WORKSPACE_PATH/src <<EOF
 @{ content }@
 EOF
+else
+vcs import $WORKSPACE_PATH/src <<EOF
+@{ content }@
+EOF
+fi
 @% endfor %@
 ${POST_CLONE_HOOK:-}
 echo ">>> Done cloning source repositories."
