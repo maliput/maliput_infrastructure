@@ -241,7 +241,16 @@ sudo apt install -y \\
    python3-setuptools \\
    python3-vcstool \\
    python3-colcon-common-extensions \\
-   libzip-dev
+   libzip-dev \\
+   libyaml-cpp-dev
+
+if [ "$(lsb_release -c | grep -e bionic | wc -l)" -eq 1 ]; then
+echo ">>> Installing ros crystal ament"
+sudo apt install -y ros-crystal-ament*
+else
+echo ">>> Installing ros bouncy ament"
+sudo apt install -y ros-bouncy-ament*
+fi
 
 @% if with_drake_nightly %@
 echo ">>>>>> Cleaning any existing install of drake nightly in '/opt/drake'"

@@ -73,7 +73,17 @@ is also self contained and thus portable.
 
 1. Make sure you `source bringup`.
 
-2. Once you are sitting in the workspace, run the following if you are using **drake's binary**
+2. Source ament cmake.
+If you are using Ubuntu 18.04 (Bionic) then run
+```sh
+source /opt/ros/crystal/setup.bash
+```
+If you are using Ubuntu 16.04 (Xenial) then run
+```sh
+source /opt/ros/bouncy/setup.bash
+```
+
+3. Once you are sitting in the workspace, run the following if you are using **drake's binary**
 
 ```sh
 colcon build
@@ -83,7 +93,7 @@ If you are using **drake's source** then run:
 colcon build --cmake-args -DWITH_PYTHON_VERSION=3
 ```
 
-3. Finally, run
+4. Finally, run
 ```sh
 source install/setup.bash
 ```
