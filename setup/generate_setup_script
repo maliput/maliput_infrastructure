@@ -25,12 +25,10 @@ while getopts "ij" opt
    do
      case $opt in
         i)
-        IGNORE_DIRECTORY_CONTENT=1
-        shift;;
-        j)
-        shift;;
+        IGNORE_DIRECTORY_CONTENT=1;;
      esac
 done
+shift $((OPTIND-1))
 
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
@@ -179,13 +177,13 @@ while getopts "ij" opt
    do
      case $opt in
         i)
-        IGNORE_DIRECTORY_CONTENT=1
-        shift;;
+        IGNORE_DIRECTORY_CONTENT=1;;
         j)
-        CI=1
-        shift;;
+        CI=1;;
      esac
 done
+
+shift $((OPTIND-1))
 
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
