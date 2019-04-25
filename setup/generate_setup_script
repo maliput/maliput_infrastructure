@@ -245,12 +245,13 @@ sudo apt install -y \\
    libyaml-cpp-dev
 
 if [ "$(lsb_release -c | grep -e bionic | wc -l)" -eq 1 ]; then
-echo ">>> Installing ros crystal ament"
-sudo apt install -y ros-crystal-ament*
+DISTRO=crystal
 else
-echo ">>> Installing ros bouncy ament"
-sudo apt install -y ros-bouncy-ament*
+DISTRO=bouncy
 fi
+
+echo ">>> Installing ros $DISTRO ament"
+sudo apt install -y ros-$DISTRO-ament*
 
 @% if with_drake_nightly %@
 echo ">>>>>> Cleaning any existing install of drake nightly in '/opt/drake'"
@@ -344,6 +345,9 @@ export PS1="($(basename $WORKSPACE_PATH) env) \\${PS1:-}"
 # Source Drake installation.
 source /opt/drake/setup.bash
 @% endif %@
+
+# Source ament cmake
+source /opt/ros/$DISTRO/setup.bash
 EOF
 
 cat > $WORKSPACE_SCRIPT <<EOF
