@@ -4,6 +4,6 @@ set -eo pipefail
 
 source ./.bashrc
 
-MAX_JOBS=$(($(getconf _NPROCESSORS_ONLN)/2))
+JOBS=$(($(getconf _NPROCESSORS_ONLN)/2))
 
 MAKEFLAGS="-j${JOBS}" colcon build --parallel-workers ${JOBS} ${COLCON_BUILD_EXTRA_ARGS:-}
