@@ -241,8 +241,7 @@ sudo apt install -y \\
    python3-setuptools \\
    python3-vcstool \\
    python3-colcon-common-extensions \\
-   libzip-dev \\
-   libyaml-cpp-dev
+   libzip-dev
 
 if [ "$(lsb_release -c | grep -e bionic | wc -l)" -eq 1 ]; then
 DISTRO=crystal
