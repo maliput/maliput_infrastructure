@@ -1,4 +1,5 @@
 repositories:
+  maliput         : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput.git',           version: 'master' }
   delphyne        : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',          version: 'master' }
   delphyne_gui    : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne-gui.git',      version: 'master' }
   malidrive       : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/malidrive.git',         version: 'master' }
