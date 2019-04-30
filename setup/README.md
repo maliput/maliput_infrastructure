@@ -109,5 +109,5 @@ your docker image size** because it will commit the image with the new changes.
 
 1. Run
 ```sh
-/path/to/dsim-repos-index/setup/generate_setup_script
+/path/to/dsim-repos-index/setup/setup_workspace path/to/workspace
 ```
