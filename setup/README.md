@@ -41,11 +41,6 @@ path/to/dsim-repos-index/setup/setup_dockerized_workspace path/to/my/workspace
 Both operations will setup a `colcon` like workspace that uses binaries for
 upstream dependencies whenever possible.
 
-Note: You can add `-i` to any of the above scripts to force the installation on a given path:
-```sh
-setup_dockerized_workspace -i /path/to/workspace
-```
-
 To bring up any of these workspaces, run:
 
 ```sh
@@ -95,4 +90,24 @@ source install/setup.bash
 At the moment tests are built by default, so once colcon finishes building, you can run
 ```sh
 colcon test --event-handlers=console_direct+ --return-code-on-test-failure --packages-skip PROJ4
+```
+
+## How to update your workspace
+
+If you want to update your workspace, you have to do the following:
+
+* If you are using a docker environment, then:
+1. Go to your workspace
+2. Run
+```sh
+source bringup -u /path/to/dsim-repos-index/setup/generate_setup_script
+```
+Note: You should **update your dsim-repos-index local repository** and you need to provide the **full path of the generate_setup_script** to the -u option. This will **increase
+your docker image size** because it will commit the image with the new changes.
+
+* If you are **not** using docker then:
+
+1. Run
+```sh
+/path/to/dsim-repos-index/setup/generate_setup_script
 ```
