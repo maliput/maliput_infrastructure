@@ -316,14 +316,14 @@ fi
 @% endif %@
 
 mkdir -p $WORKSPACE_PATH/src
-PREREQ_SCRIPTS=$(find $WORKSPACE_PATH/src -name 'install_prereqs*' ! -path "$WORKSPACE_PATH/src/drake/*")
+PREREQ_SCRIPTS=($(find $WORKSPACE_PATH/src -name 'install_prereqs*' ! -path "$WORKSPACE_PATH/src/drake/*"))
 if [ ! -z "$PREREQ_SCRIPTS" ]; then
 echo ">>> Installing source repositories prerequisites..."
 echo ">>>> The following scripts will be executed"
-echo "$PREREQ_SCRIPTS"
+echo "${PREREQ_SCRIPTS[@]}"
 echo ">>>>"
 set +o pipefail
-for script in "$PREREQ_SCRIPTS"; do
+for script in "${PREREQ_SCRIPTS[@]}"; do
     yes | sudo $script
 done
 set -o pipefail
