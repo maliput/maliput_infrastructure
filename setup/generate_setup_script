@@ -23,9 +23,8 @@ set -o pipefail
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
 WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
-CREATION_DATE="$(date "+%F-%T")"
-CREATION_DATE="${CREATION_DATE//:}"
-IMAGE_NAME=@{ image_name }@"${CREATION_DATE//-}"
+UNIX_TIMESTAMP="$(date +%s)"
+IMAGE_NAME=@{ image_name }@:"${UNIX_TIMESTAMP}"
 echo ">>> Creating directory $WORKSPACE_PATH"
 mkdir -p $WORKSPACE_PATH
 
@@ -107,7 +106,7 @@ OUTER_EOF
 fi
 
 echo ">>>>>> Updating $IMAGE_NAME docker image in temporary container..."
-CONTAINER_NAME="${IMAGE_NAME//:/_}_build_$(date +%s)"
+CONTAINER_NAME="${IMAGE_NAME//:/_}_build_${UNIX_TIMESTAMP}"
 
 cat > $WORKSPACE_PATH/setup <<"OUTER_EOF"
 @{ base_script }@
@@ -134,48 +133,46 @@ echo ">>> Done building $IMAGE_NAME docker image."
 cat > $WORKSPACE_SCRIPT <<OUTER_EOF
 # Bring up workspace as necessary
 
-unset UPDATE_SCRIPT_PATH
-CONTAINER_NAME="${IMAGE_NAME//:}"
-
 while getopts "u:" opt
    do
      case \$opt in
         u)
-        UPDATE_SCRIPT_PATH="\$OPTARG";;
+        DSIM_PATH="\$OPTARG";;
      esac
 done
 shift \$((OPTIND-1))
 
-if [ ! -z "\$UPDATE_SCRIPT_PATH" ]; then
+if [ ! -z "\$DSIM_PATH" ]; then
 xhost +
 docker run --privileged --rm --net=host \\\\
-    --name \$CONTAINER_NAME \\\\
+    --name $CONTAINER_NAME \\\\
     -e DISPLAY=\\$DISPLAY --runtime=nvidia \\\\
     -w $WORKSPACE_PATH -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
     -v /home/$USER/.ssh:/home/$USER/.ssh \\\\
     -v /tmp/.X11-unix:/tmp/.X11-unix:ro \$@ \\\\
     -idt $IMAGE_NAME /bin/bash --rcfile $WORKSPACE_RCFILE
 
-unset UPDATE_SCRIPT_DIR
-UPDATE_SCRIPT_DIR="\$(dirname \$UPDATE_SCRIPT_PATH)"
-\$UPDATE_SCRIPT_DIR/generate_setup_script --with-stable-ignition \
-  --with-drake-nightly \$UPDATE_SCRIPT_DIR/../drake.repos \
-  --repos \$UPDATE_SCRIPT_DIR/../maliput.repos -o /tmp/setup
+DSIM_PATH="\$(realpath -s \$DSIM_PATH)"
+\$DSIM_PATH/setup/generate_setup_script --with-stable-ignition \
+  --with-drake-nightly \$DSIM_PATH/drake.repos \
+  --repos \$DSIM_PATH/maliput.repos -o /tmp/setup
 
 echo ">>>>>> Making copy of bringup"
 cp $WORKSPACE_PATH/bringup $WORKSPACE_PATH/.bringup_copy
 
-docker cp /tmp/setup \$CONTAINER_NAME:/tmp/setup
+docker cp /tmp/setup $CONTAINER_NAME:/tmp/setup
 
-docker exec \$CONTAINER_NAME /bin/bash -c "/tmp/setup $WORKSPACE_PATH"
+docker exec $CONTAINER_NAME /bin/bash -c "/tmp/setup $WORKSPACE_PATH"
 echo ">>>>>> Committing $IMAGE_NAME docker image..."
-docker commit \$CONTAINER_NAME $IMAGE_NAME
+docker commit $CONTAINER_NAME $IMAGE_NAME
 
 echo ">>>>>> Stopping container"
-docker stop \$CONTAINER_NAME > /dev/null
+docker stop $CONTAINER_NAME > /dev/null
 
 echo ">>>>>> Restoring bringup"
 cp $WORKSPACE_PATH/.bringup_copy $WORKSPACE_PATH/bringup
+
+unset DSIM_PATH
 
 echo ">>>>>> Docker image updated. You can source bringup now"
 
@@ -183,7 +180,7 @@ else
 
 xhost +
 docker run --privileged --rm --net=host \\\\
-    --name \$CONTAINER_NAME \\\\
+    --name $CONTAINER_NAME \\\\
     -e DISPLAY=\\$DISPLAY --runtime=nvidia \\\\
     -w $WORKSPACE_PATH -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
     -v /home/$USER/.ssh:/home/$USER/.ssh \\\\
@@ -384,7 +381,24 @@ EOF
 cat > $WORKSPACE_SCRIPT <<EOF
 # Bring up workspace as necessary
 
+while getopts "u:" opt
+   do
+     case \$opt in
+        u)
+        DSIM_PATH="\$OPTARG";;
+     esac
+done
+shift \$((OPTIND-1))
+
+if [ ! -z \$DSIM_PATH ]; then
+DSIM_PATH="\$(realpath -s \$DSIM_PATH)"
+echo ">>> Updating workspace"
+\$DSIM_PATH/setup/setup_workspace $WORKSPACE_PATH
+unset DSIM_PATH
+echo ">>> You can source bringup now"
+else
 /bin/bash --rcfile $WORKSPACE_RCFILE
+fi
 EOF
 """
 

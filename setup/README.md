@@ -96,18 +96,11 @@ colcon test --event-handlers=console_direct+ --return-code-on-test-failure --pac
 
 If you want to update your workspace, you have to do the following:
 
-* If you are using a docker environment, then:
 1. Go to your workspace
 2. Run
 ```sh
-source bringup -u /path/to/dsim-repos-index/setup/generate_setup_script
+source bringup -u /path/to/dsim-repos-index
 ```
-Note: You should **update your dsim-repos-index local repository** and you need to provide the **full path of the generate_setup_script** to the -u option. This will **increase
+Note: You should **update your dsim-repos-index local repository** and you need to provide the **full path to the dsim repository** to the -u option. This will **increase
 your docker image size** because it will commit the image with the new changes.
-
-* If you are **not** using docker then:
-
-1. Run
-```sh
-/path/to/dsim-repos-index/setup/setup_workspace path/to/workspace
-```
+Also, we **don't recommend you to update your workspace using this command** if you decided to customize your setup instead of using **setup_dockerized_workspace** or **setup_workspace**
