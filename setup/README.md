@@ -37,6 +37,7 @@ To setup a dockerized workspace, run:
 ```sh
 path/to/dsim-repos-index/setup/setup_dockerized_workspace path/to/my/workspace
 ```
+Note: Docker image will be called maliput-devel:<unix_timestamp>
 
 Both operations will setup a `colcon` like workspace that uses binaries for
 upstream dependencies whenever possible.
