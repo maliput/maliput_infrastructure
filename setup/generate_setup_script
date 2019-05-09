@@ -20,28 +20,13 @@ DOCKERIZED_SETUP_SCRIPT_TEMPLATE = """\
 set -eu
 set -o pipefail
 
-IGNORE_DIRECTORY_CONTENT=0
-while getopts "i" opt
-   do
-     case $opt in
-        i)
-        IGNORE_DIRECTORY_CONTENT=1
-        shift;;
-     esac
-done
-
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
 WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
-
-echo ">>> Checking if $WORKSPACE_PATH is empty or doesnt exists to build the workspace there"
-if [ ! -d "$WORKSPACE_PATH" ] || [ "$(ls -A "$WORKSPACE_PATH" | wc -l)" -eq 0 ] || [ "$IGNORE_DIRECTORY_CONTENT" -eq 1 ]; then
-    echo ">>>> Creating directory"
-    mkdir -p $WORKSPACE_PATH
-else
-    echo ">>>> Directory is not empty. Not going to build the workspace"
-    exit 1
-fi
+UNIX_TIMESTAMP="$(date +%s)"
+IMAGE_NAME=@{ image_name }@:"${UNIX_TIMESTAMP}"
+echo ">>> Creating directory $WORKSPACE_PATH"
+mkdir -p $WORKSPACE_PATH
 
 echo ">>> Checking videocard"
 
@@ -83,7 +68,6 @@ fi
 USER=$(whoami)
 USERID=$(id -u)
 
-IMAGE_NAME=@{ image_name }@
 echo ">>> Building $IMAGE_NAME docker image..."
 
 if [ -z "$(docker images -q $IMAGE_NAME 2>/dev/null)" ]; then
@@ -122,7 +106,7 @@ OUTER_EOF
 fi
 
 echo ">>>>>> Updating $IMAGE_NAME docker image in temporary container..."
-CONTAINER_NAME="${IMAGE_NAME//:/_}_build_$(date +%s)"
+CONTAINER_NAME="${IMAGE_NAME//:/_}_build_${UNIX_TIMESTAMP}"
 
 cat > $WORKSPACE_PATH/setup <<"OUTER_EOF"
 @{ base_script }@
@@ -149,13 +133,61 @@ echo ">>> Done building $IMAGE_NAME docker image."
 cat > $WORKSPACE_SCRIPT <<OUTER_EOF
 # Bring up workspace as necessary
 
+while getopts "u:" opt
+   do
+     case \$opt in
+        u)
+        DSIM_PATH="\$OPTARG";;
+     esac
+done
+shift \$((OPTIND-1))
+
+if [ ! -z "\$DSIM_PATH" ]; then
 xhost +
 docker run --privileged --rm --net=host \\\\
+    --name $CONTAINER_NAME \\\\
+    -e DISPLAY=\\$DISPLAY --runtime=nvidia \\\\
+    -w $WORKSPACE_PATH -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
+    -v /home/$USER/.ssh:/home/$USER/.ssh \\\\
+    -v /tmp/.X11-unix:/tmp/.X11-unix:ro \$@ \\\\
+    -idt $IMAGE_NAME /bin/bash --rcfile $WORKSPACE_RCFILE
+
+DSIM_PATH="\$(realpath -s \$DSIM_PATH)"
+\$DSIM_PATH/setup/generate_setup_script --with-stable-ignition \
+  --with-drake-nightly \$DSIM_PATH/drake.repos \
+  --repos \$DSIM_PATH/maliput.repos -o /tmp/setup
+
+echo ">>>>>> Making copy of bringup"
+cp $WORKSPACE_PATH/bringup $WORKSPACE_PATH/.bringup_copy
+
+docker cp /tmp/setup $CONTAINER_NAME:/tmp/setup
+
+docker exec $CONTAINER_NAME /bin/bash -c "/tmp/setup $WORKSPACE_PATH"
+echo ">>>>>> Committing $IMAGE_NAME docker image..."
+docker commit $CONTAINER_NAME $IMAGE_NAME
+
+echo ">>>>>> Stopping container"
+docker stop $CONTAINER_NAME > /dev/null
+
+echo ">>>>>> Restoring bringup"
+cp $WORKSPACE_PATH/.bringup_copy $WORKSPACE_PATH/bringup
+
+unset DSIM_PATH
+
+echo ">>>>>> Docker image updated. You can source bringup now"
+
+else
+
+xhost +
+docker run --privileged --rm --net=host \\\\
+    --name $CONTAINER_NAME \\\\
     -e DISPLAY=\\$DISPLAY --runtime=nvidia \\\\
     -w $WORKSPACE_PATH -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
     -v /home/$USER/.ssh:/home/$USER/.ssh \\\\
     -v /tmp/.X11-unix:/tmp/.X11-unix:ro \$@ \\\\
     -it $IMAGE_NAME /bin/bash --rcfile $WORKSPACE_RCFILE
+
+fi
 OUTER_EOF
 """
 
@@ -165,29 +197,19 @@ set -eu
 set -o pipefail
 
 IGNORE_DIRECTORY_CONTENT=0
-while getopts "i" opt
+while getopts "f" opt
    do
      case $opt in
-        i)
-        IGNORE_DIRECTORY_CONTENT=1
-        shift;;
+        f)
+        IGNORE_DIRECTORY_CONTENT=1;;
      esac
 done
+
+shift $((OPTIND-1))
 
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
 WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
-
-# This script can be called by docker if used, and if that happens, a setup file is generated.
-
-echo ">>> Checking if $WORKSPACE_PATH is empty or doesnt exists to build the workspace there"
-if [ ! -d "$WORKSPACE_PATH" ] || [ -z "$(ls -A "$WORKSPACE_PATH" | grep -v 'setup')" ] || [ "$IGNORE_DIRECTORY_CONTENT" -eq 1 ]; then
-    echo ">>>> Creating directory"
-    mkdir -p $WORKSPACE_PATH
-else
-    echo ">>>> Directory is not empty. Not going to build the workspace"
-    exit 1
-fi
 
 echo ">>> Installing base dependencies..."
 
@@ -291,9 +313,16 @@ echo ">>> Done installing dependencies."
 echo ">>> Cloning source repositories..."
 mkdir -p $WORKSPACE_PATH/src
 @% for content in repos %@
+if [ "$IGNORE_DIRECTORY_CONTENT" -eq 1 ]; then
+echo ">>>> Force clone repositories"
 vcs import --force $WORKSPACE_PATH/src <<EOF
 @{ content }@
 EOF
+else
+vcs import $WORKSPACE_PATH/src <<EOF
+@{ content }@
+EOF
+fi
 @% endfor %@
 ${POST_CLONE_HOOK:-}
 echo ">>> Done cloning source repositories."
@@ -352,7 +381,24 @@ EOF
 cat > $WORKSPACE_SCRIPT <<EOF
 # Bring up workspace as necessary
 
+while getopts "u:" opt
+   do
+     case \$opt in
+        u)
+        DSIM_PATH="\$OPTARG";;
+     esac
+done
+shift \$((OPTIND-1))
+
+if [ ! -z \$DSIM_PATH ]; then
+DSIM_PATH="\$(realpath -s \$DSIM_PATH)"
+echo ">>> Updating workspace"
+\$DSIM_PATH/setup/setup_workspace $WORKSPACE_PATH
+unset DSIM_PATH
+echo ">>> You can source bringup now"
+else
 /bin/bash --rcfile $WORKSPACE_RCFILE
+fi
 EOF
 """
 

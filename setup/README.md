@@ -37,14 +37,10 @@ To setup a dockerized workspace, run:
 ```sh
 path/to/dsim-repos-index/setup/setup_dockerized_workspace path/to/my/workspace
 ```
+Note: Docker image will be called maliput-devel:<unix_timestamp>, we decided to use a unix timestamp as a tag so we can create as many docker images we want whenever we run the above command without worrying that we could potentially overwrite something. Below it's explained how to update your docker image.
 
 Both operations will setup a `colcon` like workspace that uses binaries for
 upstream dependencies whenever possible.
-
-Note: You can add `-i` to any of the above scripts to force the installation on a given path:
-```sh
-setup_dockerized_workspace -i /path/to/workspace
-```
 
 To bring up any of these workspaces, run:
 
@@ -96,3 +92,16 @@ At the moment tests are built by default, so once colcon finishes building, you 
 ```sh
 colcon test --event-handlers=console_direct+ --return-code-on-test-failure --packages-skip PROJ4
 ```
+
+## How to update your workspace
+
+If you want to update your workspace, you have to do the following:
+
+1. Go to your workspace
+2. Run
+```sh
+source bringup -u /path/to/dsim-repos-index
+```
+Note: You should **update your dsim-repos-index local repository** and you need to provide the **full path to the dsim repository** to the -u option. This will **increase
+your docker image size** because it will commit the image with the new changes.
+Also, we **don't recommend you to update your workspace using this command** if you decided to customize your setup instead of using **setup_dockerized_workspace** or **setup_workspace**
