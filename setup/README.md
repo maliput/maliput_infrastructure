@@ -105,3 +105,11 @@ source bringup -u /path/to/dsim-repos-index
 Note: You should **update your dsim-repos-index local repository** and you need to provide the **full path to the dsim repository** to the -u option. This will **increase
 your docker image size** because it will commit the image with the new changes.
 Also, we **don't recommend you to update your workspace using this command** if you decided to customize your setup instead of using **setup_dockerized_workspace** or **setup_workspace**
+
+## How to update Drake within your workspace
+
+1. Select a Drake SHA that you would like to use. Ensure it is included as part
+   of the latest [nightly build](https://drake-jenkins.csail.mit.edu/view/Nightly%20Production/).
+2. In your local clone of `dsim-repos-index`, open `drake.repos` and update the SHA.
+3. In your workspace, execute `source bringup -u /path/to/dsim-repos-index/`.
+4. PR the change to `drake.repos` and merge it into master.
