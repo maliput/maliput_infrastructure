@@ -288,12 +288,6 @@ echo ">>>>>>>>> Extracting drake nightly tarball..."
 sudo tar xvz -f /tmp/drake.tar.gz -C /opt/drake --strip 1
 rm /tmp/drake.tar.gz
 
-sudo tee /opt/drake/setup.bash > /dev/null <<EOF
-export PYTHONPATH="/opt/drake/lib/python3.6/site-packages:\\${PYTHONPATH:-}"
-export LD_LIBRARY_PATH="/opt/drake/lib:\\${LD_LIBRARY_PATH:-}"
-export CMAKE_PREFIX_PATH="/opt/drake:\\${CMAKE_PREFIX_PATH:-}"
-export PATH="/opt/drake/bin:\\${PATH:-}"
-EOF
 @% endif %@
 
 @% if with_stable_ignition %@
@@ -368,11 +362,6 @@ source ~/.bashrc
 
 # Let the user know this is another environment.
 export PS1="($(basename $WORKSPACE_PATH) env) \\${PS1:-}"
-
-@% if with_drake_nightly %@
-# Source Drake installation.
-source /opt/drake/setup.bash
-@% endif %@
 
 # Source ament cmake
 source /opt/ros/$DISTRO/setup.bash

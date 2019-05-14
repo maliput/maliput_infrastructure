@@ -2,5 +2,6 @@ repositories:
   maliput         : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput.git',           version: 'master' }
   delphyne        : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',          version: 'master' }
   delphyne_gui    : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne-gui.git',      version: 'master' }
+  drake_vendor    : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/drake-ros.git',          version: 'master' }
   malidrive       : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/malidrive.git',         version: 'master' }
   proj4           : { type: 'git', url: 'https://github.com/OSGeo/proj.4.git',                          version: '5.2.0'  }
