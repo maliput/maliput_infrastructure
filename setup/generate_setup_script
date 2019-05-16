@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
 import argparse
+
+from datetime import datetime
+from datetime import timedelta
+
 import os
 import re
 import sys
@@ -404,9 +408,10 @@ def deduce_drake_nightly_url(version):
         with urlopen('https://api.github.com/repos/RobotLocomotion/drake/branches/' + version) as f:
             data = json.loads(f.read().decode())
             commit_date = data['commit']['commit']['committer']['date']
-    return 'https://drake-packages.csail.mit.edu/drake/nightly/drake-{}-bionic.tar.gz'.format(
-        commit_date.replace('-', '')[:8]
-    )
+    nightly_datetime = datetime.strptime(
+        commit_date.replace('-', '')[:8], '%Y%m%d'
+    ) + timedelta(days=1)
+    return 'https://drake-packages.csail.mit.edu/drake/nightly/drake-{}-bionic.tar.gz'.format(nightly_datetime.strftime('%Y%m%d'))
 
 
 if __name__ == '__main__':
