@@ -306,6 +306,7 @@ echo ">>> Done installing dependencies."
 @% if repos %@
 echo ">>> Cloning source repositories..."
 mkdir -p $WORKSPACE_PATH/src
+REPO_BRANCHES=$(vcs branch)
 @% for content in repos %@
 if [ "$IGNORE_DIRECTORY_CONTENT" -eq 1 ]; then
 echo ">>>> Force clone repositories"
@@ -320,6 +321,46 @@ fi
 @% endfor %@
 ${POST_CLONE_HOOK:-}
 echo ">>> Done cloning source repositories."
+
+if [ ! -z "$REPO_BRANCHES" ] && [ "$IGNORE_DIRECTORY_CONTENT" -eq 0 ]; then
+echo ">>> Checking out saved branches."
+REPO_BRANCHES=$(echo "$REPO_BRANCHES" | sed '1d')
+REPO_PATH_READ=0
+set +o pipefail
+while read -r line
+do
+    if [ "$REPO_PATH_READ" -eq 0 ]; then
+      REPO_LOCATION="${line//=}"
+      REPO_LOCATION="$(echo -e "${REPO_LOCATION}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+      REPO_LOCATION=($REPO_LOCATION)
+      IS_GIT_REPO=1; [ "${REPO_LOCATION[0]}" == "(git)" ] && IS_GIT_REPO=1
+      REPO_LOCATION="${REPO_LOCATION[0]}"
+      REPO_PATH_READ=1
+    else
+      pushd "$(pwd)" > /dev/null
+      cd $REPO_LOCATION
+      if [[ $line != *"HEAD detached"* ]]; then
+        if [ "$IS_GIT_REPO" -eq 1 ]; then
+            git checkout $line > /dev/null 2>&1
+        else
+            hg update $line > /dev/null 2>&1
+        fi
+      else
+        COMMIT=${line#"(HEAD detached at "}
+        COMMIT=${COMMIT%")"}
+        if [ "$IS_GIT_REPO" -eq 1 ]; then
+            git checkout $COMMIT > /dev/null 2>&1
+        else
+            hg update $COMMIT > /dev/null 2>&1
+        fi
+      fi
+      popd > /dev/null
+      REPO_PATH_READ=0
+    fi
+done <<< "$REPO_BRANCHES"
+set -o pipefail
+fi
+
 @% endif %@
 
 @% if with_drake_nightly %@
