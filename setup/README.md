@@ -106,6 +106,14 @@ Note: You should **update your dsim-repos-index local repository** and you need 
 your docker image size** because it will commit the image with the new changes.
 Also, we **don't recommend you to update your workspace using this command** if you decided to customize your setup instead of using **setup_dockerized_workspace** or **setup_workspace**
 
+## How to determine which version of Drake is being used
+
+After entering your workspace and executing `source ./install/setup.bash`, execute:
+
+```
+which-drake
+```
+
 ## How to update Drake within your workspace
 
 1. Select a Drake SHA that you would like to use. Ensure it is included as part
