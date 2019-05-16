@@ -23,7 +23,7 @@ sudo apt install pciutils
 * To pull private repositories, the current user default SSH keys will be used
   (and thus assumed as both necessary and sufficient for the purpose).
 
-* Dockerized workspaces require *nvidia-docker2*, so ensure you have an NVIDIA
+* Dockerized workspaces require *nvidia-docker2*, so ensure you have a NVIDIA
   card and the drivers installed. You can check out
   [nvidia-docker2 installation instructions](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0))
   if needed.

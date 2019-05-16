@@ -34,7 +34,7 @@ mkdir -p $WORKSPACE_PATH
 
 echo ">>> Checking videocard"
 
-if [ ! -z "$(lspci | grep -A 2 -i "VGA" | grep -e NVIDIA)" ]; then
+if [ "$(dpkg -l | grep -c -e nvidia-driver)" -gt 0 ]; then
   echo "NVIDIA card detected"
 else
   echo "NVIDIA card not found. Not going to make a docker workspace."
@@ -64,9 +64,21 @@ if [ "$(dpkg -l | grep -c -E 'nvidia-docker2')" -eq 0 ]; then
   curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \
     sudo tee /etc/apt/sources.list.d/nvidia-docker.list
   sudo apt-get update
+  sudo apt-get install nvidia-container-runtime
   sudo apt-get install nvidia-docker2
-  sudo pkill -SIGHUP dockerd
-  sudo service docker restart
+  if [ "$(lsb_release -cs)" == 'bionic' ]; then
+    sudo pkill -SIGHUP dockerd
+    sudo service docker restart
+  else
+    sudo mkdir -p /etc/systemd/system/docker.service.d
+    sudo tee /etc/systemd/system/docker.service.d/override.conf <<"OUTER_EOF"
+    [Service]
+    ExecStart=
+    ExecStart=/usr/bin/dockerd --host=fd:// --add-runtime=nvidia=/usr/bin/nvidia-container-runtime
+OUTER_EOF
+    sudo systemctl daemon-reload
+    sudo systemctl restart
+  fi
 fi
 
 USER=$(whoami)
