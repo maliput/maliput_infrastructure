@@ -108,7 +108,7 @@ Also, we **don't recommend you to update your workspace using this command** if 
 
 ## How to determine which version of Drake is being used
 
-After entering your workspace and executing `source ./install/setup.bash`, execute:
+After entering your workspace and executing `source ./install/setup.bash` after building it, execute:
 
 ```
 which-drake
