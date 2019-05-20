@@ -34,7 +34,7 @@ mkdir -p $WORKSPACE_PATH
 
 echo ">>> Checking videocard"
 
-if [ "$(dpkg -l | grep -c -e nvidia-driver)" -gt 0 ]; then
+if [ "$(lspci -d 10de:: | grep -c -e 'VGA\|3D')" -gt 0 ]; then
   echo "NVIDIA card detected"
 else
   echo "NVIDIA card not found. Not going to make a docker workspace."
