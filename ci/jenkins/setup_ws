@@ -7,7 +7,8 @@ set -euo pipefail
 # during setup_late.
 
 export DEBIAN_FRONTEND='noninteractive'
+export PREREQS_NONINTERACTIVE=1
 
-# Install the common dependencies and ignition libraries.
-sudo apt-get update -qq
-sudo apt-get install -y --no-install-recommends awscli curl git
+./index/tools/prereqs-install -y index/
+
+./index/tools/dsim-wsetup

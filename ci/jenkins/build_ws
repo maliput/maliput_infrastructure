@@ -6,6 +6,8 @@ set -eo pipefail
 # from an S3 bucket that TRI has, and is a bash version of the code located
 # at: https://github.com/RobotLocomotion/drake-ci/blob/master/driver/configurations/aws.cmake
 # and: https://github.com/RobotLocomotion/drake-ci/blob/master/tools/git_ssh.bash.in
+sudo apt-get update -qq
+sudo apt-get install -y --no-install-recommends awscli curl git
 
 SSH_IDENTITY_FILE=$( mktemp /tmp/id_rsa_XXXXXXXX )
 aws s3 cp s3://drake-provisioning/id_rsa "$SSH_IDENTITY_FILE"
@@ -19,30 +21,28 @@ EOF
 chmod 0755 $GIT_SSH_FILE
 export GIT_SSH=$GIT_SSH_FILE
 
-MERGE_BACK_SCRIPT=$(mktemp /tmp/merge_back_XXXXXX)
-cat > $MERGE_BACK_SCRIPT <<EOF
+vcs import -f src < ./index/maliput.repos
+
+vcs pull src
+
 if [ ! -z "$CHANGE_BRANCH" ]; then
     echo ">>> Merging custom branch $CHANGE_BRANCH into default branches"
     vcs custom src --args branch -f $CHANGE_BRANCH origin/$CHANGE_BRANCH > /dev/null || true
     vcs custom src --args merge --no-edit $CHANGE_BRANCH  > /dev/null || true
     DIFF=\$(vcs diff -s src | tr -d '.\n')
     if [ ! -z "$DIFF" ]; then
-       echo "Have merge conflicts!"
-       echo $DIFF
-       exit 1
+        echo "Have merge conflicts!"
+        echo $DIFF
+        exit 1
     fi
     vcs status src
 fi
-EOF
-chmod 0755 $MERGE_BACK_SCRIPT
 
-export POST_CLONE_HOOK=$MERGE_BACK_SCRIPT
+sudo prereqs-install -y src
 
-./index/setup/setup_maliput_workspace -f
+rosdep update
 
-unset POST_CLONE_HOOK
-
-rm -f "$MERGE_BACK_SCRIPT"
+sudo rosdep install -y -i src --skip-keys "drake"
 
 unset GIT_SSH
 rm -f "$GIT_SSH_FILE"

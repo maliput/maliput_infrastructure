@@ -2,8 +2,6 @@
 
 set -eo pipefail
 
-source ./.bashrc
-
 JOBS=$(($(getconf _NPROCESSORS_ONLN)/2))
 
 MAKEFLAGS="-j${JOBS}" colcon build --parallel-workers ${JOBS} ${COLCON_BUILD_EXTRA_ARGS:-}

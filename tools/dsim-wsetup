@@ -190,23 +190,26 @@ PATH_TO_SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='DSim development workspace bootstrapping tool',
+        description='DSim development workspace setup tool',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        '-o', '--output', nargs='?', const='stdout', default=None,
-        help='Generate bootstrapping script but do not execute it.'
+        '-o', '--output', action='store_true', default=False,
+        help='Output bootstrapping script but do not execute it.'
     )
     parser.add_argument(
         '-e', '--extra-prereqs', action='append', default=[],
-        help='Extra prerequisites for the workspace.'
+        help='Extra user-defined prerequisites for the workspace.'
     )
     parser.add_argument(
-        '--no-docker', action='store_true', default=False,
-        help='Do not use docker container .',
+        '--no-container', action='store_true', default=False,
+        help=('Do not isolate the workspace in a container. '
+              'This pollutes the host environment and makes '
+              'reproducing it hard if not impossible. Use at '
+              'your own risk.')
     )
     parser.add_argument(
-        'path', default='.', help='Path to workspace to bootstrap'
+        'path', help='Path to workspace to bootstrap'
     )
     args = parser.parse_args()
 
@@ -216,7 +219,7 @@ if __name__ == '__main__':
         comment_start_string="@#", comment_end_string="@#"
     )
 
-    if args.no_docker:
+    if args.no_container:
         template = env.from_string(SETUP_SCRIPT_TEMPLATE)
         context = {}
         context['toolkit'] = []
@@ -226,7 +229,7 @@ if __name__ == '__main__':
             for name in filenames:
                 fullpath = os.path.join(dirpath, name)
                 with open(fullpath, 'r') as f:
-                    relpath = os.path.relpath(PATH_TO_SCRIPT_DIR, fullpath)
+                    relpath = os.path.relpath(fullpath, PATH_TO_SCRIPT_DIR)
                     context['toolkit'].append((relpath, f.read()))
         context['prereqs'] = []
         path_to_default_prereqs = os.path.join(
@@ -241,9 +244,10 @@ if __name__ == '__main__':
                 )
     else:
         template = env.from_string(DOCKERIZED_SETUP_SCRIPT_TEMPLATE)
-        dsim_bootstrap_cmd = [__file__, '-o']
+        dsim_bootstrap_cmd = [__file__, '-o', '--no-container']
         for prereqs in args.extra_prereqs:
-            dsim_bootstrap_cmd.extend(['-e'], prereqs)
+            dsim_bootstrap_cmd.extend(['-e', prereqs])
+        dsim_bootstrap_cmd.append(args.path)
         non_docker_script = subprocess.check_output(dsim_bootstrap_cmd).decode()
         context = {
             'base_script': non_docker_script,
@@ -254,14 +258,10 @@ if __name__ == '__main__':
         os.linesep + '{3,}', os.linesep * 2, template.render(**context)
     ) + os.linesep
 
-    if args.output is None:
+    if not args.output:
         sys.exit(subprocess.run(
             ['/bin/bash', '-s', '--', args.path],
             input=content, encoding='utf-8',
         ).returncode)
-    elif args.output != 'stdout':
-        with open(args.output, 'w') as f:
-            f.write(content)
-        os.chmod(args.output, 0o755)
     else:
         sys.stdout.write(content)

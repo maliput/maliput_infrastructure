@@ -12,7 +12,7 @@ PATH_TO_BASH_LIBS = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'l
 def collect_prerequisites(path, prereqs_names=['prereqs'], excluded_paths=[]):
     path = os.path.realpath(path)
     if any(path.startswith(xpath) for xpath in excluded_paths):
-        continue
+        return
     if os.path.isfile(path):
         if not os.access(path, os.X_OK):
             raise ValueError("{} is not an executable file".format(path))
@@ -40,24 +40,15 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
+        'paths', nargs='+', help='Path to traverse during prerequisite lookup.'
+    )
+    parser.add_argument(
         '-t', '--tag', dest='tags', action='append', default=[],
         help=('Tag to narrow down prerequisite installation. '
               'Overrides PREREQS_TAGS envvar if present.')
     )
     parser.add_argument(
-        '-k', '--keep-going', action='store_true', default=False,
-        help='Keep going with the installation ignoring any errors.'
-    )
-    parser.add_argument(
-        '-q', '--quiet', action='store_true', default=False,
-        help='Print prerequisite installation outcome only.'
-    )
-    parser.add_argument(
-        '-v', '--verbose', action='store_true', default=False,
-        help='Print prerequiste installation full output.'
-    )
-    parser.add_argument(
-        '-s', '--skip-tag', dest='skip_tags', action='append', default=[]
+        '-s', '--skip-tag', dest='skip_tags', action='append', default=[],
         help=('Tag to skip during prerequisite installation. '
               'Overrides PREREQS_SKIP_TAGS envvar if present.')
     )
@@ -66,17 +57,26 @@ if __name__ == '__main__':
         help='Paths to exclude during prerequisite lookup.'
     )
     parser.add_argument(
-        '-y', '-n', '--non-interactive', action='store_true', default=False,
-        help=('Force non-interactive installation i.e. no prompts. ',
-              'Overrides PREREQS_NONINTERACTIVE envvar if present.')
-    )
-    parser.add_argument(
         '-a', '--alt-name', dest='alt_names', action='append', default=[],
         help=('Alternative name for prerequisite executable files (by '
               'default, check for \'prereqs\' executable files only).')
     )
     parser.add_argument(
-        'paths', nargs='+', default=['.'], help='Path to traverse during prerequisite lookup.'
+        '-k', '--keep-going', action='store_true', default=False,
+        help='Keep going with the installation ignoring any errors.'
+    )
+    parser.add_argument(
+        '-y', '-n', '--non-interactive', action='store_true', default=False,
+        help=('Force non-interactive installation i.e. no prompts. '
+              'Overrides PREREQS_NONINTERACTIVE envvar if present.')
+    )
+    parser.add_argument(
+        '-q', '--quiet', action='store_true', default=False,
+        help='Print prerequisite installation outcome only.'
+    )
+    parser.add_argument(
+        '-v', '--verbose', action='store_true', default=False,
+        help='Print prerequiste installation full output.'
     )
     args = parser.parse_args()
 
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     if args.non_interactive:
         env['PREREQS_NONINTERACTIVE'] = 1
         env['DEBIAN_FRONTEND'] = 'noninteractive'
-    env['PATH'] = ':'join([env.get('PATH', ''), PATH_TO_BASH_LIBS])
+    env['PATH'] = ':'.join([env.get('PATH', ''), PATH_TO_BASH_LIBS])
 
     if not args.quiet:
         print('Ready for installation')
