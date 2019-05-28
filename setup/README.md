@@ -1,4 +1,7 @@
-# Setup
+# General Setup
+
+This section contains instructions on how to setup your development environment
+to support workspaces.
 
 ## Supported platforms
 
@@ -31,18 +34,24 @@ sudo apt install pciutils
   repository. Instructions can be found
   [at this helpful post](https://gist.github.com/Brainiarc7/a8ab5f89494d053003454efc3be2d2ef).
 
-## Basic Setup
+# Workspace Setup
 
-To setup a regular workspace, run:
+There are many workspaces that can be setup. The sections below focus on
+`maliput_workspace`. The same general steps can be follow for creating other
+types of workspaces.
+
+## Basic Setup of `maliput_workspace`
+
+To setup a regular `maliput_workspace`, run:
 
 ```sh
-dsim-repos-index/setup/setup_workspace dsim_workspace
+dsim-repos-index/setup/setup_maliput_workspace maliput_workspace
 ```
 
-To setup a dockerized workspace, run:
+To setup a dockerized `maliput_workspace`, run:
 
 ```sh
-dsim-repos-index/setup/setup_dockerized_workspace dsim_workspace
+dsim-repos-index/setup/setup_dockerized_maliput_workspace maliput_workspace
 ```
 
 Note: The docker image will be called maliput-devel:<unix_timestamp>. We decided
@@ -56,10 +65,10 @@ upstream dependencies whenever possible.
 
 ## Bringup
 
-To bring up any of these workspaces, run:
+To bring up the workspace, run:
 
 ```sh
-source dsim_workspace/bringup
+source maliput_workspace/bringup
 ```
 
 You can always leave the workspace by `exit`ing it.
@@ -74,7 +83,7 @@ most commonly used ones.
 You can check all available workspace options by running:
 
 ```sh
-dsim-repos-index/setup/generate_setup_script -h
+dsim-repos-index/setup/generate_maliput_setup_script -h
 ```
 
 The output of this script is pure bash code that can be verified, modified and
@@ -108,7 +117,8 @@ source install/setup.bash
 
 ## How to Build and Run Tests
 
-At the moment, tests are built by default, so once colcon finishes building, you can run:
+At the moment, tests are built by default, so once colcon finishes building, you
+can run:
 
 ```sh
 colcon test --event-handlers=console_direct+ --return-code-on-test-failure --packages-skip PROJ4
@@ -122,7 +132,7 @@ To update your workspace:
 2. Run
 
 ```sh
-cd dsim_workspace
+cd maliput_workspace
 source bringup -u [dsim-repos-index]
 ```
 
@@ -130,11 +140,13 @@ Note: You need to provide the **full path to the dsim-repos-index repository**
 to the -u option. This will **increase your docker image size** because it will
 commit the image with the new changes. Also, we **don't recommend you to update
 your workspace using this command** if you decided to customize your setup
-instead of using **setup_dockerized_workspace** or **setup_workspace**
+instead of using **setup_dockerized_maliiput_workspace** or
+**setup_maliput_workspace**.
 
 ## How to Check Drake Version
 
-After entering your workspace, building it, and executing `source ./install/setup.bash`, execute:
+After entering your `maliput_workspace`, building it, and executing
+`source ./install/setup.bash`, execute:
 
 ```
 which-drake
@@ -142,7 +154,7 @@ which-drake
 
 ## How to Update Drake
 
-To update Drake within your workspace:
+To update Drake within your `maliput_workspace`:
 
 1. Select a Drake SHA that you would like to use. Ensure it is the last commit
    of a nightly release, see
