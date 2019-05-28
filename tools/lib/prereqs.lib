@@ -1,0 +1,89 @@
+#! /bin/bash
+
+TAGS=${TAGS:-default}
+IFS="," read -r -a prereqs.tags <<< "$PREREQS_TAGS"
+IFS="," read -r -a prereqs.skip_tags <<< "$PREREQS_SKIP_TAGS"
+prereqs.noninteractive=${PREREQS_NONINTERACTIVE:-0}
+
+prereqs.init() {
+    me=$1
+
+    at_exit () {
+        echo "${me} has experienced an error on line ${LINENO}" \
+             "while running the command ${BASH_COMMAND}"
+    }
+
+    trap at_exit EXIT
+}
+
+prereqs.die () {
+    echo "$@" 1>&2
+    trap : EXIT  # Disable line number reporting; the "$@" message is enough.
+    exit 1
+}
+
+prereqs.done () {
+    trap : EXIT  # Disable line number reporting
+    exit 0
+}
+
+# We've seen the "default" keyserver (p80.pool.sks-keyservers.net) fail somewhat
+# often.  This function will try the default, followed by some alternates to
+# reduce the number of times builds fail because of key problems.
+prereqs.pull_apt_keys() {
+    success=0
+    for keyserver in hkp://p80.pool.sks-keyservers.net:80 hkp://pgp.mit.edu:80 hkp://keyserver.ubuntu.com:80 ; do
+        sudo apt-key adv --keyserver $keyserver --recv-keys $1 || continue
+        success=1
+        break
+    done
+
+    prereqs.assert [ $success -eq 0 ] "Failed to pull from keyservers"
+}
+
+prereqs.install_apt_repo() {
+    REPO_NAME=$1
+    REPO_URL=$2
+    REPO_KEY=$3
+
+    if ! grep -q "^deb .*$REPO_URL" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+        echo "deb $REPO_URL $(lsb_release -cs) main" | \
+        sudo tee --append /etc/apt/sources.list.d/$REPO_NAME.list > /dev/null
+        prereqs.pull_apt_keys $REPO_KEY
+        echo "Apt Repo '$REPO_NAME'..........................installed"
+    else
+        echo "Apt Repo '$REPO_NAME'..........................found"
+    fi
+}
+
+prereqs.apt() {
+    VERB=${@:1:1}
+    ARGS=${@:2:$#}
+    if prereqs.noninteractive; then
+        ARGS="-y ${ARGS}"
+    fi
+    apt ${VERB} ${ARGS}
+}
+
+prereqs.apt-get() {
+    VERB=${@:1:1}
+    ARGS=${@:2:$#}
+    if prereqs.noninteractive; then
+        ARGS="-y ${ARGS}"
+    fi
+    apt-get ${VERB} ${ARGS}
+}
+
+prereqs.assert() {
+    if ${@:1:$#-1}; then
+        prereqs.die "${!#}";
+    fi
+}
+
+prereqs.assert_sudo() {
+    prereqs.assert [ ! "${EUID}" -eq 0 ] "${me} must run as root. Please use sudo."
+}
+
+prereqs.tag_applies() {
+    return [[ "${prereqs.tags[@]}" =~ "$1" && ! "${prereqs.skip_tags[@]}" =~ "$1" ]]
+}

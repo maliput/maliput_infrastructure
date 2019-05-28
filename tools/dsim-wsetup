@@ -1,0 +1,267 @@
+#!/usr/bin/env python3
+
+import argparse
+
+import os
+import re
+import sys
+
+import subprocess
+
+import jinja2
+
+DOCKERIZED_SETUP_SCRIPT_TEMPLATE = """\
+#!/bin/bash
+
+set -eu
+set -o pipefail
+
+USER=$(whoami)
+USERID=$(id -u)
+
+WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
+WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
+WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
+
+echo ">>> Creating directory $WORKSPACE_PATH"
+mkdir -p $WORKSPACE_PATH
+
+IMAGE_NAME="@{ image_name }@:$(date +%s)"
+echo ">>> Building $IMAGE_NAME docker image..."
+
+if [ -z "$(docker images -q $IMAGE_NAME 2>/dev/null)" ]; then
+
+echo ">>>>>> Building base $IMAGE_NAME docker image..."
+docker build -t $IMAGE_NAME -<<OUTER_EOF
+FROM nvidia/opengl:1.0-glvnd-runtime-ubuntu18.04
+
+# Setup nvidia runtime
+ENV NVIDIA_VISIBLE_DEVICES \\${NVIDIA_VISIBLE_DEVICES:-all}
+ENV NVIDIA_DRIVER_CAPABILITIES \\
+   \\${NVIDIA_DRIVER_CAPABILITIES:+\\$NVIDIA_DRIVER_CAPABILITIES,}graphics
+
+# Setup environment
+ENV TERM linux
+ENV DEBIAN_FRONTEND noninteractive
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+RUN apt update
+RUN apt install -y locales
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+
+# Install base system dependencies
+RUN apt install -y sudo tmux openssh-server software-properties-common \\
+   bash-completion debian-keyring debian-archive-keyring
+
+# Create a user with passwordless sudo
+RUN adduser --uid $USERID --gecos "DSim Developer" --disabled-password $USER
+RUN adduser $USER sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN echo "export QT_X11_NO_MITSHM=1" >> /home/$USER/.bashrc
+
+USER $USER
+OUTER_EOF
+
+fi
+
+echo ">>>>>> Updating $IMAGE_NAME docker image in temporary container..."
+CONTAINER_NAME="${IMAGE_NAME//:/_}_build"
+
+mkdir -p $WORKSPACE_PATH/.ws/tmp
+
+cat > $WORKSPACE_PATH/.ws/tmp/setup <<"OUTER_EOF"
+@{ base_script }@
+OUTER_EOF
+chmod +x $WORKSPACE_PATH/.ws/tmp/setup
+
+docker run --privileged --net=host --runtime=nvidia \\
+  --name $CONTAINER_NAME -w $WORKSPACE_PATH \\
+  -v /home/$USER/.ssh:/home/$USER/.ssh \\
+  -v $WORKSPACE_PATH:$WORKSPACE_PATH \\
+  -it $IMAGE_NAME $WORKSPACE_PATH/.ws/tmp/setup
+
+rm $WORKSPACE_PATH/.ws/tmp/setup
+
+echo ">>>>>> Committing $IMAGE_NAME docker image..."
+docker commit $CONTAINER_NAME $IMAGE_NAME
+
+echo ">>>>>> Cleaning up temporary container..."
+docker stop $CONTAINER_NAME > /dev/null
+docker rm $CONTAINER_NAME > /dev/null
+
+echo ">>> Done building $IMAGE_NAME docker image."
+
+cat > $WORKSPACE_SCRIPT <<OUTER_EOF
+# Bring up workspace as necessary
+
+CONTAINER_NAME="\\${IMAGE_NAME//:/_}_execution_\\$(date +%s)"
+
+xhost +
+docker run --privileged --rm --net=host \\\\
+    --name \\$CONTAINER_NAME \\\\
+    -e DISPLAY=\\$DISPLAY --runtime=nvidia \\\\
+    -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
+    -v /home/$USER/.ssh:/home/$USER/.ssh \\\\
+    -v /tmp/.X11-unix:/tmp/.X11-unix:ro \\\\
+    -d $IMAGE_NAME /bin/bash
+
+docker exec --privileged -w $WORKSPACE_PATH \\\\
+    -e DISPLAY=\\$DISPLAY -it \\$CONTAINER_NAME \\\\
+    /bin/bash --rcfile $WORKSPACE_RCFILE \\$@
+
+CONTAINER_ID=\\$(docker ps -q --filter "name=\\$CONTAINER_NAME")
+if [ ! -z "\\$CONTAINER_ID" ]; then
+   docker commit \\$CONTAINER_ID $IMAGE_NAME
+   docker stop \\$CONTAINER_ID
+fi
+xhost-
+OUTER_EOF
+"""
+
+SETUP_SCRIPT_TEMPLATE = """\
+#!/bin/bash
+set -eu
+set -o pipefail
+
+WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
+WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
+WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
+
+mkdir -p $WORKSPACE_PATH
+
+mkdir -p $WORKSPACE_PATH/.ws/tools
+
+@% for path, content in toolkit %@
+
+cat > $WORKSPACE_PATH/.ws/tools/@{ path }@ <<"EOF"
+@{ content }@
+EOF
+
+chmod +x $WORKSPACE_PATH/.ws/tools/@{ path }@
+
+@% endfor %@
+
+export PATH="$PATH:$WORKSPACE_PATH/.ws/tools"
+
+mkdir -p $WORKSPACE_PATH/.ws/tmp
+
+@% for name, content in prereqs %@
+
+cat > $WORKSPACE_PATH/.ws/tmp/@{name}@ <<"EOF"
+@{ content }@
+EOF
+chmod +x $WORKSPACE_PATH/.ws/tmp/@{name}@
+
+sudo prereqs-install -y $WORKSPACE_PATH/.ws/tmp/@{name}@
+
+rm $WORKSPACE_PATH/.ws/tmp/@{name}@
+
+@% endfor %@
+
+cat > $WORKSPACE_RCFILE <<EOF
+# Source system wide rcfile.
+source /etc/bash.bashrc
+
+# Source user specific rcfile.
+source ~/.bashrc
+
+# Source ROS distribution if there is one (and only one).
+if [ -f /opt/ros/*/setup.bash ]; then
+    if [ $(ls /opt/ros/*/setup.bash | wc -l) -eq 1 ]; then
+         source /opt/ros/*/setup.bash
+    fi
+fi
+
+# Let the user know this is another environment.
+export PS1="($(basename $WORKSPACE_PATH) env) \\${PS1:-}"
+
+# Expose workspace tools in PATH for ease of use.
+export PATH="\\${PATH:-}:$WORKSPACE_PATH/.ws/tools/"
+EOF
+
+cat > $WORKSPACE_SCRIPT <<EOF
+# Bring up workspace as necessary
+
+/bin/bash --rcfile $WORKSPACE_RCFILE \\$@
+EOF
+"""
+
+PATH_TO_SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='DSim development workspace bootstrapping tool',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        '-o', '--output', nargs='?', const='stdout', default=None,
+        help='Generate bootstrapping script but do not execute it.'
+    )
+    parser.add_argument(
+        '-e', '--extra-prereqs', action='append', default=[],
+        help='Extra prerequisites for the workspace.'
+    )
+    parser.add_argument(
+        '--no-docker', action='store_true', default=False,
+        help='Do not use docker container .',
+    )
+    parser.add_argument(
+        'path', default='.', help='Path to workspace to bootstrap'
+    )
+    args = parser.parse_args()
+
+    env = jinja2.Environment(
+        block_start_string="@%", block_end_string="%@",
+        variable_start_string="@{", variable_end_string="}@",
+        comment_start_string="@#", comment_end_string="@#"
+    )
+
+    if args.no_docker:
+        template = env.from_string(SETUP_SCRIPT_TEMPLATE)
+        context = {}
+        context['toolkit'] = []
+        for dirpath, dirnames, filenames in os.walk(PATH_TO_SCRIPT_DIR):
+            if dirpath == PATH_TO_SCRIPT_DIR:
+                dirnames[:] = ['lib']
+            for name in filenames:
+                fullpath = os.path.join(dirpath, name)
+                with open(fullpath, 'r') as f:
+                    relpath = os.path.relpath(PATH_TO_SCRIPT_DIR, fullpath)
+                    context['toolkit'].append((relpath, f.read()))
+        context['prereqs'] = []
+        path_to_default_prereqs = os.path.join(
+            PATH_TO_SCRIPT_DIR, 'etc', 'default.prereqs'
+        )
+        with open(path_to_default_prereqs, 'r') as f:
+            context['prereqs'].append(('default.prereqs', f.read()))
+        for i, path_to_prereqs in enumerate(args.extra_prereqs):
+            with open(path_to_prereqs, 'r') as f:
+                context['prereqs'].append(
+                    ('extra.prereqs.{}'.format(i), f.read())
+                )
+    else:
+        template = env.from_string(DOCKERIZED_SETUP_SCRIPT_TEMPLATE)
+        dsim_bootstrap_cmd = [__file__, '-o']
+        for prereqs in args.extra_prereqs:
+            dsim_bootstrap_cmd.extend(['-e'], prereqs)
+        non_docker_script = subprocess.check_output(dsim_bootstrap_cmd).decode()
+        context = {
+            'base_script': non_docker_script,
+            'image_name': 'dsim-devel'
+        }
+
+    content = re.sub(
+        os.linesep + '{3,}', os.linesep * 2, template.render(**context)
+    ) + os.linesep
+
+    if args.output is None:
+        sys.exit(subprocess.run(
+            ['/bin/bash', '-s', '--', args.path],
+            input=content, encoding='utf-8',
+        ).returncode)
+    elif args.output != 'stdout':
+        with open(args.output, 'w') as f:
+            f.write(content)
+        os.chmod(args.output, 0o755)
+    else:
+        sys.stdout.write(content)
