@@ -4,7 +4,7 @@ SCRIPT_PATH=$(dirname $(realpath $0))
 INDEX_PATH=$(realpath $SCRIPT_PATH/..)
 SETUP_PATH=$(mktemp /tmp/setup.XXXXXX)
 
-$SCRIPT_PATH/generate_setup_script --inside-docker maliput-devel \
+$SCRIPT_PATH/generate_maliput_setup_script --inside-docker maliput-devel \
     --with-drake-nightly $INDEX_PATH/drake.repos --with-stable-ignition \
     --repos $INDEX_PATH/maliput.repos -o $SETUP_PATH
 

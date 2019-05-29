@@ -175,7 +175,7 @@ docker run --privileged --rm --net=host \\\\
     -idt $IMAGE_NAME /bin/bash --rcfile $WORKSPACE_RCFILE
 
 DSIM_PATH="\$(realpath -s \$DSIM_PATH)"
-\$DSIM_PATH/setup/generate_setup_script --with-stable-ignition \
+\$DSIM_PATH/setup/generate_maliput_setup_script --with-stable-ignition \
   --with-drake-nightly \$DSIM_PATH/drake.repos \
   --repos \$DSIM_PATH/maliput.repos -o /tmp/setup
 
@@ -404,7 +404,7 @@ shift \$((OPTIND-1))
 if [ ! -z \$DSIM_PATH ]; then
 DSIM_PATH="\$(realpath -s \$DSIM_PATH)"
 echo ">>> Updating workspace"
-\$DSIM_PATH/setup/setup_workspace $WORKSPACE_PATH
+\$DSIM_PATH/setup/setup_maliput_workspace $WORKSPACE_PATH
 unset DSIM_PATH
 echo ">>> You can source bringup now"
 else

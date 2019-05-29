@@ -1,9 +1,9 @@
 # Introduction
-The `dsim_workspace` development environment integrates numerous driving
-simulation packages including Delphyne, Drake, Malidrive, and Maliput. This
-repository contains .repo indices, Makefiles, and scripts, that enable the
-creation and maintenance of a `dsim_workspace`.
+This repository contains .repos files that facilitate the creation of various
+workspaces. Each workspace is targeted for a different use case. For example,
+`malidrive.repos` is used to create a `maliput_workspace`, which enables Maliput
+and Malidrive development.
 
 ## Setup
 
-See [here](setup/README.md) for setup and usage instructions.
+See [here](setup/README.md) for workspace setup and usage instructions.
