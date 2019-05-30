@@ -4,7 +4,7 @@ set -eo pipefail
 
 source ./.bashrc
 
-source ./install/setup.bash
+source ./install/setup.sh
 
 colcon test --event-handlers=console_direct+ --return-code-on-test-failure \
        --packages-skip PROJ4 ${COLCON_TEST_EXTRA_ARGS:-}
