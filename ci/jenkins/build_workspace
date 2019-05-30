@@ -31,6 +31,7 @@ if [ ! -z "$CHANGE_BRANCH" ]; then
        echo $DIFF
        exit 1
     fi
+    vcs status src
 fi
 EOF
 chmod 0755 $MERGE_BACK_SCRIPT
