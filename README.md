@@ -21,23 +21,30 @@ a workspace that enables Maliput and Malidrive development only.
 * To pull private repositories, the current user default SSH keys will be used
   (and thus assumed as both necessary and sufficient for the purpose).
 
-* Workspaces require *nvidia-docker2* by default, so ensure you have a NVIDIA
-  card and the drivers installed.
+* Containerized workspaces require `nvidia-docker2` by default, so ensure you have
+  an NVIDIA card and drivers are properly installed.
 
 * All system dependencies required by the tools included in this repository can
   be installed by running:
 
-```sh
-cd dsim-repos-index
-./tools/prereqs-install -y .
-```
+  ```sh
+  cd dsim-repos-index
+  ./tools/prereqs-install -t .
+  ```
+ 
+  To also install `nvidia-docker`, run:
+  
+  ```sh
+  cd dsim-repos-index
+  ./tools/prereqs-install -t nvidia .
+  ```
 
 ## Create a workspace
 
 To create a regular (dockerized) workspace, run:
 
 ```sh
-dsim-repos-index/tools/dsim-wsetup dsim_ws
+dsim-repos-index/tools/wsetup dsim_ws
 ```
 
 Note
@@ -48,7 +55,7 @@ Note
 To create a non dockerized workspace, run:
 
 ```sh
-dsim-repos-index/tools/dsim-wsetup --no-docker dsim_ws
+dsim-repos-index/tools/wsetup --no-container dsim_ws
 ```
 
 Note
@@ -59,7 +66,7 @@ Both operations will setup a ROS2-like workspace. If need be, additional prerequ
 for the workspace can be supplied upon workspace creation:
 
 ```sh
-dsim-repos-index/tools/dsim-wsetup -e path/to/custom/prereqs dsim_ws
+dsim-repos-index/tools/wsetup -e path/to/custom/prereqs dsim_ws
 ```
 
 ## Bringup your workspace 
@@ -73,6 +80,11 @@ source bringup
 
 You can always leave the workspace by `exit`ing it.
 
+Note
+:  Upon exiting a containerized workspace, you'll be prompted as to whether container changes 
+   should be persisted or not. For the sake of storage efficiency, only persist them if changes
+   have been applied to the container filesystem itself but not just the workspace.
+
 ## Update your workspace
 
 Whether you are doing this for the first time or updating
@@ -81,8 +93,7 @@ an existing workspace, the same procedure applies:
 1. Copy a .repos file into your workspace, e.g. our default `maliput.repos`:
 
    ```sh
-   cd dsim_ws
-   cp dsim-repos-index/maliput.repos .
+   cp dsim-repos-index/maliput.repos dsim_ws/.
    ```
 
 2. Bring up the workspace to be updated:
@@ -99,17 +110,20 @@ an existing workspace, the same procedure applies:
    vcs pull src
    ```
 
-4. Install all packages' prerequisites:
+4. Install **all** packages' prerequisites (this includes drake binaries):
 
    ```sh
-   prereqs-install -y src
+   sudo prereqs-install -t all src
    ```
 
-4. Install all packages' dependencies.
+5. Leave and re-enter the workspace for installation to take effect.
+   **Make sure changes are persisted upon leave.**
+
+6. Install all packages' dependencies.
 
    ```sh
    rosdep update
-   rosdep install -i --from-paths src --skip-keys "drake"
+   sudo rosdep install -i -y --from-path src --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 pylint3 pycodestyle libqt5multimedia5 libboost-filesystem-dev pybind11 PROJ4"
    ```
 
 ## Build your workspace
@@ -170,11 +184,11 @@ When reproducing issues, either related to the codebase or to the infrastructure
 that supports it, recreating the environment in which these issues arose is crucial.
 
 Using .repos files does half the work by allowing codebase version pinning.
-Dockerized workspaces do the other half along with the `dsim-wsetup` tool, and thus 
+Dockerized workspaces do the other half along with the `wsetup` tool, and thus 
 their use is encouraged. The tool itself does not setup workspaces but generates a 
 script that does the heavy lifting. Said script can be retrieved instead of executed
 by means of the `-o` flag:
 
 ```sh
-dsim-repos-index/dsim-wsetup -o setup.sh [...other-args...]
+dsim-repos-index/wsetup -o setup.sh [...other-args...]
 ```

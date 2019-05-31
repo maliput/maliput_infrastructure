@@ -21,6 +21,8 @@ EOF
 chmod 0755 $GIT_SSH_FILE
 export GIT_SSH=$GIT_SSH_FILE
 
+mkdir -p src
+
 vcs import -f src < ./index/maliput.repos
 
 vcs pull src
@@ -38,12 +40,8 @@ if [ ! -z "$CHANGE_BRANCH" ]; then
     vcs status src
 fi
 
-sudo prereqs-install -y src
-
-rosdep update
-
-sudo rosdep install -y -i src --skip-keys "drake"
-
 unset GIT_SSH
 rm -f "$GIT_SSH_FILE"
 rm -f "$SSH_IDENTITY_FILE"
+
+sudo prereqs-install -t all src

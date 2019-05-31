@@ -1,8 +1,7 @@
-stage('setup workspace') {
-   sh './index/ci/jenkins/setup_ws'
-}
-stage('build workspace') {
-   sh './index/ci/jenkins/ws ./index/ci/jenkins/build_ws'
+stage('setup') {
+   sh './index/ci/jenkins/setup_workspace'
+   sh './index/ci/jenkins/ws ./index/ci/jenkins/pull_sources'
+   sh './index/ci/jenkins/ws ./index/ci/jenkins/install_deps'
 }
 stage('build') {
    sh './index/ci/jenkins/ws ./index/ci/jenkins/build'

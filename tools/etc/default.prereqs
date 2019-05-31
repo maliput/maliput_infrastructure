@@ -1,12 +1,14 @@
 #!/bin/bash
 
+set -e pipefail
+
 source prereqs.lib
 
-prereqs.init
+prereqs.init 'The default prerequisites of any DSim workspace'
 
 prereqs.assert_sudo
 
-prereqs.install_apt_repo "ros2-latest" "http://packages.ros.org/ros2/ubuntu" "421C365BD9FF1F717815A3895523BAEEB01FA116"
+prereqs.install_apt_repo "ros2-latest" "http://packages.ros.org/ros2/ubuntu" "C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654"
 
 prereqs.apt update
 

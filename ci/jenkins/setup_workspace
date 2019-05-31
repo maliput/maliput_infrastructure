@@ -6,9 +6,6 @@ set -euo pipefail
 # be able to build the workspace.  All other dependencies will be installed
 # during setup_late.
 
-export DEBIAN_FRONTEND='noninteractive'
-export PREREQS_NONINTERACTIVE=1
+sudo ./index/tools/prereqs-install index/
 
-./index/tools/prereqs-install -y index/
-
-./index/tools/dsim-wsetup
+./index/tools/wsetup -v --no-container .

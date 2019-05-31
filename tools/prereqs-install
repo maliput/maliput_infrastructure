@@ -4,7 +4,7 @@ import argparse
 
 import os
 import subprocess
-
+import sys
 
 PATH_TO_BASH_LIBS = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib')
 
@@ -17,7 +17,7 @@ def collect_prerequisites(path, prereqs_names=['prereqs'], excluded_paths=[]):
         if not os.access(path, os.X_OK):
             raise ValueError("{} is not an executable file".format(path))
         yield path
-    elif os.paths.isdir(path):
+    elif os.path.isdir(path):
         for dirpath, dirnames, filenames in os.walk(path):
             if any(dirpath.startswith(xpath) for xpath in excluded_paths):
                 dirnames[:] = []
@@ -26,9 +26,10 @@ def collect_prerequisites(path, prereqs_names=['prereqs'], excluded_paths=[]):
                 fullpath = os.path.join(dirpath, name)
                 if any(fullpath.startswith(xpath) for xpath in excluded_paths):
                     continue
-                if any(fullpath.endswith(pname) for pname in prereqs_names):
-                    if not os.access(fullpath, os.X_OK):
-                        continue
+                if not any(name.endswith(pname) for pname in prereqs_names):
+                    continue
+                if not os.access(fullpath, os.X_OK):
+                    continue
                 yield fullpath
     else:
         raise ValueError("{} is not a file nor a directory".format(path))
@@ -44,13 +45,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '-t', '--tag', dest='tags', action='append', default=[],
-        help=('Tag to narrow down prerequisite installation. '
-              'Overrides PREREQS_TAGS envvar if present.')
-    )
-    parser.add_argument(
-        '-s', '--skip-tag', dest='skip_tags', action='append', default=[],
-        help=('Tag to skip during prerequisite installation. '
-              'Overrides PREREQS_SKIP_TAGS envvar if present.')
+        help='Tag to narrow down prerequisite installation.'
     )
     parser.add_argument(
         '-x', '--excluded-paths', nargs='+', default=[],
@@ -66,9 +61,8 @@ if __name__ == '__main__':
         help='Keep going with the installation ignoring any errors.'
     )
     parser.add_argument(
-        '-y', '-n', '--non-interactive', action='store_true', default=False,
-        help=('Force non-interactive installation i.e. no prompts. '
-              'Overrides PREREQS_NONINTERACTIVE envvar if present.')
+        '-i', '--interactive', action='store_true', default=False,
+        help='Force interactive installation i.e. do prompt for user input.'
     )
     parser.add_argument(
         '-q', '--quiet', action='store_true', default=False,
@@ -76,8 +70,13 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '-v', '--verbose', action='store_true', default=False,
-        help='Print prerequiste installation full output.'
+        help='Print prerequisite installation output.'
     )
+    parser.add_argument(
+        '-vv', '--vverbose', action='store_true', default=False,
+        help='Print prerequisite installation raw output.'
+    )
+
     args = parser.parse_args()
 
     prereqs_names = ['prereqs', *args.alt_names]
@@ -86,27 +85,26 @@ if __name__ == '__main__':
     env = dict(os.environ)
     if args.tags:
         env['PREREQS_TAGS'] = ','.join(args.tags)
-    if args.skip_tags:
-        env['PREREQS_SKIP_TAGS'] = ','.join(args.skip_tags)
-    if args.non_interactive:
-        env['PREREQS_NONINTERACTIVE'] = 1
+    if args.interactive:
+        env['PREREQS_INTERACTIVE'] = '1'
+        env['DEBIAN_FRONTEND'] = 'interactive'
+    else:
+        env['PREREQS_INTERACTIVE'] = '0'
         env['DEBIAN_FRONTEND'] = 'noninteractive'
     env['PATH'] = ':'.join([env.get('PATH', ''), PATH_TO_BASH_LIBS])
 
     if not args.quiet:
-        print('Ready for installation')
+        print('┌ Ready for installation')
         if 'PREREQS_TAGS' in env and env['PREREQS_TAGS']:
-            print('  Tags: ', env['PREREQS_TAGS'])
-        if 'PREREQS_SKIP_TAGS' in env and env['PREREQS_SKIP_TAGS']:
-            print('  Tags skipped: ', env['PREREQS_SKIP_TAGS'])
-        noninteractive = 'no'
-        if int(env.get('PREREQS_NONINTERACTIVE', 0)) != 0:
-            noninteractive = 'yes'
-        print('  Noninteractive: ', noninteractive)
-        print('  Excluded paths: ')
-        for path in args.excluded_paths:
-            print('    - ', path)
-        print('\n')
+            print('│  Tags: ', env['PREREQS_TAGS'])
+        interactive = 'no'
+        if int(env['PREREQS_INTERACTIVE']) != 0:
+            interactive = 'yes'
+        print('│  Interactive: ', interactive)
+        if args.excluded_paths:
+            print('│  Excluded paths: ')
+            for path in args.excluded_paths:
+                print('│    - ', path)
 
     exitcode = 0
     for path in args.paths:
@@ -114,38 +112,49 @@ if __name__ == '__main__':
             for path_to_prereqs in collect_prerequisites(
                 path, prereqs_names, excluded_paths
             ):
-                print('• Installing prerequisites at ', fullpath)
+                print('• Installing prerequisites at ', path_to_prereqs, flush=True)
+                have_raw_output = args.interactive or args.vverbose
                 process = subprocess.run(
-                    [fullpath], capture_output=not args.verbose,
-                    encoding='utf-8', env=env
+                    path_to_prereqs,
+                    stdout=subprocess.PIPE if not have_raw_output else None,
+                    stderr=subprocess.PIPE if not have_raw_output else None,
+                    encoding='utf-8',
+                    shell=True,
+                    env=env
                 )
-                if args.verbose or (not args.quiet and process.returncode != 0):
-                    stdout_lines = process.stdout.splitlines()
-                    stderr_lines = process.stderr.splitlines()
-                    max_line_length = max(
-                        max(len(line) for line in stdout_lines),
-                        max(len(line) for line in stderr_lines),
-                    )
-                    title=' Captured stdout '
-                    mark_length = (max_line_length - len(title)) // 2
-                    print('| ', '=' * mark_length, title, '=' * mark_length)
-                    for line in stdout_lines:
-                        print('| ', line)
-                    title=' Captured stderr '
-                    mark_length = (max_line_length - len(title)) // 2
-                    print('| ', '=' * mark_length, title, '=' * mark_length)
-                    for line in stderr_lines:
-                        print('| ', line)
+                if not have_raw_output:
+                    if args.verbose or (not args.quiet and process.returncode != 0):
+                        stdout_lines = process.stdout.splitlines()
+                        stderr_lines = process.stderr.splitlines()
+                        max_line_length = 0
+                        if stdout_lines:
+                            max_line_length = max(len(line) for line in stdout_lines)
+                        if stderr_lines:
+                            max_line_length = max(
+                                max(len(line) for line in stderr_lines), max_line_length
+                            )
+                        if stdout_lines:
+                            title=' Captured stdout '
+                            mark_length = (max_line_length - len(title)) // 2
+                            print('│ ', '=' * mark_length, title, '=' * mark_length)
+                            for line in stdout_lines:
+                                print('│ ', line)
+                        if stderr_lines:
+                            title=' Captured stderr '
+                            mark_length = (max_line_length - len(title)) // 2
+                            print('│ ', '=' * mark_length, title, '=' * mark_length)
+                            for line in stderr_lines:
+                                print('│ ', line)
                 if process.returncode != 0:
                     print('└─ ✗ Exited with non-zero exit code: ',
-                          process.returncode)
+                          process.returncode, flush=True)
                     if not args.keep_going:
                         sys.exit(process.returncode)
                     exitcode = 1
                 else:
-                    print('└─ ✓ Done')
+                    print('└─ ✓ Done', flush=True)
         except ValueError as e:
-            print('✗ Failed prerequisite lookup: {}'.format(str(e)))
+            print('✗ Failed prerequisite lookup: {}'.format(str(e)), flush=True)
             exitcode = 1
             if not args.keep_going:
                 break

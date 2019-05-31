@@ -1,9 +1,10 @@
 #! /bin/bash
 
-TAGS=${TAGS:-default}
-IFS="," read -r -a prereqs.tags <<< "$PREREQS_TAGS"
-IFS="," read -r -a prereqs.skip_tags <<< "$PREREQS_SKIP_TAGS"
-prereqs.noninteractive=${PREREQS_NONINTERACTIVE:-0}
+PREREQS_TAGS=${PREREQS_TAGS:-default}
+
+prereqs.interactive() {
+    [ ${PREREQS_INTERACTIVE:-1} -eq 1 ]
+}
 
 prereqs.init() {
     me=$1
@@ -38,7 +39,7 @@ prereqs.pull_apt_keys() {
         break
     done
 
-    prereqs.assert [ $success -eq 0 ] "Failed to pull from keyservers"
+    ASSERT_MSG="Failed to pull APT keys from keyservers" prereqs.assert [ $success -eq 1 ]
 }
 
 prereqs.install_apt_repo() {
@@ -59,7 +60,7 @@ prereqs.install_apt_repo() {
 prereqs.apt() {
     VERB=${@:1:1}
     ARGS=${@:2:$#}
-    if prereqs.noninteractive; then
+    if ! prereqs.interactive; then
         ARGS="-y ${ARGS}"
     fi
     apt ${VERB} ${ARGS}
@@ -68,22 +69,49 @@ prereqs.apt() {
 prereqs.apt-get() {
     VERB=${@:1:1}
     ARGS=${@:2:$#}
-    if prereqs.noninteractive; then
+    if ! prereqs.interactive; then
         ARGS="-y ${ARGS}"
     fi
     apt-get ${VERB} ${ARGS}
 }
 
 prereqs.assert() {
-    if ${@:1:$#-1}; then
-        prereqs.die "${!#}";
+    if [ ! -z "$DEBUG" ]; then
+        echo "ASSERT $@"
+    fi
+    if ! $@; then
+        prereqs.die "${ASSERT_MSG:-$@ assert failed}";
+    fi
+}
+
+prereqs.assert_not() {
+    if [ ! -z "$DEBUG" ]; then
+        echo "ASSERT_NOT $@"
+    fi
+    if $@; then
+        prereqs.die "${ASSERT_MSG:-$@ assert failed}";
     fi
 }
 
 prereqs.assert_sudo() {
-    prereqs.assert [ ! "${EUID}" -eq 0 ] "${me} must run as root. Please use sudo."
+    ASSERT_MSG="${me} must run as root. Please use sudo." prereqs.assert [ "${EUID}" -eq 0 ]
 }
 
 prereqs.tag_applies() {
-    return [[ "${prereqs.tags[@]}" =~ "$1" && ! "${prereqs.skip_tags[@]}" =~ "$1" ]]
+    IFS="," read -r -a tags <<< "$PREREQS_TAGS"
+    [[ "${tags[@]}" =~ $1 ]]
 }
+
+test_prereqs.interactive() {
+    PREREQS_INTERACTIVE=1 prereqs.assert prereqs.interactive
+    PREREQS_INTERACTIVE=0 prereqs.assert_not prereqs.interactive
+}
+test_prereqs.interactive
+
+test_prereqs.tag_applies() {
+    PREREQS_TAGS= prereqs.assert_not prereqs.tag_applies "some-tag"
+    PREREQS_TAGS="another-tag" prereqs.assert_not prereqs.tag_applies "some-tag"
+    PREREQS_TAGS="another-tag,some-tag" prereqs.assert prereqs.tag_applies "some-tag"
+    PREREQS_TAGS="some-tag-v1,some-tag-v2" prereqs.assert prereqs.tag_applies ".*-tag-v1"
+}
+test_prereqs.tag_applies
