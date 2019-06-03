@@ -136,7 +136,7 @@ docker run --privileged --rm --net=host \\\\
 
 docker exec --privileged -w $WORKSPACE_PATH \\\\
     -e DISPLAY=\\$DISPLAY -it \\$CONTAINER_NAME \\\\
-    /bin/bash --rcfile $WORKSPACE_RCFILE \\$@
+    /bin/bash --rcfile $WORKSPACE_RCFILE -i \\$@
 EXEC_EXIT_CODE=\\$?
 
 CONTAINER_ID=\\$(docker ps -q --filter "name=\\$CONTAINER_NAME")
@@ -224,7 +224,7 @@ echo ">>> Installing $WORKSPACE_SCRIPT"
 cat > $WORKSPACE_SCRIPT <<EOF
 # Bring up workspace as necessary
 
-/bin/bash --rcfile $WORKSPACE_RCFILE \\$@
+/bin/bash --rcfile $WORKSPACE_RCFILE -i \\$@
 EOF
 echo "> Workspace setup successfully"
 """
