@@ -6,7 +6,7 @@ import os
 import subprocess
 import sys
 
-PATH_TO_BASH_LIBS = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'lib')
+PATH_TO_BASH_LIBS = os.path.dirname(os.path.realpath(__file__))
 
 
 def collect_prerequisites(path, prereqs_names=['prereqs'], excluded_paths=[]):
