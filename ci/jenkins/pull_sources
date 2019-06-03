@@ -25,7 +25,7 @@ mkdir -p src
 
 vcs import --force src < ./index/maliput.repos
 
-vcs pull src
+vcs pull src || true
 
 if [ ! -z "$CHANGE_BRANCH" ]; then
     echo ">>> Merging custom branch $CHANGE_BRANCH into default branches"
