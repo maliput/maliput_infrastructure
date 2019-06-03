@@ -123,7 +123,7 @@ an existing workspace, the same procedure applies:
 
    ```sh
    rosdep update
-   sudo rosdep install -i -y --from-paths src --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 pylint3 pycodestyle libqt5multimedia5 libboost-filesystem-dev pybind11 PROJ4"
+   sudo rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 pylint3 pycodestyle libqt5multimedia5 libboost-filesystem-dev pybind11 PROJ4" --from-paths src
    ```
 
 ## Build your workspace
