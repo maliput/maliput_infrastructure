@@ -31,7 +31,7 @@ if [ ! -z "$CHANGE_BRANCH" ]; then
     echo ">>> Merging custom branch $CHANGE_BRANCH into default branches"
     vcs custom src --args branch -f $CHANGE_BRANCH origin/$CHANGE_BRANCH > /dev/null || true
     vcs custom src --args merge --no-edit $CHANGE_BRANCH  > /dev/null || true
-    DIFF=\$(vcs diff -s src | tr -d '.\n')
+    DIFF=$(vcs diff -s src | tr -d '.\n')
     if [ ! -z "$DIFF" ]; then
         echo "Have merge conflicts!"
         echo $DIFF
