@@ -270,7 +270,7 @@ install_apt_repo() {
 echo ">>>>>> Updating apt sources..."
 
 install_apt_repo "gazebo-stable" "http://packages.osrfoundation.org/gazebo/ubuntu-stable" "D2486D2DD83DB69272AFE98867170598AF249743"
-install_apt_repo "ros2-latest" "http://packages.ros.org/ros2/ubuntu" "421C365BD9FF1F717815A3895523BAEEB01FA116"
+install_apt_repo "ros2-latest" "http://packages.ros.org/ros2/ubuntu" "C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654"
 
 sudo apt update
 
