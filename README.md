@@ -1,8 +1,13 @@
 # Introduction
 
-This repository contains .repo files and tools, that enable the creation and 
-maintenance of workspaces. For example, `malidrive.repos` can be used to create 
-a workspace that enables Maliput and Malidrive development only.
+This repository contains `.repos` files and tools, that enable the creation and 
+maintenance of development workspaces. Each `.repos` file helps bringing a subset
+of the packages in the `dsim` ecosystem. 
+
+For instance, while `maliput.repos` pulls all `maliput` packages on road network
+descriptions, plus the `malidrive` backend package and `delphyne` packages for
+visualization and prototyping, `malidrive.repos` leads to a smaller workspace
+with `maliput` and `malidrive` packages only.
 
 # Workspace Usage
 
@@ -11,7 +16,7 @@ a workspace that enables Maliput and Malidrive development only.
 * For regular workspaces, only Ubuntu Bionic Beaver 18.04 LTS is supported as
   the host OS.
 
-* For dockerized workspaces, only NVidia powered machines are supported as host
+* For dockerized workspaces, only nvidia powered machines are supported as host
   machines.
 
 ## Prerequisites
@@ -153,7 +158,7 @@ an existing workspace, the same procedure applies:
    ```
 
 Note
-: We recommend you to run `delphyne-gazoo` and `delphyne-mali` (type them on your terminal) to see if everything is properly working.
+: If `delphyne` is available, we recommend you to run `delphyne-gazoo` and `delphyne-mali` (type them on your terminal) to see if everything is properly working.
 
 ## Test your workspace
 
