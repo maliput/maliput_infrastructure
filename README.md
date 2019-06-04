@@ -128,7 +128,7 @@ an existing workspace, the same procedure applies:
 
    ```sh
    rosdep update
-   sudo rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 pylint3 pycodestyle libqt5multimedia5 libboost-filesystem-dev pybind11 PROJ4" --from-paths src
+   sudo rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths src
    ```
 
 ## Build your workspace
@@ -158,7 +158,8 @@ an existing workspace, the same procedure applies:
    ```
 
 Note
-: If `delphyne` is available, we recommend you to run `delphyne-gazoo` and `delphyne-mali` (type them on your terminal) to see if everything is properly working.
+: If `delphyne` is available, we recommend you to run `delphyne-gazoo` and `delphyne-mali` (type them on 
+your terminal) to see if everything is properly working.
 
 ## Test your workspace
 
@@ -169,6 +170,32 @@ colcon test --event-handlers=console_direct+ --return-code-on-test-failure --pac
 ```
 
 # Contributing
+
+## Usual workflow
+
+Ours is similar to ROS2's development workflow, and thus many of their tools and practices apply equally.
+
+Workspaces are managed via [`vcs`](https://github.com/dirk-thomas/vcstool), a tool that helps in dealing with
+sources distributed across multiple repositories, not necessarily versioned with the same tool (support for `git`,
+`hg`, `svn` and `bazaar` is readily available). `vcs` uses `.repos` files for a listing of version pinned sources.
+
+Dependency management is taken care of by [`rosdep`](https://docs.ros.org/independent/api/rosdep/html/commands.html),
+a tool that can crawl `package.xml` files and resolve found dependencies into a call to the appropriate package 
+manager for the current platform by means of a public database known as rosdistro.
+
+To build and test packages, [`colcon`](https://colcon.readthedocs.io/en/released/) abstracts away the details of the
+specific build system and testing tools in use and arbitrates these operations to take place in topological order.
+
+Note
+:  In all three cases above, the tools delegate the actual work to the right tool for each package and 
+focus instead on bridging the gap between them. Thus, for instance, `colcon` builds interdependent 
+CMake packages by running `cmake` and `make` in the right order and setting up the environment for
+the artifacts to be available. Same applies for `vcs` and `rosdep`.
+
+The `wsetup` and `prereqs-install` tools mentioned earlier are not part of the standard workflow, but
+are there solely to standardize and simplify the setup of our development environments, and to deal with
+all the non-standard aspects of them respectively. Therefore, usage and extension of these tools should
+be sparse at best.
 
 ## How to use CI
 
