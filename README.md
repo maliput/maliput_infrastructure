@@ -1,15 +1,15 @@
 # Introduction
 
-This repository contains `.repos` files and tools, that enable the creation and 
+This repository contains `.repos` files and tools, that enable the creation and
 maintenance of development workspaces. Each `.repos` file helps bringing a subset
-of the packages in the `dsim` ecosystem. 
+of the packages in the `dsim` ecosystem.
 
 For instance, while `maliput.repos` pulls all `maliput` packages on road network
 descriptions, plus the `malidrive` backend package and `delphyne` packages for
 visualization and prototyping, `malidrive.repos` leads to a smaller workspace
 with `maliput` and `malidrive` packages only.
 
-# Workspace Usage
+# Workspaces
 
 ## Supported platforms
 
@@ -36,15 +36,22 @@ with `maliput` and `malidrive` packages only.
   cd dsim-repos-index
   ./tools/prereqs-install .
   ```
- 
+
   To install `nvidia-docker`, also run:
-  
+
   ```sh
   cd dsim-repos-index
   ./tools/prereqs-install -t nvidia .
   ```
 
-## Create a workspace
+## Usage instructions
+
+In the following, it is assumed that you want to create a workspace for working on Maliput and
+Malidrive. As such, it suggests the creation of a workspace in a `maliput_ws` directory and
+pulling sources from the `maliput.repos` file. You should choose a name that is appropriate
+for your intended purpose.
+
+### Create a workspace
 
 To create a regular (dockerized) workspace, run:
 
@@ -53,7 +60,7 @@ dsim-repos-index/tools/wsetup dsim_ws
 ```
 
 Note
-:  The docker image will be called dsim-devel:<UNIX timestamp>. 
+:  The docker image will be called dsim-devel:<UNIX timestamp>.
    Using UNIX timestamps for tags reduce the likelihood of name collision
    when multiple workspaces are present on the same host machine.
 
@@ -64,7 +71,7 @@ dsim-repos-index/tools/wsetup --no-container dsim_ws
 ```
 
 Note
-:  Bear in mind that non dockerized workspace make reproducing and 
+:  Bear in mind that non dockerized workspace make reproducing and
    troubleshooting issues harder for others.
 
 Both operations will setup a ROS2-like workspace. If need be, additional prerequisites
@@ -74,7 +81,7 @@ for the workspace can be supplied upon workspace creation:
 dsim-repos-index/tools/wsetup -e path/to/custom/prereqs dsim_ws
 ```
 
-## Bringup your workspace 
+### Bringup your workspace
 
 To bring up your workspace, run:
 
@@ -86,24 +93,65 @@ source bringup
 You can always leave the workspace by `exit`ing it.
 
 Note
-:  Upon exiting a containerized workspace, you'll be prompted as to whether container changes 
-   should be persisted or not. For the sake of storage efficiency, only persist them if changes
-   have been applied to the container filesystem itself but not just the workspace.
+:  Upon exiting a containerized workspace, you'll be prompted as to whether container changes
+   should be persisted or not. For the sake of storage efficiency, only persist them if you've
+   applied changes outside the workspace directory and to the container filesystem itself
+   (e.g. you installed a new package or tool using apt) and you wish to keep them.
 
-## Update your workspace
+### Check your workspace
 
-Whether you are doing this for the first time or updating
-an existing workspace, the same procedure applies:
+Workspace state as a whole encompasses both current local repositories' state plus the state of
+the filesystem that hosts it. However, if a workspace is containerized and no customizations are
+applied by the user, repositories alone carry source code and the system dependencies that it
+relies on to build and run. And we can easily inspect the repositories.
 
-1. Copy a .repos file into your workspace, e.g. our default `maliput.repos`:
+1. Bring up the workspace to check:
 
    ```sh
-   cp dsim-repos-index/maliput.repos dsim_ws/.
+   cd maliput_ws
+   source bringup
+   ```
+
+2. To check repositories' status, run:
+
+```sh
+vcs status src
+```
+
+3. To see changes in the repositories' working tree, run:
+
+```sh
+vcs diff src
+```
+
+4. To see if (most of) our versioned packages' dependencies have been met, run:
+
+```sh
+rosdep check --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths src
+```
+
+  Note though that currently not all workspace prerequisites are nor can be dealt with using `rosdep`
+  alone and thus `rosdep check` may fall short.
+
+In any given case, one can always resort to the specific tool used for repository versioning (e.g. `git`)
+if `vcs` isn't enough or to the specific package managers (e.g. `apt` or `pip`) if `rosdep` isn't enough.
+
+
+### Update your workspace
+
+Whether you are doing this for the first time or updating an existing workspace, the same procedure
+applies.
+
+1. Copy the `maliput.repos` file into your workspace:
+
+   ```sh
+   cp dsim-repos-index/maliput.repos maliput_ws/.
    ```
 
 2. Bring up the workspace to be updated:
 
    ```sh
+   cd maliput_ws
    source bringup
    ```
 
@@ -111,11 +159,14 @@ an existing workspace, the same procedure applies:
 
    ```sh
    mkdir -p src
-   vcs import src < maliput.repos
-   vcs pull src
+   vcs import src < maliput.repos  # clone and/or checkout
+   vcs pull src  # fetch and merge (usually fast-forward)
    ```
-   
-   Note that you can equally bring other repositories as well by importing from more
+
+   This will clone repositories and/or checkout branches, tags or commits as necessary,
+   followed by fetching and (likely) fast-forward merging to get branches up to date with
+   their upstream counterpart if any. Also, note that you can equally bring other
+   repositories as well by repeating this `import` and `pull` operation using additional
    `.repos` files.
 
 4. Install all packages' prerequisites, including drake and ignition binaries:
@@ -124,8 +175,8 @@ an existing workspace, the same procedure applies:
    sudo prereqs-install -t all src
    ```
 
-   Check each package `prereqs` file to see what other tags are available and their 
-   implications. For instance, if building drake from source and using ignition 
+   Check each package `prereqs` file to see what other tags are available and their
+   implications. For instance, if building drake from source and using ignition
    binaries, you may want to run:
 
    ```sh
@@ -138,17 +189,28 @@ an existing workspace, the same procedure applies:
    sudo prereqs-install -t default -t drake src
    ```
 
-5. Leave and re-enter the workspace for installation to take effect.
-   **Make sure changes are persisted upon leave.**
-
-6. Install all packages' dependencies.
+5. Install all packages' dependencies.
 
    ```sh
    rosdep update
-   sudo rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths src
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths src
    ```
 
-## Build your workspace
+   Depending what has been installed you may need to leave and re-enter the workspace for
+   installation to take effect. **Make sure changes are persisted upon leave.**
+
+6. When leaving the workspace, make sure changes are persisted!
+
+Above sequence allows for full workspace updates, but it's not binding. A conscious user may want
+to only update dependencies for a patch he's working on (and thus, only steps 4. and 5. apply, and
+maybe not even both depending on where the dependency was stated) or even customize the workspace
+for a one time use. If in a containerized workspace, upon leave one may choose to not persist
+modifications and keep the environment clean.  Note that this does not apply to the workspace directory
+itself, as it exists outside and beyond the container lifetime, but since repositories are versioned,
+changes can be checked out, stashed or even reverted. In extreme cases, setting up disposable workspaces
+remains an option.
+
+### Build your workspace
 
 1. Bring up the workspace to build on:
 
@@ -175,10 +237,10 @@ an existing workspace, the same procedure applies:
    ```
 
 Note
-: If `delphyne` is available, we recommend you to run `delphyne-gazoo` and `delphyne-mali` (type them on 
+: If `delphyne` is available, we recommend you to run `delphyne-gazoo` and `delphyne-mali` (type them on
 your terminal) to see if everything is properly working.
 
-## Test your workspace
+### Test your workspace
 
 In a built workspace, run:
 
@@ -197,33 +259,41 @@ sources distributed across multiple repositories, not necessarily versioned with
 `hg`, `svn` and `bazaar` is readily available). `vcs` uses `.repos` files for a listing of version pinned sources.
 
 Dependency management is taken care of by [`rosdep`](https://docs.ros.org/independent/api/rosdep/html/commands.html),
-a tool that can crawl `package.xml` files and resolve found dependencies into a call to the appropriate package 
+a tool that can crawl `package.xml` files and resolve found dependencies into a call to the appropriate package
 manager for the current platform by means of a public database known as rosdistro.
 
 To build and test packages, [`colcon`](https://colcon.readthedocs.io/en/released/) abstracts away the details of the
 specific build system and testing tools in use and arbitrates these operations to take place in topological order.
+Operations will be run in parallel by default.
 
 Note
-:  In all three cases above, the tools delegate the actual work to the right tool for each package and 
+: In all three cases above, the tools delegate the actual work to the right tool for each package and 
 focus instead on bridging the gap between them. Thus, for instance, `colcon` builds interdependent 
 CMake packages by running `cmake` and `make` in the right order and setting up the environment for
 the artifacts to be available. Same applies for `vcs` and `rosdep`.
 
-In addition to these tools, we also count with `wsetup`, to standardize and simplify the setup of our 
+Note
+: These tools do not strive to act like a proxy for every configuration setting or command line option
+that underlying tools they delegate work to may have. Thus, it may be necessary to provide those in
+addition to attain a desired behavior. For instance, limiting `colcon` parallelism with the
+`--parallel-workers` switch has no impact on `make` parallelization settings if this tool is
+being used.
+
+In addition to these tools, we also count on `wsetup`, to standardize and simplify the setup of our 
 development workspaces by means of containerization, and `prereqs-install` to deal with all the non-standard
-preconditions that our packages introduce and `rosdep` cannot deal with. These tools **are not part of the 
-standard workflow**, and therefore their usage and extension of these tools should be sparse at best.
+preconditions that our packages introduce and `rosdep` cannot deal with. **These tools are not part of the 
+standard ROS2's development workflow**, and therefore their usage and extension should be sparse at best.
 
 ## How to use CI
 
 CI jobs build and test relevant packages for each repository on every PR.
-Being a multiple repositories' project, patches that are not limited to
+Being a multi-repository project, patches that are not limited to
 a single repository must be separately PR'd but built and tested together.
 To that end, make sure that all PR'd branches that are part of the same patch
 have the same name e.g. `my_github_user/my_patch_name`.
 
 **Warning**
-:  Fork based development is currently not supported.
+: Fork based development is currently not supported. All PRs must come from origin and not a fork.
 
 # Troubleshooting
 
@@ -233,8 +303,8 @@ When reproducing issues, either related to the codebase or to the infrastructure
 that supports it, recreating the environment in which these issues arose is crucial.
 
 Using .repos files does half the work by allowing codebase version pinning.
-Dockerized workspaces do the other half along with the `wsetup` tool, and thus 
-their use is encouraged. The tool itself does not setup workspaces but generates a 
+Containerized workspaces do the other half along with the `wsetup` tool, and thus
+their use is encouraged. The tool itself does not setup workspaces but generates a
 script that does the heavy lifting. Said script can be retrieved instead of executed
 by means of the `-o` flag:
 
