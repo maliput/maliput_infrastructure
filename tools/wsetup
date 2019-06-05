@@ -234,7 +234,7 @@ PATH_TO_SCRIPT_DIR = os.path.dirname(PATH_TO_SCRIPT)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description='DSim development workspace setup tool',
+        description='Development workspace setup tool',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
@@ -247,7 +247,8 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '-e', '--extra-prereqs', action='append', default=[],
-        help='Extra user-defined prerequisites for the workspace.'
+        help=('Extra user-defined prerequisite executable files'
+              'to setup the workspace with.')
     )
     parser.add_argument(
         '-n', '--name', action='store', default='maliput/devel',
@@ -261,7 +262,7 @@ if __name__ == '__main__':
               'your own risk.')
     )
     parser.add_argument(
-        'path', help='Path to workspace to bootstrap'
+        'path', help='Path to workspace to setup.'
     )
     args = parser.parse_args()
 

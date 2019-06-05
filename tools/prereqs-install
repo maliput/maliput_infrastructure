@@ -41,20 +41,26 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        'paths', nargs='+', help='Path to traverse during prerequisite lookup.'
+        'paths', nargs='+',
+        help='Paths to crawl recursively during prerequisite lookup.'
     )
     parser.add_argument(
         '-t', '--tag', dest='tags', action='append', default=[],
-        help='Tag to narrow down prerequisite installation.'
+        help=('Tags to narrow down prerequisite installation. Each '
+              'prerequisites script may choose what to include under '
+              'which tag. Conventionally, the \'default\' tag is given '
+              'when no tag is specified, and the \'all\' tag is expected '
+              'to result in full installation without any pruning.')
     )
     parser.add_argument(
         '-x', '--excluded-paths', nargs='+', default=[],
-        help='Paths to exclude during prerequisite lookup.'
+        help=('Paths to exclude during prerequisite lookup. If a directory '
+              'is given, said directory will not be crawled.')
     )
     parser.add_argument(
         '-a', '--alt-name', dest='alt_names', action='append', default=[],
-        help=('Alternative name for prerequisite executable files (by '
-              'default, check for \'prereqs\' executable files only).')
+        help=('Alternative name for prerequisite executable files. By '
+              'default, the tool will only look for files named \'prereqs\'.')
     )
     parser.add_argument(
         '-k', '--keep-going', action='store_true', default=False,

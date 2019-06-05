@@ -34,10 +34,10 @@ with `maliput` and `malidrive` packages only.
 
   ```sh
   cd dsim-repos-index
-  ./tools/prereqs-install -t .
+  ./tools/prereqs-install .
   ```
  
-  To also install `nvidia-docker`, run:
+  To install `nvidia-docker`, also run:
   
   ```sh
   cd dsim-repos-index
@@ -114,11 +114,28 @@ an existing workspace, the same procedure applies:
    vcs import src < maliput.repos
    vcs pull src
    ```
+   
+   Note that you can equally bring other repositories as well by importing from more
+   `.repos` files.
 
-4. Install **all** packages' prerequisites (this includes drake binaries):
+4. Install all packages' prerequisites, including drake and ignition binaries:
 
    ```sh
    sudo prereqs-install -t all src
+   ```
+
+   Check each package `prereqs` file to see what other tags are available and their 
+   implications. For instance, if building drake from source and using ignition 
+   binaries, you may want to run:
+
+   ```sh
+   sudo prereqs-install -t default -t ignition src
+   ```
+
+   Likewise, if building ignition from source and using drake binaries, run:
+
+   ```sh
+   sudo prereqs-install -t default -t drake src
    ```
 
 5. Leave and re-enter the workspace for installation to take effect.
@@ -192,10 +209,10 @@ focus instead on bridging the gap between them. Thus, for instance, `colcon` bui
 CMake packages by running `cmake` and `make` in the right order and setting up the environment for
 the artifacts to be available. Same applies for `vcs` and `rosdep`.
 
-The `wsetup` and `prereqs-install` tools mentioned earlier are not part of the standard workflow, but
-are there solely to standardize and simplify the setup of our development environments, and to deal with
-all the non-standard aspects of them respectively. Therefore, usage and extension of these tools should
-be sparse at best.
+In addition to these tools, we also count with `wsetup`, to standardize and simplify the setup of our 
+development workspaces by means of containerization, and `prereqs-install` to deal with all the non-standard
+preconditions that our packages introduce and `rosdep` cannot deal with. These tools **are not part of the 
+standard workflow**, and therefore their usage and extension of these tools should be sparse at best.
 
 ## How to use CI
 
@@ -205,8 +222,8 @@ a single repository must be separately PR'd but built and tested together.
 To that end, make sure that all PR'd branches that are part of the same patch
 have the same name e.g. `my_github_user/my_patch_name`.
 
-Note
-:  Personal repository forks are currently not supported.
+**Warning**
+:  Fork based development is currently not supported.
 
 # Troubleshooting
 
@@ -222,5 +239,5 @@ script that does the heavy lifting. Said script can be retrieved instead of exec
 by means of the `-o` flag:
 
 ```sh
-dsim-repos-index/wsetup -o setup.sh [...other-args...]
+dsim-repos-index/tools/wsetup -o setup.sh [...other-args...]
 ```

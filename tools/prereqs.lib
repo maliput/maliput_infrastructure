@@ -2,10 +2,13 @@
 
 PREREQS_TAGS=${PREREQS_TAGS:-default}
 
+# Checks whether prerequisites should be installed
+# interactively (i.e. issuing user prompts) or not.
 prereqs.interactive() {
     [ ${PREREQS_INTERACTIVE:-1} -eq 1 ]
 }
 
+# Initializes a prerequisite script.
 prereqs.init() {
     me=$1
 
@@ -17,24 +20,37 @@ prereqs.init() {
     trap at_exit EXIT
 }
 
+# Terminates prerequisite installation immediately.
+#
+# Arguments
+#   $@ -> message
 prereqs.die () {
     echo "$@" 1>&2
     trap : EXIT  # Disable line number reporting; the "$@" message is enough.
     exit 1
 }
 
+# Mark prerequisite installation as done, effectively
+# leaving the script immediately.
 prereqs.done () {
     trap : EXIT  # Disable line number reporting
     exit 0
 }
 
+# Pulls apt keys from a few well known keyservers.
+#
 # We've seen the "default" keyserver (p80.pool.sks-keyservers.net) fail somewhat
 # often.  This function will try the default, followed by some alternates to
 # reduce the number of times builds fail because of key problems.
+#
+# Arguments
+#    $1 -> apt key
+# Asserts
+#    That apt key pulling was successful.
 prereqs.pull_apt_keys() {
     success=0
     for keyserver in hkp://p80.pool.sks-keyservers.net:80 hkp://pgp.mit.edu:80 hkp://keyserver.ubuntu.com:80 ; do
-        sudo apt-key adv --keyserver $keyserver --recv-keys $1 || continue
+        apt-key adv --keyserver $keyserver --recv-keys $1 || continue
         success=1
         break
     done
@@ -42,6 +58,12 @@ prereqs.pull_apt_keys() {
     ASSERT_MSG="Failed to pull APT keys from keyservers" prereqs.assert [ $success -eq 1 ]
 }
 
+# Installs apt repository into system wide sources list.
+#
+# Arguments
+#   $1 -> name of the repository, to be used as sources list prefix.
+#   $2 -> url of the repository.
+#   $3 -> apt key for the repository.
 prereqs.install_apt_repo() {
     REPO_NAME=$1
     REPO_URL=$2
@@ -49,7 +71,7 @@ prereqs.install_apt_repo() {
 
     if ! grep -q "^deb .*$REPO_URL" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
         echo "deb $REPO_URL $(lsb_release -cs) main" | \
-        sudo tee --append /etc/apt/sources.list.d/$REPO_NAME.list > /dev/null
+        tee --append /etc/apt/sources.list.d/$REPO_NAME.list > /dev/null
         prereqs.pull_apt_keys $REPO_KEY
         echo "Apt Repo '$REPO_NAME'..........................installed"
     else
@@ -57,6 +79,10 @@ prereqs.install_apt_repo() {
     fi
 }
 
+# Wraps the apt command.
+#
+# If prerequisites installation is not interactive, enforce that
+# through command line options.
 prereqs.apt() {
     VERB=${@:1:1}
     ARGS=${@:2:$#}
@@ -66,6 +92,10 @@ prereqs.apt() {
     apt ${VERB} ${ARGS}
 }
 
+# Wraps the apt-get command.
+#
+# If prerequisites installation is not interactive, enforce that
+# through command line options.
 prereqs.apt-get() {
     VERB=${@:1:1}
     ARGS=${@:2:$#}
@@ -75,6 +105,14 @@ prereqs.apt-get() {
     apt-get ${VERB} ${ARGS}
 }
 
+# Asserts that a condition holds true.
+#
+# Arguments
+#   $@ -> condition to assert on, as a command.
+#
+# Environment
+#   $ASSERT_MSG -> If defined, use as the assertion message.
+#   $DEBUG -> If defined and non-empty, print the assertion.
 prereqs.assert() {
     if [ ! -z "$DEBUG" ]; then
         echo "ASSERT $@"
@@ -84,6 +122,14 @@ prereqs.assert() {
     fi
 }
 
+# Asserts that a condition does not hold true.
+#
+# Arguments
+#   $@ -> condition to assert on, as a command.
+#
+# Environment
+#   $ASSERT_MSG -> If defined, use as the assertion message.
+#   $DEBUG -> If defined and non-empty, print the assertion.
 prereqs.assert_not() {
     if [ ! -z "$DEBUG" ]; then
         echo "ASSERT_NOT $@"
@@ -93,10 +139,15 @@ prereqs.assert_not() {
     fi
 }
 
+# Asserts that user is root (i.e. sudo has been used).
 prereqs.assert_sudo() {
     ASSERT_MSG="${me} must run as root. Please use sudo." prereqs.assert [ "${EUID}" -eq 0 ]
 }
 
+# Checks whether a given set of tags have been specified and thus apply.
+#
+# Arguments
+#   $1 -> set of tags as a regular expression.
 prereqs.tag_applies() {
     IFS="," read -r -a tags <<< "$PREREQS_TAGS"
     [[ "${tags[@]}" =~ $1 ]]
