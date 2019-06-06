@@ -15,7 +15,7 @@ fi
 if prereqs.tag_applies "nvidia|all"; then
     prereqs.apt install pciutils
 
-    prereqs.assert [ "$(lspci -d 10de:: | grep -c -e 'VGA\|3D' | wc -l)" -gt 0 ] "NVIDIA card not found. Dockerized workspace won't work."
+    ASSERT_MSG="NVIDIA card not found. Dockerized workspace won't work." prereqs.assert [ "$(lspci -d 10de:: | grep -c -e 'VGA\|3D' | wc -l)" -gt 0 ]
 
     echo ">>> Checking if nvidia-docker is installed"
     if [ "$(dpkg -l | grep -c -E 'nvidia-docker')" -eq 1 ] && [ "$(dpkg -l | grep -c -E 'nvidia-docker2')" -eq 0 ]; then
