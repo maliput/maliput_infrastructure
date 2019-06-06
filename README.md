@@ -179,9 +179,12 @@ applies.
    sudo prereqs-install -t all src
    ```
 
-   Check each package `prereqs` file to see what other tags are available and their
-   implications. For instance, if building drake from source and using ignition
-   binaries, you may want to run:
+   Depending on what has been installed, you may need to leave and re-enter the workspace for
+   installation to take effect. **Make sure changes are saved upon leave!**
+
+   Also, check each package `prereqs` file to see what other tags are available and their
+   implications. For instance, if building drake from source and using ignition binaries,
+   you may want to run:
 
    ```sh
    sudo prereqs-install -t default -t ignition src
@@ -199,9 +202,6 @@ applies.
    rosdep update
    rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths src
    ```
-
-   Depending on what has been installed, you may need to leave and re-enter the workspace for
-   installation to take effect. **Make sure changes are saved upon leave!**
 
 6. When exiting the workspace, make sure changes are saved!
 
