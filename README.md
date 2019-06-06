@@ -133,7 +133,7 @@ rosdep check --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-m
   Note though that currently not all workspace prerequisites are nor can be dealt with using `rosdep`
   alone and thus `rosdep check` may fall short. When it comes down to pure binary dependencies, `drake`'s
   binary tarball is a good example, but prerequisites may go beyond that, `apt` source lists being another
-  good example. See `prereqs` executable files in each repository for further reference on what's currently
+  good example. See `prereqs` executable files in each repository for further details on what's currently
   being handled outside `rosdep`.
 
 In any given case, one can always resort to the specific tool used for repository versioning (e.g. `git`)
@@ -206,7 +206,7 @@ applies.
 
 The above sequence allows for full workspace updates, but it's not binding. A conscious user may want
 to only update dependencies for a patch he's working on (and thus, only steps 4. and 5. apply, and
-maybe not even both depending on if the dependency was declared on a `package.xml` or is being brought
+maybe not even both depending on if the dependency was declared in a `package.xml` or is being brought
 by a `prereqs` file) or even customize the workspace for a one time use. If in a containerized workspace,
 upon exit one may choose to not save any modifications and keep the environment clean.  Note that this does
 not apply to the workspace directory itself, as it exists outside and beyond the container lifetime, but
@@ -282,9 +282,9 @@ tool in addition to the configuration for these tools to attain a desired behavi
 `colcon` parallelism with the `--parallel-workers` switch has no impact on `make` parallelization settings
 if this tool is being used.
 
-In addition to these tools, we also count on `wsetup`, to standardize and simplify the setup of our
+In addition to these tools, we also count on `wsetup` to standardize and simplify the setup of our
 development workspaces by means of containerization, and `prereqs-install` to deal with all the non-standard
-preconditions that our packages introduce and `rosdep` cannot deal with. **These tools are not part of the
+preconditions that our packages introduce but `rosdep` cannot satisfy. **These tools are not part of the
 standard ROS2's development workflow**, and therefore their usage and extension should be sparse at best.
 
 ## How to use CI
