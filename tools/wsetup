@@ -6,6 +6,7 @@ import os
 import re
 import sys
 
+import signal
 import subprocess
 
 import jinja2
@@ -82,11 +83,10 @@ cat > $WORKSPACE_PATH/.ws/tmp/setup <<"OUTER_EOF"
 OUTER_EOF
 chmod +x $WORKSPACE_PATH/.ws/tmp/setup
 
-docker run --privileged --net=host --runtime=nvidia \\
+docker run --privileged --init --net=host --runtime=nvidia \\
   --name $CONTAINER_NAME -w $WORKSPACE_PATH \\
-  -v /home/$USER/.ssh:/home/$USER/.ssh \\
   -v $WORKSPACE_PATH:$WORKSPACE_PATH \\
-  $IMAGE_NAME $WORKSPACE_PATH/.ws/tmp/setup \\
+  -i $IMAGE_NAME $WORKSPACE_PATH/.ws/tmp/setup
 
 rm $WORKSPACE_PATH/.ws/tmp/setup
 
@@ -126,7 +126,7 @@ cat > $WORKSPACE_SCRIPT <<EOF
 CONTAINER_NAME="${SIMPLIFIED_IMAGE_NAME}_execution_\\$(date +%s)"
 
 xhost +
-docker run --privileged --rm --net=host --runtime=nvidia \\\\
+docker run --init --privileged --rm --net=host --runtime=nvidia \\\\
     --name \\$CONTAINER_NAME -e DISPLAY=\\$DISPLAY \\\\
     -e SSH_AUTH_SOCK=\\$SSH_AUTH_SOCK -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
     -v \\$(dirname \\$SSH_AUTH_SOCK):\\$(dirname \\$SSH_AUTH_SOCK) \\\\
@@ -312,10 +312,16 @@ if __name__ == '__main__':
     ) + os.linesep
 
     if not args.output:
-        sys.exit(subprocess.run(
-            '/bin/bash -s -- ' + args.path,
-            input=content, encoding='utf-8',
-            shell=True
-        ).returncode)
+        proc = subprocess.Popen(
+            ['/bin/bash', '-s', '--', args.path],
+            close_fds=False, stdin=subprocess.PIPE,
+            preexec_fn=os.setpgrp
+        )
+        try:
+            proc.communicate(input=content.encode('utf-8'))
+        except KeyboardInterrupt:
+            os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+        finally:
+            sys.exit(proc.wait())
     else:
         sys.stdout.write(content)
