@@ -61,7 +61,7 @@ dsim-repos-index/tools/wsetup maliput_ws
 ```
 
 Note
-:  The container image will be called maliput/devel:<UNIX timestamp>.
+:  The container image will be called maliput_ws:<UNIX timestamp>.
    Using UNIX timestamps for tags reduce the likelihood of name collision
    when multiple workspaces are present on the same host machine.
 
@@ -81,6 +81,17 @@ for the workspace can be supplied upon workspace creation:
 ```sh
 dsim-repos-index/tools/wsetup -e path/to/custom/prereqs maliput_ws
 ```
+
+### Delete your workspace
+
+You may also dispose a workspace. Once inside, run:
+
+```sh
+nuke
+```
+
+**Warning**
+:  You'll be prompted for confirmation twice. This is a permanent removal. It cannot be undone.
 
 ### Bringup your workspace
 
@@ -297,6 +308,7 @@ e.g. `my_github_user/my_patch_name`.
 
 **Warning**
 : Fork based development is currently not supported. All PRs must come from origin and not a fork.
+
 
 # Troubleshooting
 
