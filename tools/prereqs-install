@@ -124,14 +124,13 @@ if __name__ == '__main__':
                     path_to_prereqs,
                     stdout=subprocess.PIPE if not have_raw_output else None,
                     stderr=subprocess.PIPE if not have_raw_output else None,
-                    encoding='utf-8',
                     shell=True,
                     env=env
                 )
                 if not have_raw_output:
                     if args.verbose or (not args.quiet and process.returncode != 0):
-                        stdout_lines = process.stdout.splitlines()
-                        stderr_lines = process.stderr.splitlines()
+                        stdout_lines = process.stdout.decode('utf-8').splitlines()
+                        stderr_lines = process.stderr.decode('utf-8').splitlines()
                         max_line_length = 0
                         if stdout_lines:
                             max_line_length = max(len(line) for line in stdout_lines)

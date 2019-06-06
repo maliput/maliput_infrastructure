@@ -21,7 +21,8 @@ create a smaller workspace with `maliput` and `malidrive` packages only.
 
 ## Prerequisites
 
-* To get all necessary tools and repos files, clone this repo locally.
+* To get all necessary tools and repos files, clone this repo locally. Tools require
+  Python 3.5 or superior.
 
 * To pull private repositories, the current user default SSH keys will be used
   (and thus assumed as both necessary and sufficient for the purpose).
