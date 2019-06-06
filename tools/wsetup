@@ -57,8 +57,8 @@ RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 
 # Install base system dependencies
-RUN apt update && apt install -y sudo tmux openssh-server software-properties-common \\
-   bash-completion debian-keyring debian-archive-keyring build-essential apt-utils
+RUN apt update && apt install -y sudo openssh-server software-properties-common \\
+   debian-keyring debian-archive-keyring apt-utils
 
 # Create a user with passwordless sudo
 RUN adduser --uid $USERID --gecos "DSim Developer" --disabled-password $USER
@@ -126,16 +126,15 @@ cat > $WORKSPACE_SCRIPT <<EOF
 CONTAINER_NAME="${SIMPLIFIED_IMAGE_NAME}_execution_\\$(date +%s)"
 
 xhost +
-docker run --privileged --rm --net=host \\\\
-    --name \\$CONTAINER_NAME \\\\
-    -e DISPLAY=\\$DISPLAY --runtime=nvidia \\\\
-    -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
-    -v /home/$USER/.ssh:/home/$USER/.ssh \\\\
-    -v /tmp/.X11-unix:/tmp/.X11-unix:ro \\\\
+docker run --privileged --rm --net=host --runtime=nvidia \\\\
+    --name \\$CONTAINER_NAME -e DISPLAY=\\$DISPLAY \\\\
+    -e SSH_AUTH_SOCK=\\$SSH_AUTH_SOCK -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
+    -v \\$(dirname \\$SSH_AUTH_SOCK):\\$(dirname \\$SSH_AUTH_SOCK) \\\\
+    -v /home/$USER/.ssh:/home/$USER/.ssh -v /tmp/.X11-unix:/tmp/.X11-unix:ro \\\\
     -d $IMAGE_NAME sleep inf
 
-docker exec --privileged -w $WORKSPACE_PATH \\\\
-    -e DISPLAY=\\$DISPLAY -it \\$CONTAINER_NAME \\\\
+docker exec --privileged -w $WORKSPACE_PATH -e DISPLAY=\\$DISPLAY \\\\
+    -e SSH_AUTH_SOCK=\\$SSH_AUTH_SOCK -it \\$CONTAINER_NAME \\\\
     /bin/bash --rcfile $WORKSPACE_RCFILE -i \\$@
 EXEC_EXIT_CODE=\\$?
 
