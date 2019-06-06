@@ -86,7 +86,7 @@ chmod +x $WORKSPACE_PATH/.ws/tmp/setup
 docker run --privileged --init --net=host --runtime=nvidia \\
   --name $CONTAINER_NAME -w $WORKSPACE_PATH \\
   -v $WORKSPACE_PATH:$WORKSPACE_PATH \\
-  -i $IMAGE_NAME $WORKSPACE_PATH/.ws/tmp/setup
+  $IMAGE_NAME $WORKSPACE_PATH/.ws/tmp/setup
 
 rm $WORKSPACE_PATH/.ws/tmp/setup
 
