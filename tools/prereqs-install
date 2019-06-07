@@ -100,7 +100,7 @@ if __name__ == '__main__':
     env['PATH'] = ':'.join([env.get('PATH', ''), PATH_TO_BASH_LIBS])
 
     if not args.quiet:
-        print('┌ Ready for installation')
+        print('┌ Checking configuration...')
         if 'PREREQS_TAGS' in env and env['PREREQS_TAGS']:
             print('│  Tags: ', env['PREREQS_TAGS'])
         interactive = 'no'
@@ -111,8 +111,9 @@ if __name__ == '__main__':
             print('│  Excluded paths: ')
             for path in args.excluded_paths:
                 print('│    - ', path)
-
+        print('└ Ready for installation')
     exitcode = 0
+    paths_processed = []
     for path in args.paths:
         try:
             for path_to_prereqs in collect_prerequisites(
@@ -158,9 +159,12 @@ if __name__ == '__main__':
                     exitcode = 1
                 else:
                     print('└─ ✓ Done', flush=True)
+                paths_processed.append(path_to_prereqs)
         except ValueError as e:
             print('✗ Failed prerequisite lookup: {}'.format(str(e)), flush=True)
             exitcode = 1
             if not args.keep_going:
                 break
+    if not paths_processed and not args.quiet:
+        print('? No prerequisites were processed')
     sys.exit(exitcode)

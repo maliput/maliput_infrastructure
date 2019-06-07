@@ -84,14 +84,18 @@ dsim-repos-index/tools/wsetup -e path/to/custom/prereqs maliput_ws
 
 ### Delete your workspace
 
-You may also dispose a workspace. Once inside, run:
+You may also dispose a workspace. That is, to dispose the container image, if any, and all workspace
+specific files e.g. the `bringup` script. Once inside of your workspace, run:
 
 ```sh
 nuke
 ```
 
+Note that all files and directories added by the user within the workspace directory itself, like the typical
+`build`, `install`, `log` and `src` directories, will not be affected by this operation.
+
 **Warning**
-:  You'll be prompted for confirmation twice. This is a permanent removal. It cannot be undone.
+:  You'll be prompted twice for confirmation. This is a permanent removal. It cannot be undone.
 
 ### Bringup your workspace
 
@@ -207,12 +211,16 @@ applies.
    sudo prereqs-install -t default -t drake src
    ```
 
-5. Install all packages' dependencies.
+5. Install all packages' dependencies:
 
    ```sh
    rosdep update
    rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths src
    ```
+
+   If having issues with this step, make sure the `$ROS_DISTRO` environment variable is defined. If not, first ensure
+   you didn't skip step 4., including leaving and re-entering the workspace saving all changes in the process to make
+   sure prerequisite installation took effect.
 
 6. When exiting the workspace, make sure changes are saved!
 
