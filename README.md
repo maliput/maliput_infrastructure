@@ -84,7 +84,7 @@ dsim-repos-index/tools/wsetup -e path/to/custom/prereqs maliput_ws
 
 ### Delete your workspace
 
-You may also dispose a workspace. That is, to dispose the container image, if any, and all workspace
+You may also dispose a workspace. That is, to dispose of the container image, if any, and all workspace
 specific files e.g. the `bringup` script. Once inside of your workspace, run:
 
 ```sh
@@ -92,7 +92,12 @@ nuke
 ```
 
 Note that all files and directories added by the user within the workspace directory itself, like the typical
-`build`, `install`, `log` and `src` directories, will not be affected by this operation.
+`build`, `install`, `log` and `src` directories, will not be affected by this operation. To get rid of those
+as well, simply remove the workspace directory once outside the workspace:
+
+```sh
+rm -rf maliput_ws
+```
 
 **Warning**
 :  You'll be prompted twice for confirmation. This is a permanent removal. It cannot be undone.
@@ -219,13 +224,13 @@ applies.
    ```
 
    If having issues with this step, make sure the `$ROS_DISTRO` environment variable is defined. If not, first ensure
-   you didn't skip step 4., including leaving and re-entering the workspace saving all changes in the process to make
-   sure prerequisite installation took effect.
+   you didn't skip step 4, including leaving and re-entering the workspace, saving all changes in the process, to make
+   sure that prerequisites installation took effect.
 
 6. When exiting the workspace, make sure changes are saved!
 
 The above sequence allows for full workspace updates, but it's not binding. A conscious user may want
-to only update dependencies for a patch he's working on (and thus, only steps 4. and 5. apply, and
+to only update dependencies for a patch he's working on (and thus, only steps 4 and 5 apply, and
 maybe not even both depending on if the dependency was declared in a `package.xml` or is being brought
 by a `prereqs` file) or even customize the workspace for a one time use. If in a containerized workspace,
 upon exit one may choose to not save any modifications and keep the environment clean.  Note that this does
