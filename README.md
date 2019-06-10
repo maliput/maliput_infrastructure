@@ -84,7 +84,7 @@ dsim-repos-index/tools/wsetup -e path/to/custom/prereqs maliput_ws
 
 ### Delete your workspace
 
-You may also dispose a workspace. That is, to dispose of the container image, if any, and all workspace
+You may also dispose of a workspace. That is, to dispose of the container image, if any, and all workspace
 specific files e.g. the `bringup` script. Once inside of your workspace, run:
 
 ```sh
