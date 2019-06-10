@@ -2,9 +2,7 @@
 
 set -eo pipefail
 
-source ./.bashrc
-
 source ./install/setup.bash
 
 colcon test --event-handlers=console_direct+ --return-code-on-test-failure \
-       --packages-skip PROJ4 ${COLCON_TEST_EXTRA_ARGS:-}
+       --packages-skip PROJ4 pybind11 ${COLCON_TEST_EXTRA_ARGS:-}

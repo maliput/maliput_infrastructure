@@ -1,0 +1,65 @@
+#! /bin/bash
+
+source prereqs.lib
+
+prereqs.init 'The dsim index prerequisites script'
+
+prereqs.assert_sudo
+
+prereqs.apt update
+
+if prereqs.tag_applies "default|all"; then
+    prereqs.apt install python3-jinja2
+fi
+
+if prereqs.tag_applies "nvidia|all"; then
+    prereqs.apt install pciutils
+
+    ASSERT_MSG="NVIDIA card not found. Dockerized workspace won't work." prereqs.assert [ "$(lspci -d 10de:: | grep -c -e 'VGA\|3D' | wc -l)" -gt 0 ]
+
+    echo ">>> Checking if nvidia-docker is installed"
+    if [ "$(dpkg -l | grep -c -E 'nvidia-docker')" -eq 1 ] && [ "$(dpkg -l | grep -c -E 'nvidia-docker2')" -eq 0 ]; then
+        echo "nvidia-docker 1.0 will be removed. Are you sure you want to proceed? This will delete all your images that use nvidia.(y/n)"
+        read remove_nvidia_docker
+        if [ "$remove_nvidia_docker" != "${remove_nvidia_docker#[Yy]}" ]; then
+            docker volume ls -q -f driver=nvidia-docker | xargs -r -I{} -n1 docker ps -q -a -f volume={} | xargs -r docker rm -f
+            prereqs.apt-get purge nvidia-docker
+        else
+            die "Not going to proceed with the setup. nvidia-docker2 is required."
+        fi
+    fi
+
+    echo ">>> Checking if nvidia-docker2 is installed"
+    if [ "$(dpkg -l | grep -c -E 'nvidia-docker2')" -eq 0 ]; then
+        echo ">>>> Installing nvidia-docker2"
+        distro="$(lsb_release -cs)"
+        if [ "${distro}" == 'bionic' ]; then
+            curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | apt-key add -
+            distribution=$(. /etc/os-release; echo $ID$VERSION_ID)
+            curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \
+                tee /etc/apt/sources.list.d/nvidia-docker.list
+            prereqs.apt update
+            prereqs.apt install nvidia-docker2
+            pkill -SIGHUP dockerd
+            service docker restart
+        elif [ "${distro}" == "xenial" ]; then
+            curl -s -L https://nvidia.github.io/nvidia-container-runtime/gpgkey | apt-key add -
+            curl -s -L https://nvidia.github.io/nvidia-container-runtime/ubuntu16.04/amd64/nvidia-container-runtime.list | \
+                tee /etc/apt/sources.list.d/nvidia-container-runtime.list
+            prereqs.apt update
+            prereqs.apt install nvidia-container-runtime nvidia-docker2
+            mkdir -p /etc/systemd/system/docker.service.d
+            tee /etc/systemd/system/docker.service.d/override.conf <<"OUTER_EOF"
+    [Service]
+    ExecStart=
+    ExecStart=/usr/bin/dockerd --host=fd:// --add-runtime=nvidia=/usr/bin/nvidia-container-runtime
+OUTER_EOF
+            systemctl daemon-reload
+            systemctl restart
+        else
+            prereqs.die "Ubuntu ${distro} is not a supported distribution"
+        fi
+    fi
+fi
+
+prereqs.done

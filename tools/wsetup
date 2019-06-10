@@ -1,0 +1,340 @@
+#!/usr/bin/env python3
+
+import argparse
+
+import os
+import re
+import sys
+
+import signal
+import subprocess
+
+import jinja2
+
+DOCKERIZED_SETUP_SCRIPT_TEMPLATE = """\
+#! /bin/bash
+
+set -eu
+set -o pipefail
+@% if verbose %@
+set -o xtrace
+@% endif %@
+
+USER=$(whoami)
+USERID=$(id -u)
+
+WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
+WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
+WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
+
+echo "> Setting up containerized @{ workspace_name }@ workspace"
+
+mkdir -p $WORKSPACE_PATH
+
+IMAGE_NAME="@{ workspace_name }@:$(date +%s)"
+SIMPLIFIED_IMAGE_NAME=$(sed 's/[\\/:]/_/g' -<<<"$IMAGE_NAME")
+
+if [ -z "$(docker images -q $IMAGE_NAME 2>/dev/null)" ]; then
+echo ">> Building base image for @{ workspace_name }@ workspace"
+@% if not verbose %@
+DOCKER_BUILD_OPTS="${DOCKER_BUILD_OPTS:-} -q"
+@% endif %@
+
+docker build ${DOCKER_BUILD_OPTS:-} -t $IMAGE_NAME -<<EOF
+FROM nvidia/opengl:1.0-glvnd-runtime-ubuntu18.04
+
+# Setup nvidia runtime
+ENV NVIDIA_VISIBLE_DEVICES \\${NVIDIA_VISIBLE_DEVICES:-all}
+ENV NVIDIA_DRIVER_CAPABILITIES \\
+   \\${NVIDIA_DRIVER_CAPABILITIES:+\\$NVIDIA_DRIVER_CAPABILITIES,}graphics
+
+# Setup environment
+ENV TERM linux
+ENV DEBIAN_FRONTEND noninteractive
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+RUN apt update
+RUN apt install -y locales
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+
+# Install base system dependencies
+RUN apt update && apt install -y sudo openssh-server software-properties-common \\
+   debian-keyring debian-archive-keyring apt-utils
+
+# Create a user with passwordless sudo
+RUN adduser --uid $USERID --gecos "DSim Developer" --disabled-password $USER
+RUN adduser $USER sudo
+RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+RUN echo "export QT_X11_NO_MITSHM=1" >> /home/$USER/.bashrc
+
+USER $USER
+EOF
+
+fi
+
+echo ">> Entering @{ workspace_name }@ workspace container"
+
+CONTAINER_NAME="${SIMPLIFIED_IMAGE_NAME}_build"
+
+mkdir -p $WORKSPACE_PATH/.ws/tmp
+
+cat > $WORKSPACE_PATH/.ws/tmp/setup <<"OUTER_EOF"
+@{ base_script }@
+OUTER_EOF
+chmod +x $WORKSPACE_PATH/.ws/tmp/setup
+
+docker run --privileged --init --net=host --runtime=nvidia \\
+  --name $CONTAINER_NAME -w $WORKSPACE_PATH \\
+  -v $WORKSPACE_PATH:$WORKSPACE_PATH \\
+  $IMAGE_NAME $WORKSPACE_PATH/.ws/tmp/setup
+
+rm $WORKSPACE_PATH/.ws/tmp/setup
+
+echo ">> Committing @{ workspace_name }@ workspace container"
+
+docker commit $CONTAINER_NAME $IMAGE_NAME
+
+docker stop $CONTAINER_NAME > /dev/null
+docker rm $CONTAINER_NAME > /dev/null
+
+echo ">> Updating workspace environment hooks"
+
+echo ">>> Updating $WORKSPACE_RCFILE"
+cat >> $WORKSPACE_RCFILE <<"EOF"
+
+# Trap workspace exits and give the user the choice to save changes.
+function onexit() {
+   rv=$?
+   if [ $rv -ne 10 ]; then
+     read -p 'Do you want to save all workspace changes? [y/N]: ' answer
+     if [[ "${answer:0:1}" =~ y|Y ]]; then
+        rv=12  # Re-using SIGUSR2.
+     fi
+   fi
+   exit $rv
+}
+
+trap onexit EXIT
+EOF
+
+echo ">>> Updating $WORKSPACE_SCRIPT"
+cat > $WORKSPACE_SCRIPT <<EOF
+# Bring up workspace as necessary
+
+CONTAINER_NAME="${SIMPLIFIED_IMAGE_NAME}_execution_\\$(date +%s)"
+
+xhost +
+docker run --init --privileged --rm --net=host --runtime=nvidia \\\\
+    --name \\$CONTAINER_NAME -e DISPLAY=\\$DISPLAY \\\\
+    -e SSH_AUTH_SOCK=\\$SSH_AUTH_SOCK -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
+    -v \\$(dirname \\$SSH_AUTH_SOCK):\\$(dirname \\$SSH_AUTH_SOCK) \\\\
+    -v /home/$USER/.ssh:/home/$USER/.ssh -v /tmp/.X11-unix:/tmp/.X11-unix:ro \\\\
+    -d $IMAGE_NAME sleep inf
+
+docker exec --privileged -w $WORKSPACE_PATH -e DISPLAY=\\$DISPLAY \\\\
+    -e SSH_AUTH_SOCK=\\$SSH_AUTH_SOCK -it \\$CONTAINER_NAME \\\\
+    /bin/bash --rcfile $WORKSPACE_RCFILE -i \\$@
+EXEC_EXIT_CODE=\\$?
+
+CONTAINER_ID=\\$(docker ps -q --filter "name=\\$CONTAINER_NAME")
+if [ ! -z "\\$CONTAINER_ID" ]; then
+   if [ \\$EXEC_EXIT_CODE -eq 12 ]; then
+     docker commit \\$CONTAINER_ID $IMAGE_NAME
+   fi
+   docker stop \\$CONTAINER_ID
+fi
+if [ \\$EXEC_EXIT_CODE -eq 10 ]; then
+   docker rmi $IMAGE_NAME
+fi
+xhost -
+EOF
+echo "> Containerized workspace setup successfully"
+"""
+
+SETUP_SCRIPT_TEMPLATE = """\
+#!/bin/bash
+
+set -eu
+set -o pipefail
+@% if verbose %@
+set -o xtrace
+@% endif %@
+
+WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
+WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
+WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
+
+echo "> Setting up @{ workspace_name }@ workspace at $WORKSPACE_PATH"
+
+echo ">> Installing workspace tools"
+@% for name, content in tools %@
+
+echo ">>> Installing @{ name }@"
+
+TOOL_PATH="/usr/bin/@{ name }@"
+
+sudo tee ${TOOL_PATH} > /dev/null <<"EOF"
+@{ content }@
+EOF
+
+sudo chmod +x ${TOOL_PATH}
+
+@% endfor %@
+
+@% if verbose %@
+
+PREREQ_OPTS="${PREREQ_OPTS:-} -vv"
+
+@% endif %@
+
+echo ">> Installing workspace prerequisites"
+@% for name, content in prereqs %@
+
+PREREQ_PATH="$WORKSPACE_PATH/.ws/tmp/@{name}@"
+
+mkdir -p $(dirname ${PREREQ_PATH})
+
+cat > ${PREREQ_PATH} <<"EOF"
+@{ content }@
+EOF
+
+chmod +x ${PREREQ_PATH}
+
+sudo prereqs-install ${PREREQ_OPTS:-} ${PREREQ_PATH}
+
+rm $WORKSPACE_PATH/.ws/tmp/@{name}@
+
+@% endfor %@
+
+echo ">> Installing workspace environment hooks"
+
+echo ">>> Installing $WORKSPACE_RCFILE"
+cat > $WORKSPACE_RCFILE <<EOF
+# Source system wide rcfile.
+source /etc/bash.bashrc
+
+# Source user specific rcfile.
+source ~/.bashrc
+
+# Let the user know this is another environment.
+export PS1="(@{ workspace_name }@ env) \\${PS1:-}"
+
+# Add workspace deletion command.
+function nuke() {
+  read -p 'Do you want to delete this workspace? [y/N]: ' answer
+  if [[ "\\${answer:0:1}" =~ y|Y ]]; then
+    read -p 'Are you sure you want to delete this workspace? [y/N]: ' answer
+    if [[ "\\${answer:0:1}" =~ y|Y ]]; then
+      rm -rf $WORKSPACE_PATH/.ws
+      rm -rf $WORKSPACE_RCFILE
+      rm -rf $WORKSPACE_SCRIPT
+      exit 10  # Re-using SIGUSR1.
+    fi
+  fi
+}
+EOF
+
+echo ">>> Installing $WORKSPACE_SCRIPT"
+cat > $WORKSPACE_SCRIPT <<EOF
+# Bring up workspace as necessary
+
+/bin/bash --rcfile $WORKSPACE_RCFILE -i \\$@
+EOF
+echo "> Workspace setup successfully"
+"""
+
+PATH_TO_SCRIPT = os.path.realpath(__file__)
+PATH_TO_SCRIPT_DIR = os.path.dirname(PATH_TO_SCRIPT)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Development workspace setup tool',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument(
+        '-v', '--verbose', action='store_true', default=False,
+        help='Increase setup process verbosity.'
+    )
+    parser.add_argument(
+        '-o', '--output', action='store_true', default=False,
+        help='Output setup script but do not execute it.'
+    )
+    parser.add_argument(
+        '-e', '--extra-prereqs', action='append', default=[],
+        help=('Extra user-defined prerequisite executable files'
+              'to setup the workspace with.')
+    )
+    parser.add_argument(
+        '--no-container', action='store_true', default=False,
+        help=('Do not isolate the workspace in a container. '
+              'This pollutes the host environment and makes '
+              'reproducing it hard if not impossible. Use at '
+              'your own risk.')
+    )
+    parser.add_argument(
+        'path', help='Path to workspace to setup.'
+    )
+    args = parser.parse_args()
+
+    env = jinja2.Environment(
+        block_start_string="@%", block_end_string="%@",
+        variable_start_string="@{", variable_end_string="}@",
+        comment_start_string="@#", comment_end_string="@#"
+    )
+
+    context = {
+        'workspace_name': os.path.basename(
+            os.path.realpath(args.path)
+        ),
+        'verbose': args.verbose
+    }
+    if args.no_container:
+        template = env.from_string(SETUP_SCRIPT_TEMPLATE)
+        context['tools'] = []
+        for filename in os.listdir(PATH_TO_SCRIPT_DIR):
+            fullpath = os.path.join(PATH_TO_SCRIPT_DIR, filename)
+            if not os.path.isfile(fullpath):
+                continue
+            if fullpath == PATH_TO_SCRIPT:
+                continue
+            with open(fullpath, 'r') as f:
+                context['tools'].append((filename, f.read()))
+        context['prereqs'] = []
+        path_to_default_prereqs = os.path.join(
+            PATH_TO_SCRIPT_DIR, 'etc', 'default.prereqs'
+        )
+        with open(path_to_default_prereqs, 'r') as f:
+            context['prereqs'].append(('default.prereqs', f.read()))
+        for i, path_to_prereqs in enumerate(args.extra_prereqs):
+            with open(path_to_prereqs, 'r') as f:
+                context['prereqs'].append(
+                    ('extra.prereqs.{}'.format(i), f.read())
+                )
+    else:
+        template = env.from_string(DOCKERIZED_SETUP_SCRIPT_TEMPLATE)
+        wsetup_cmd = [__file__, '-o', '--no-container']
+        if args.verbose:
+            wsetup_cmd.append('-v')
+        for prereqs in args.extra_prereqs:
+            wsetup_cmd.extend(['-e', prereqs])
+        wsetup_cmd.append(args.path)
+        context['base_script'] = subprocess.check_output(wsetup_cmd).decode()
+
+    content = re.sub(
+        os.linesep + '{3,}', os.linesep * 2, template.render(**context)
+    ) + os.linesep
+
+    if not args.output:
+        proc = subprocess.Popen(
+            ['/bin/bash', '-s', '--', args.path],
+            close_fds=False, stdin=subprocess.PIPE,
+            preexec_fn=os.setpgrp
+        )
+        try:
+            proc.communicate(input=content.encode('utf-8'))
+        except KeyboardInterrupt:
+            os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+        finally:
+            sys.exit(proc.wait())
+    else:
+        sys.stdout.write(content)

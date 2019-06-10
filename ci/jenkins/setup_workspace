@@ -6,8 +6,6 @@ set -euo pipefail
 # be able to build the workspace.  All other dependencies will be installed
 # during setup_late.
 
-export DEBIAN_FRONTEND='noninteractive'
+sudo ./index/tools/prereqs-install index/
 
-# Install the common dependencies and ignition libraries.
-sudo apt-get update -qq
-sudo apt-get install -y --no-install-recommends awscli curl git
+./index/tools/wsetup -v --no-container .
