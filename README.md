@@ -4,7 +4,7 @@ This repository contains `.repos` files and tools that enable the creation and
 maintenance of development workspaces. Each `.repos` file brings in a subset
 of all needed packages.
 
-For instance, while `maliput.repos` pulls all `maliput` packages on road network
+For instance, while [`maliput.repos`](maliput.repos) pulls all `maliput` packages on road network
 descriptions, plus the `malidrive` backend package and `delphyne` packages for
 visualization and prototyping, one could alternatively use `malidrive.repos` to
 create a smaller workspace with `maliput` and `malidrive` packages only.
@@ -49,7 +49,7 @@ create a smaller workspace with `maliput` and `malidrive` packages only.
 
 In the following, it is assumed that you want to create a workspace for working on Maliput and
 Malidrive. As such, it suggests the creation of a workspace in a `maliput_ws` directory and
-pulling sources from the `maliput.repos` file. You should choose a name that is appropriate
+pulling sources from the [`maliput.repos`](maliput.repos) file. You should choose a name that is appropriate
 for your intended purpose.
 
 ### Create a workspace
