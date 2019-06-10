@@ -35,14 +35,14 @@ create a smaller workspace with `maliput` and `malidrive` packages only.
 
   ```sh
   cd dsim-repos-index
-  ./tools/prereqs-install .
+  sudo ./tools/prereqs-install .
   ```
 
   To install `nvidia-docker`, also run:
 
   ```sh
   cd dsim-repos-index
-  ./tools/prereqs-install -t nvidia .
+  sudo ./tools/prereqs-install -t nvidia .
   ```
 
 ## Usage instructions
