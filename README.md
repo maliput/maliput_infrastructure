@@ -312,6 +312,17 @@ development workspaces by means of containerization, and `prereqs-install` to de
 preconditions that our packages introduce but `rosdep` cannot satisfy. **These tools are not part of the
 standard ROS2's development workflow**, and therefore their usage and extension should be sparse at best.
 
+## List of repositories
+
+The following is an exhaustive list of the repositories where all relevant packages live, excluding
+repositories for upstream dependencies:
+
+- [ToyotaResearchInstitute/delphyne](https://github.com/ToyotaResearchInstitute/delphyne/), that contains a package with the back-end for a traffic level simulator for autonomous driving.
+- [ToyotaResearchInstitute/delphyne-gui](https://github.com/ToyotaResearchInstitute/delphyne-gui/), that contains a package with the front-end for a traffic level simulator for autonomous driving.
+- [ToyotaResearchInstitute/drake-ros](https://github.com/ToyotaResearchInstitute/drake-ros/), that contains a vendoring package for [`drake`](https://github.com/RobotLocomotion/drake).
+- [ToyotaResearchInstitute/malidrive](https://github.com/ToyotaResearchInstitute/malidrive/), that contains a package with a `maliput` backend for the OpenDrive specification.
+- [ToyotaResearchInstitute/maliput](https://github.com/ToyotaResearchInstitute/maliput/), that contains packages introducing `maliput`, a road network runtime interface, and reference backends: `dragway` and `multilane`.
+
 ## How to use CI
 
 CI jobs build and test relevant packages for each repository on every PR. Being a multi-repository project,
@@ -321,7 +332,6 @@ e.g. `my_github_user/my_patch_name`.
 
 **Warning**
 : Fork based development is currently not supported. All PRs must come from origin and not a fork.
-
 
 # Troubleshooting
 
