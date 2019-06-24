@@ -226,19 +226,43 @@ if `vcs` isn't enough or to the specific package managers (e.g. `apt` or `pip`) 
    source bringup
    ```
 
-1. Build all packages:
+2. Build the workspace, which can be done in full or partially.
+
+   To build all packages:
 
    ```sh
    colcon build
    ```
 
-   If you are building `drake` from source as well, run instead:
+   To build some packages, along with their dependencies (recursively), use the
+   `--packages-up-to` flag. For instance, to build `maliput` and `malidrive`:
 
    ```sh
-   colcon build --cmake-args -DWITH_PYTHON_VERSION=3
+   colcon build --packages-up-to maliput malidrive
    ```
 
-6. Source the workspace:
+   To build some packages and only those packages (i.e. without their dependencies),
+   use the `--packages-select` flag instead:
+
+   ```sh
+   colcon build --packages-select maliput malidrive
+   ```
+
+   Note that if dependencies cannot be met, because they are not installed or not built,
+   the build will fail. Thus, this flag is usually helpful only to quickly rebuild a package
+   after building it along with its dependencies.
+
+Note
+:  If you are building `drake` from source as well, make sure `--cmake-args -DWITH_PYTHON_VERSION=3` is
+passed to `colcon`. Otherwise, python packages and scripts in `delphyne` and `delphyne-gui` packages
+won't find `pydrake`.
+
+Note
+:  To build with debug symbols, and given that we use CMake packages only, just make sure
+that `CMAKE_BUILD_TYPE=Debug`. You can force it by passing `--cmake-args -DCMAKE_BUILD_TYPE=Debug`
+to `colcon`.
+
+3. Source the workspace:
 
    ```sh
    source install/setup.bash
