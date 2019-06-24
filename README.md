@@ -272,6 +272,9 @@ Note
 : If `delphyne` is available, we recommend you to run `delphyne-gazoo` and `delphyne-mali` (type them in
 your terminal) to see if everything is properly working.
 
+Note
+:  See [`colcon` documentation](https://colcon.readthedocs.io/en/released/user/how-to.html#build-only-a-single-package-or-selected-packages) for further reference on `build` support.
+
 ### Test your workspace
 
 In a built workspace, run:
@@ -279,6 +282,10 @@ In a built workspace, run:
 ```sh
 colcon test --event-handlers=console_direct+ --return-code-on-test-failure --packages-skip PROJ4 pybind11
 ```
+
+Note
+:  See [`colcon` documentation](https://colcon.readthedocs.io/en/released/user/how-to.html#run-specific-tests)
+for further reference on `test` support.
 
 ### Delete your workspace
 
