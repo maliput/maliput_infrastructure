@@ -74,32 +74,14 @@ Note
 :  Bear in mind that using a non-containerized workspace makes reproducing and troubleshooting
    issues harder for others. Thus, we highly recommend that you use a containerized workspace.
 
-Both operations will setup a ROS2-like workspace. If need be, additional prerequisites
-for the workspace can be supplied upon workspace creation:
+If need be, additional prerequisites for the workspace can be supplied upon workspace creation:
 
 ```sh
 dsim-repos-index/tools/wsetup -e path/to/custom/prereqs maliput_ws
 ```
 
-### Delete your workspace
-
-You may also dispose of a workspace. That is, to dispose of the container image, if any, and all workspace
-specific files e.g. the `bringup` script. Once inside of your workspace, run:
-
-```sh
-nuke
-```
-
-Note that all files and directories added by the user within the workspace directory itself, like the typical
-`build`, `install`, `log` and `src` directories, will not be affected by this operation. To get rid of those
-as well, simply remove the workspace directory once outside the workspace:
-
-```sh
-rm -rf maliput_ws
-```
-
-**Warning**
-:  You'll be prompted twice for confirmation. This is a permanent removal. It cannot be undone.
+These operations will setup a workspace, but without any sources yet. Follow the instructions on
+how to [update your workspace](#update-your-workspace) to get them for the first time.
 
 ### Bringup your workspace
 
@@ -117,48 +99,6 @@ Note
    should be saved. For the sake of storage efficiency, only save them if you've applied changes
    outside the workspace directory and to the container filesystem itself (e.g. you installed a
    new package or tool using `apt`) and you wish to keep them.
-
-### Check your workspace
-
-Workspace state as a whole encompasses both current local repositories' state plus the state of
-the filesystem that hosts it. However, if a workspace is containerized and no customizations are
-applied by the user, repositories alone carry the source code and state the list of system dependencies
-necessary to build and execute. And we can easily inspect repositories.
-
-1. Bring up the workspace to check:
-
-   ```sh
-   cd maliput_ws
-   source bringup
-   ```
-
-2. To check repositories' status, run:
-
-```sh
-vcs status src
-```
-
-3. To see changes in the repositories' working tree, run:
-
-```sh
-vcs diff src
-```
-
-4. To see if (most of) our versioned packages' dependencies have been met, run:
-
-```sh
-rosdep check --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths src
-```
-
-  Note though that currently not all workspace prerequisites are nor can be dealt with using `rosdep`
-  alone and thus `rosdep check` may fall short. When it comes down to pure binary dependencies, `drake`'s
-  binary tarball is a good example, but prerequisites may go beyond that, `apt` source lists being another
-  good example. See `prereqs` executable files in each repository for further details on what's currently
-  being handled outside `rosdep`.
-
-In any given case, one can always resort to the specific tool used for repository versioning (e.g. `git`)
-if `vcs` isn't enough or to the specific package managers (e.g. `apt` or `pip`) if `rosdep` isn't enough.
-
 
 ### Update your workspace
 
@@ -237,6 +177,47 @@ not apply to the workspace directory itself, as it exists outside and beyond the
 since repositories are versioned, changes can be checked out, stashed or even reverted. In extreme cases,
 setting up disposable workspaces remains an option.
 
+### Check your workspace
+
+Workspace state as a whole encompasses both current local repositories' state plus the state of
+the filesystem that hosts it. However, if a workspace is containerized and no customizations are
+applied by the user, repositories alone carry the source code and state the list of system dependencies
+necessary to build and execute. And we can easily inspect repositories.
+
+1. Bring up the workspace to check:
+
+   ```sh
+   cd maliput_ws
+   source bringup
+   ```
+
+2. To check repositories' status, run:
+
+   ```sh
+   vcs status src
+   ```
+
+3. To see changes in the repositories' working tree, run:
+
+   ```sh
+   vcs diff src
+   ```
+
+4. To see if (most of) our versioned packages' dependencies have been met, run:
+
+   ```sh
+   rosdep check --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths src
+   ```
+
+   Note though that currently not all workspace prerequisites are nor can be dealt with using `rosdep`
+   alone and thus `rosdep check` may fall short. When it comes down to pure binary dependencies, `drake`'s
+   binary tarball is a good example, but prerequisites may go beyond that, `apt` source lists being another
+   good example. See `prereqs` executable files in each repository for further details on what's currently
+   being handled outside `rosdep`.
+
+In any given case, one can always resort to the specific tool used for repository versioning (e.g. `git`)
+if `vcs` isn't enough or to the specific package managers (e.g. `apt` or `pip`) if `rosdep` isn't enough.
+
 ### Build your workspace
 
 1. Bring up the workspace to build on:
@@ -274,6 +255,26 @@ In a built workspace, run:
 ```sh
 colcon test --event-handlers=console_direct+ --return-code-on-test-failure --packages-skip PROJ4 pybind11
 ```
+
+### Delete your workspace
+
+You may also dispose of a workspace. That is, to dispose of the container image, if any, and all workspace
+specific files e.g. the `bringup` script. Once inside of your workspace, run:
+
+```sh
+nuke
+```
+
+Note that all files and directories added by the user within the workspace directory itself, like the typical
+`build`, `install`, `log` and `src` directories, will not be affected by this operation. To get rid of those
+as well, simply remove the workspace directory once outside the workspace:
+
+```sh
+rm -rf maliput_ws
+```
+
+**Warning**
+:  You'll be prompted twice for confirmation. This is a permanent removal. It cannot be undone.
 
 # Contributing
 
