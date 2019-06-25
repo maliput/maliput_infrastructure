@@ -246,6 +246,16 @@ echo "> Workspace setup successfully"
 PATH_TO_SCRIPT = os.path.realpath(__file__)
 PATH_TO_SCRIPT_DIR = os.path.dirname(PATH_TO_SCRIPT)
 
+
+def prompt_sudo():
+    """
+    Prompts for sudo credentials if not root already.
+    """
+    if os.geteuid() == 0:
+        return True
+    return subprocess.check_call('sudo -v', shell=True) == 0
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='Development workspace setup tool',
@@ -289,6 +299,9 @@ if __name__ == '__main__':
         'verbose': args.verbose
     }
     if args.no_container:
+        if not args.output and not prompt_sudo():
+            print('Need sudo to setup non-containerized workspace.')
+            sys.exit(-1)
         template = env.from_string(SETUP_SCRIPT_TEMPLATE)
         context['tools'] = []
         for filename in os.listdir(PATH_TO_SCRIPT_DIR):
