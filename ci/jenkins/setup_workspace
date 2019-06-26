@@ -8,4 +8,4 @@ set -euo pipefail
 
 sudo ./index/tools/prereqs-install index/
 
-./index/tools/wsetup -v --non-interactive --no-container .
+sudo ./index/tools/wsetup -v --no-container .

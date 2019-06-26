@@ -247,17 +247,11 @@ PATH_TO_SCRIPT = os.path.realpath(__file__)
 PATH_TO_SCRIPT_DIR = os.path.dirname(PATH_TO_SCRIPT)
 
 
-def ensure_sudo(may_prompt=True):
+def is_sudo(may_prompt=True):
     """
-    Ensures sudo credentials are available.
+    Check if running with sudo credentials.
     """
-    cmd = 'sudo -v'
-    if not may_prompt:
-        cmd += ' -n'
-    try:
-        return subprocess.call(cmd, shell=True) == 0
-    except KeyboardInterrupt:
-        return False
+    return os.geteuid() == 0
 
 
 if __name__ == '__main__':
@@ -277,10 +271,6 @@ if __name__ == '__main__':
         '-e', '--extra-prereqs', action='append', default=[],
         help=('Extra user-defined prerequisite executable files'
               'to setup the workspace with.')
-    )
-    parser.add_argument(
-        '-n', '--non-interactive', action='store_true', default=False,
-        help='Setup the workspace non interactively.'
     )
     parser.add_argument(
         '--no-container', action='store_true', default=False,
@@ -307,9 +297,8 @@ if __name__ == '__main__':
         'verbose': args.verbose
     }
     if args.no_container:
-        if not args.output and not ensure_sudo(
-            may_prompt=not args.non_interactive
-        ):
+        if not is_sudo():
+            print('Need sudo to setup non-containerized workspace')
             sys.exit(1)
         template = env.from_string(SETUP_SCRIPT_TEMPLATE)
         context['tools'] = []

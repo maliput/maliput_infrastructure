@@ -67,8 +67,11 @@ Note
 To create a non-containerized workspace, run:
 
 ```sh
-dsim-repos-index/tools/wsetup --no-container maliput_ws
+sudo dsim-repos-index/tools/wsetup --no-container maliput_ws
 ```
+
+Setting up non-containerized workspaces requires sudo credentials to carry out all necessary
+installations.
 
 Note
 :  Bear in mind that using a non-containerized workspace makes reproducing and troubleshooting
