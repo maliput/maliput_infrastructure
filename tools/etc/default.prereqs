@@ -26,6 +26,6 @@ prereqs.apt install \
             python3-colcon-common-extensions \
             tmux
 
-rosdep init
+rosdep init || true
 
 prereqs.done
