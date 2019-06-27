@@ -7,13 +7,20 @@ node('delphyne-linux-bionic-unprovisioned') {
   // which we double to 60 to give us enough leeway.
   timeout(60) {
     ansiColor('xterm') {
+      def triggers = []
+      if (env.BRANCH_NAME == 'master') {
+        triggers << cron('H H(7-8) * * *')
+      }
+      properties ([
+        pipelineTriggers(triggers)
+      ])
       try {
         stage('checkout') {
           dir('index') {
             checkout scm
           }
         }
-        load './index/ci/jenkins/pipeline.groovy'
+        load './index/cd/jenkins/pipeline.groovy'
       } finally {
         cleanWs(notFailBuild: true)
       }
