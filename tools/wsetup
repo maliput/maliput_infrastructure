@@ -297,7 +297,7 @@ if __name__ == '__main__':
         'verbose': args.verbose
     }
     if args.no_container:
-        if not is_sudo():
+        if not args.output and not is_sudo():
             print('Need sudo to setup non-containerized workspace')
             sys.exit(1)
         template = env.from_string(SETUP_SCRIPT_TEMPLATE)
