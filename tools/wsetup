@@ -121,30 +121,32 @@ echo ">>> Updating $WORKSPACE_SCRIPT"
 cat > $WORKSPACE_SCRIPT <<EOF
 # Bring up workspace as necessary
 
-CONTAINER_NAME="${SIMPLIFIED_IMAGE_NAME}_execution_\\$(date +%s)"
+CONTAINER_NAME="${SIMPLIFIED_IMAGE_NAME}_execution"
 
 xhost +
-docker run --init --privileged --rm --net=host --runtime=nvidia \\\\
-    --name \\$CONTAINER_NAME -e DISPLAY=\\$DISPLAY \\\\
-    -e SSH_AUTH_SOCK=\\$SSH_AUTH_SOCK -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
-    -v \\$(dirname \\$SSH_AUTH_SOCK):\\$(dirname \\$SSH_AUTH_SOCK) \\\\
-    -v /home/$USER/.ssh:/home/$USER/.ssh -v /tmp/.X11-unix:/tmp/.X11-unix:ro \\\\
-    -d $IMAGE_NAME sleep inf
+if ! docker start $CONTAINER_NAME ; then
+   docker run --init --privileged --rm --net=host --runtime=nvidia \\\\
+       --name \\$CONTAINER_NAME -e DISPLAY=\\$DISPLAY \\\\
+       -e SSH_AUTH_SOCK=\\$SSH_AUTH_SOCK -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
+       -v \\$(dirname \\$SSH_AUTH_SOCK):\\$(dirname \\$SSH_AUTH_SOCK) \\\\
+       -v /home/$USER/.ssh:/home/$USER/.ssh -v /tmp/.X11-unix:/tmp/.X11-unix:ro \\\\
+       -d $IMAGE_NAME sleep inf
 
-docker exec --privileged -w $WORKSPACE_PATH -e DISPLAY=\\$DISPLAY \\\\
-    -e SSH_AUTH_SOCK=\\$SSH_AUTH_SOCK -it \\$CONTAINER_NAME \\\\
-    /bin/bash --rcfile $WORKSPACE_RCFILE -i \\$@
-EXEC_EXIT_CODE=\\$?
+   docker exec --privileged -w $WORKSPACE_PATH -e DISPLAY=\\$DISPLAY \\\\
+       -e SSH_AUTH_SOCK=\\$SSH_AUTH_SOCK -it \\$CONTAINER_NAME \\\\
+       /bin/bash --rcfile $WORKSPACE_RCFILE -i \\$@
+   EXEC_EXIT_CODE=\\$?
 
-CONTAINER_ID=\\$(docker ps -q --filter "name=\\$CONTAINER_NAME")
-if [ ! -z "\\$CONTAINER_ID" ]; then
-   if [ \\$EXEC_EXIT_CODE -eq 12 ]; then
-     docker commit \\$CONTAINER_ID $IMAGE_NAME
+   CONTAINER_ID=\\$(docker ps -q --filter "name=\\$CONTAINER_NAME")
+   if [ ! -z "\\$CONTAINER_ID" ]; then
+      if [ \\$EXEC_EXIT_CODE -eq 12 ]; then
+         docker commit \\$CONTAINER_ID $IMAGE_NAME
+      fi
+      docker stop \\$CONTAINER_ID
    fi
-   docker stop \\$CONTAINER_ID
-fi
-if [ \\$EXEC_EXIT_CODE -eq 10 ]; then
-   docker rmi $IMAGE_NAME
+   if [ \\$EXEC_EXIT_CODE -eq 10 ]; then
+      docker rmi $IMAGE_NAME
+   fi
 fi
 xhost -
 EOF
