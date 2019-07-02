@@ -20,10 +20,23 @@ node('delphyne-linux-bionic-unprovisioned') {
             checkout scm
           }
         }
-        load './index/cd/jenkins/pipeline.groovy'
+        if (env.BRANCH_NAME == 'master' and timeTriggered()) {
+          load './index/cd/jenkins/pipeline.groovy'
+        } else {
+          load './index/ci/jenkins/pipeline.groovy'
+        }
       } finally {
         cleanWs(notFailBuild: true)
       }
     }
   }
+}
+def timeTriggered() {
+  def causes = currentBuild.getBuildCauses()
+  for (cause in causes) {
+    if (cause.class.toString().contains('TimerTrigger')) {
+      return true;
+    }
+  }
+  return false;
 }
