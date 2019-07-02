@@ -20,7 +20,7 @@ node('delphyne-linux-bionic-unprovisioned') {
             checkout scm
           }
         }
-        if (env.BRANCH_NAME == 'master' and timeTriggered()) {
+        if (env.BRANCH_NAME == 'master' && timeTriggered()) {
           load './index/cd/jenkins/pipeline.groovy'
         } else {
           load './index/ci/jenkins/pipeline.groovy'
