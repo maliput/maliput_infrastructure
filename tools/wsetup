@@ -124,7 +124,7 @@ cat > $WORKSPACE_SCRIPT <<EOF
 CONTAINER_NAME="${SIMPLIFIED_IMAGE_NAME}_execution"
 
 xhost +
-if ! docker start $CONTAINER_NAME ; then
+if ! docker start \\$CONTAINER_NAME &> /dev/null; then
    docker run --init --privileged --rm --net=host --runtime=nvidia \\\\
        --name \\$CONTAINER_NAME -e DISPLAY=\\$DISPLAY \\\\
        -e SSH_AUTH_SOCK=\\$SSH_AUTH_SOCK -v $WORKSPACE_PATH:$WORKSPACE_PATH \\\\
@@ -147,6 +147,8 @@ if ! docker start $CONTAINER_NAME ; then
    if [ \\$EXEC_EXIT_CODE -eq 10 ]; then
       docker rmi $IMAGE_NAME
    fi
+else
+   echo "Docker container already opened. Exiting."
 fi
 xhost -
 EOF
