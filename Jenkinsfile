@@ -7,16 +7,36 @@ node('delphyne-linux-bionic-unprovisioned') {
   // which we double to 60 to give us enough leeway.
   timeout(60) {
     ansiColor('xterm') {
+      def triggers = []
+      if (env.BRANCH_NAME == 'master') {
+        triggers << cron('H H(7-8) * * *')
+      }
+      properties ([
+        pipelineTriggers(triggers)
+      ])
       try {
         stage('checkout') {
           dir('index') {
             checkout scm
           }
         }
-        load './index/ci/jenkins/pipeline.groovy'
+        if (env.BRANCH_NAME == 'master' && timeTriggered()) {
+          load './index/cd/jenkins/pipeline.groovy'
+        } else {
+          load './index/ci/jenkins/pipeline.groovy'
+        }
       } finally {
         cleanWs(notFailBuild: true)
       }
     }
   }
+}
+def timeTriggered() {
+  def causes = currentBuild.getBuildCauses()
+  for (cause in causes) {
+    if (cause.class.toString().contains('TimerTrigger')) {
+      return true;
+    }
+  }
+  return false;
 }
