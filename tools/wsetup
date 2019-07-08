@@ -124,7 +124,7 @@ cat > $WORKSPACE_SCRIPT <<EOF
 CONTAINER_NAME="${SIMPLIFIED_IMAGE_NAME}_execution"
 
 if docker container ls -a | grep \\$CONTAINER_NAME -c &> /dev/null; then
-   echo "Docker container already opened. Exiting."
+   echo "Docker container already opened."
    return
 fi
 
