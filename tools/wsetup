@@ -121,7 +121,12 @@ echo ">>> Updating $WORKSPACE_SCRIPT"
 cat > $WORKSPACE_SCRIPT <<EOF
 # Bring up workspace as necessary
 
-CONTAINER_NAME="${SIMPLIFIED_IMAGE_NAME}_execution_\\$(date +%s)"
+CONTAINER_NAME="${SIMPLIFIED_IMAGE_NAME}_execution"
+
+if docker container ls -a | grep \\$CONTAINER_NAME -c &> /dev/null; then
+   echo "Docker container already opened."
+   return
+fi
 
 xhost +
 docker run --init --privileged --rm --net=host --runtime=nvidia \\\\
@@ -139,7 +144,7 @@ EXEC_EXIT_CODE=\\$?
 CONTAINER_ID=\\$(docker ps -q --filter "name=\\$CONTAINER_NAME")
 if [ ! -z "\\$CONTAINER_ID" ]; then
    if [ \\$EXEC_EXIT_CODE -eq 12 ]; then
-     docker commit \\$CONTAINER_ID $IMAGE_NAME
+      docker commit \\$CONTAINER_ID $IMAGE_NAME
    fi
    docker stop \\$CONTAINER_ID
 fi
