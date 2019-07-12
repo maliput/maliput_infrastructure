@@ -34,7 +34,7 @@ node('delphyne-linux-bionic-unprovisioned') {
 def timeTriggered() {
   def causes = currentBuild.getBuildCauses()
   for (cause in causes) {
-    if (cause.class.toString().contains('TimerTrigger')) {
+    if (cause._class.toString().contains('TimerTrigger')) {
       return true;
     }
   }
