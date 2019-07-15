@@ -359,6 +359,62 @@ development workspaces by means of containerization, and `prereqs-install` to de
 preconditions that our packages introduce but `rosdep` cannot satisfy. **These tools are not part of the
 standard ROS2's development workflow**, and therefore their usage and extension should be sparse at best.
 
+## Using binary underlays
+
+To speed up development, several binary underlays are available for download and installation.
+In the following, it is assumed that you want to use a full underlay for working on a downstream
+package of your own. As such, it suggests the installation of a `maliput-desktop` binary underlay,
+that brings all known packages. You should choose an underlay that is appropriate for your intended
+purpose.
+
+1. Download the binary underlay tarball of choice from dsim's S3 bucket:
+
+   ```sh
+   aws s3 cp s3://driving-sim/projects/maliput/packages/nightlies/maliput-desktop-latest-bionic.tar.gz \
+      /path/to/workspace/maliput-desktop-latest-bionic.tar.gz
+   ```
+
+   It is assumed that you have the right AWS credentials configured in your system. 
+   See [AWS CLI user guide to configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) for further reference.
+
+1. Bring up the workspace to use the binary underlay with:
+
+   ```sh
+   cd /path/to/workspace
+   source bringup
+   ```
+
+2. Extract binary underlay tarball:
+
+   ```sh
+   sudo mkdir -p /opt/maliput-desktop
+   sudo tar -zxvf maliput-desktop-latest-bionic.tar.gz -C /opt/maliput-desktop --strip 1
+   ```
+
+3. Install all underlay packages' prerequisites, including drake and ignition binaries:
+
+   ```sh
+   sudo prereqs-install -t all /opt/maliput-desktop
+   ```
+
+   Depending on what has been installed, you may need to leave and re-enter the workspace for
+   installation to take effect. **Make sure changes are saved upon leave!**
+
+4. Install all underlay packages' dependencies:
+
+   ```sh
+   rosdep update
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths /opt/maliput-desktop/*
+   ```
+
+5. When exiting the workspace, make sure changes are saved!
+
+Before building, for `colcon build` to pick up underlay packages these must be sourced first:
+
+```sh
+source /opt/maliput-desktop/setup.bash
+```
+
 ## List of repositories
 
 The following is an exhaustive list of the repositories where all relevant packages live, excluding
