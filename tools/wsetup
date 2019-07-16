@@ -237,6 +237,12 @@ function nuke() {
     fi
   fi
 }
+
+# Add workspace environment reset command.
+function bounce() {
+  exec /bin/bash --rcfile \\${BASH_SOURCE[0]} -i
+}
+
 EOF
 
 echo ">>> Installing $WORKSPACE_SCRIPT"
