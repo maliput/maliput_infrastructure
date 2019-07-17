@@ -374,42 +374,42 @@ purpose.
       /path/to/workspace/maliput-desktop-latest-bionic.tar.gz
    ```
 
-   It is assumed that you have the right AWS credentials configured in your system. 
+   It is assumed that you have the right AWS credentials configured in your system.
    See [AWS CLI user guide to configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) for further reference.
 
-1. Bring up the workspace to use the binary underlay with:
+2. Bring up the workspace to use the binary underlay with:
 
    ```sh
    cd /path/to/workspace
    source bringup
    ```
 
-2. Extract binary underlay tarball:
+3. Extract binary underlay tarball:
 
    ```sh
    sudo mkdir -p /opt/maliput-desktop
    sudo tar -zxvf maliput-desktop-latest-bionic.tar.gz -C /opt/maliput-desktop --strip 1
    ```
 
-3. Install all underlay packages' prerequisites, including drake and ignition binaries:
+4. Install all underlay packages' prerequisites, including drake and ignition binaries:
 
    ```sh
    sudo prereqs-install -t all /opt/maliput-desktop
    ```
 
-   Depending on what has been installed, you may need to leave and re-enter the workspace for
-   installation to take effect. **Make sure changes are saved upon leave!**
+   You will need to exit and re-enter the workspace for installation to take effect.
+   **Make sure changes are saved upon leave!**
 
-4. Install all underlay packages' dependencies:
+5. Install all underlay packages' dependencies:
 
    ```sh
    rosdep update
    rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths /opt/maliput-desktop/*
    ```
 
-5. When exiting the workspace, make sure changes are saved!
+6. When exiting the workspace, make sure changes are saved!
 
-Before building, for `colcon build` to pick up underlay packages these must be sourced first:
+From then on, before building you may source the underlay for `colcon build` to pick it up as follows:
 
 ```sh
 source /opt/maliput-desktop/setup.bash
