@@ -148,9 +148,8 @@ applies.
    sudo prereqs-install -t all src
    ```
 
-   Depending on what has been installed, you may need to `bounce` your workspace for installation to
-   take effect. Alternatively, you may leave and re-enter your workspace -just **make sure changes are
-   saved** if you do so-.
+   You will need to `bounce` your workspace for installation to take effect. Alternatively, you may
+   exit and re-enter your workspace -- just **make sure changes are saved** if you do so.
 
    Also, check each package `prereqs` file to see what other tags are available and their
    implications. For instance, if building drake from source and using ignition binaries,
@@ -173,12 +172,12 @@ applies.
    rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths src
    ```
 
-   Depending on what has been installed, you may need to `bounce` your workspace again for installation to take effect.
+   You will need to `bounce` your workspace for installation to take effect. Alternatively, you may exit
+   and re-enter your workspace -- just **make sure changes are saved** if you do so.
 
    If having issues with this step, make sure the `$ROS_DISTRO` environment variable is defined. If not, first ensure
-   you didn't skip step 4, including either bouncing the workspace or re-entering it, saving all changes in the process,
-   to make sure that prerequisites installation took effect. Alternatively, you may leave and re-enter your workspace
-   -just **make sure changes are saved** if you do so-.
+   you didn't skip step 4, including either bouncing the workspace or exiting and re-entering it while saving all
+   changes in the process, to make sure that prerequisites installation took effect.
 
 6. When exiting the workspace, **make sure changes are saved**!
 
