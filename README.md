@@ -95,13 +95,6 @@ cd maliput_ws
 source bringup
 ```
 
-In certain cases e.g. after installing packages, you may want to reset the workspace shell
-environment as if you had just brought it up. To do so, run:
-
-```sh
-bounce
-```
-
 You can always leave the workspace by `exit`ing it.
 
 Note
@@ -109,6 +102,16 @@ Note
    should be saved. For the sake of storage efficiency, only save them if you've applied changes
    outside the workspace directory and to the container filesystem itself (e.g. you installed a
    new package or tool using `apt`) and you wish to keep them.
+
+In certain cases e.g. after installing packages, you may want to reset the workspace shell
+environment as if you had just brought it up. To do so, from within the workspace run:
+
+```sh
+bounce
+```
+
+Note
+:  Bouncing a workspace **will not save it**. To save, you must exit the workspace.
 
 ### Update your workspace
 
