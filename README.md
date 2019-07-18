@@ -363,8 +363,8 @@ standard ROS2's development workflow**, and therefore their usage and extension 
 
 In ROS 2 workspace parlance, an overlay workspace is a workspace that builds on top of another, previously
 built workspace i.e. the underlay workspace. A binary underlay is thus the install space of a pre-built
-workspace, that packages in other workspaces can use to meet their dependencies. As a result, the amount of
-code that needs to be compiled when building those workspaces gets reduced, enabling faster builds.
+workspace, that packages in downstream workspaces can use to meet their dependencies. As a result, the amount
+of code that needs to be compiled when building those workspaces gets reduced, enabling faster builds.
 
 Several binary underlays are available for download and installation. In the following, it is assumed
 that you want to use a full underlay for working on a downstream package of your own. As such, it suggests
