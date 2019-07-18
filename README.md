@@ -215,6 +215,11 @@ not apply to the workspace directory itself, as it exists outside and beyond the
 since repositories are versioned, changes can be checked out, stashed or even reverted. In extreme cases,
 setting up disposable workspaces remains an option.
 
+Warning
+:   Packages' dependencies are installed system wide. Neither `prereqs-install` nor `rosdep` provide any support to
+    remove the dependencies these bring. In this regard, disposable containerized workspaces help keeping development
+    environments clean.
+
 ### Check your workspace
 
 Workspace state as a whole encompasses both current local repositories' state plus the state of
@@ -381,12 +386,19 @@ development workspaces by means of containerization, and `prereqs-install` to de
 preconditions that our packages introduce but `rosdep` cannot satisfy. **These tools are not part of the
 standard ROS2's development workflow**, and therefore their usage and extension should be sparse at best.
 
+Warning
+:   Tools like `prereqs-install` and `rosdep` abstract away platform specific details only for the simplest dependency
+    management tasks. To deal with more complex situations like version downgrading or even conflicts, one must fall back
+    to the appropriate package manager e.g. `apt`.
+
 ## Using binary underlays
 
 In ROS 2 workspace parlance, an overlay workspace is a workspace that builds on top of another, previously
 built workspace i.e. the underlay workspace. A binary underlay is thus the install space of a pre-built
 workspace, that packages in downstream workspaces can use to meet their dependencies. As a result, the amount
-of code that needs to be compiled when building those workspaces gets reduced, enabling faster builds.
+of code that needs to be compiled when building those workspaces gets reduced, enabling faster builds. You may
+refer to [`colcon` documentation and tutorials](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/#source-an-underlay)
+for further details.
 
 Several binary underlays are available for download and installation. In the following, it is assumed
 that you want to use a full underlay for working on a downstream package of your own. As such, it suggests
