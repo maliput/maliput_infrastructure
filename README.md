@@ -86,7 +86,7 @@ dsim-repos-index/tools/wsetup -e path/to/custom/prereqs maliput_ws
 These operations will setup a workspace, but without any sources yet. Follow the instructions on
 how to [update your workspace](#update-your-workspace) to get them for the first time.
 
-### Bringup your workspace
+### Bring up your workspace
 
 To bring up your workspace, run:
 
@@ -102,6 +102,16 @@ Note
    should be saved. For the sake of storage efficiency, only save them if you've applied changes
    outside the workspace directory and to the container filesystem itself (e.g. you installed a
    new package or tool using `apt`) and you wish to keep them.
+
+In certain cases e.g. after installing packages, you may want to reset the workspace shell
+environment as if you had just brought it up. To do so, from within the workspace run:
+
+```sh
+bounce
+```
+
+Note
+:  Bouncing a workspace **will not save it**. To save, you must exit the workspace.
 
 ### Update your workspace
 
@@ -141,8 +151,8 @@ applies.
    sudo prereqs-install -t all src
    ```
 
-   Depending on what has been installed, you may need to leave and re-enter the workspace for
-   installation to take effect. **Make sure changes are saved upon leave!**
+   You will need to `bounce` your workspace for installation to take effect. Alternatively, you may
+   exit and re-enter your workspace -- just **make sure changes are saved** if you do so.
 
    Also, check each package `prereqs` file to see what other tags are available and their
    implications. For instance, if building drake from source and using ignition binaries,
@@ -165,11 +175,14 @@ applies.
    rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths src
    ```
 
-   If having issues with this step, make sure the `$ROS_DISTRO` environment variable is defined. If not, first ensure
-   you didn't skip step 4, including leaving and re-entering the workspace, saving all changes in the process, to make
-   sure that prerequisites installation took effect.
+   You will need to `bounce` your workspace for installation to take effect. Alternatively, you may exit
+   and re-enter your workspace -- just **make sure changes are saved** if you do so.
 
-6. When exiting the workspace, make sure changes are saved!
+   If having issues with this step, make sure the `$ROS_DISTRO` environment variable is defined. If not, first ensure
+   you didn't skip step 4, including either bouncing the workspace or exiting and re-entering it while saving all
+   changes in the process, to make sure that prerequisites installation took effect.
+
+6. When exiting the workspace, **make sure changes are saved**!
 
 The above sequence allows for full workspace updates, but it's not binding. A conscious user may want
 to only update dependencies for a patch he's working on (and thus, only steps 4 and 5 apply, and

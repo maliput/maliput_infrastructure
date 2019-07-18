@@ -224,7 +224,7 @@ source ~/.bashrc
 # Let the user know this is another environment.
 export PS1="(@{ workspace_name }@ env) \\${PS1:-}"
 
-# Add workspace deletion command.
+# Add command to delete the workspace.
 function nuke() {
   read -p 'Do you want to delete this workspace? [y/N]: ' answer
   if [[ "\\${answer:0:1}" =~ y|Y ]]; then
@@ -237,6 +237,14 @@ function nuke() {
     fi
   fi
 }
+
+# Add command to reset the workspace shell environment, as if the user had
+# exited and re-entered it (or teared it down and brought it up, thus the
+# name).
+function bounce() {
+  exec /bin/bash --rcfile \\${BASH_SOURCE[0]} -i
+}
+
 EOF
 
 echo ">>> Installing $WORKSPACE_SCRIPT"
