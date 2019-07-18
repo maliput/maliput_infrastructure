@@ -1,3 +1,25 @@
+# Table of Contents
+
+- [Introduction](#introduction)
+- [Workspaces](#workspaces)
+  - [Supported platforms](#supported-platforms)
+  - [Prerequisites](#prerequisites)
+  - [Usage Instructions](#usage-instructions)
+    - [Create your workspace](#create-your-workspace)
+    - [Bringup your workspace](#bringup-your-workspace)
+    - [Update your workspace](#update-your-workspace)
+    - [Check your workspace](#check-your-workspace)
+    - [Build your workspace](#build-your-workspace)
+    - [Test your workspace](#test-your-workspace)
+    - [Delete your workspace](#delete-your-workspace)
+- [Contributing](#contributing)
+  - [Usual workflows](#usual-workflows)
+  - [Using binary underlays](#using-binary-underlays)
+  - [List of repositories](#list-of-repositories)
+  - [How to use CI](#how-to-use-ci)
+- [Troubleshooting](#troubleshooting)
+  - [Issue forensics](#issue-forensics)
+
 # Introduction
 
 This repository contains `.repos` files and tools that enable the creation and
