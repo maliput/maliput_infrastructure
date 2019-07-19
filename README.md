@@ -173,6 +173,12 @@ applies.
    sudo prereqs-install -t all src
    ```
 
+   Warning
+   :   Package prerequisites are satisfied system wide. `prereqs-install` does not provide
+       any support to undo its effects. In this regard, disposable containerized workspaces
+       help keep development environments clean (as system wide installations within a container
+       are limited to that container).
+
    You will need to `bounce` your workspace for installation to take effect. Alternatively, you may
    exit and re-enter your workspace -- just **make sure changes are saved** if you do so.
 
@@ -197,6 +203,12 @@ applies.
    rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11 PROJ4" --from-paths src
    ```
 
+   Warning
+   :   Package dependencies are installed system wide. `rosdep` does not provide any support
+       to remove the dependencies it brings. In this regard, disposable containerized workspaces
+       help keep development environments clean (as system wide installations within a container
+       are limited to that container).
+
    You will need to `bounce` your workspace for installation to take effect. Alternatively, you may exit
    and re-enter your workspace -- just **make sure changes are saved** if you do so.
 
@@ -214,11 +226,6 @@ upon exit one may choose to not save any modifications and keep the environment 
 not apply to the workspace directory itself, as it exists outside and beyond the container lifetime, but
 since repositories are versioned, changes can be checked out, stashed or even reverted. In extreme cases,
 setting up disposable workspaces remains an option.
-
-Warning
-:   Packages' dependencies are installed system wide. Neither `prereqs-install` nor `rosdep` provide any support to
-    remove the dependencies these bring. In this regard, disposable containerized workspaces help keeping development
-    environments clean.
 
 ### Check your workspace
 
