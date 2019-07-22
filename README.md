@@ -449,7 +449,7 @@ You should choose an underlay that is appropriate for your intended purpose.
 
    ```sh
    rosdep update
-   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths /opt/maliput-desktop/*
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11 PROJ4" --from-paths /opt/maliput-desktop/*
    ```
 
 6. When exiting the workspace, make sure changes are saved!
