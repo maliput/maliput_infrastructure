@@ -1,3 +1,25 @@
+# Table of Contents
+
+- [Introduction](#introduction)
+- [Workspaces](#workspaces)
+  - [Supported platforms](#supported-platforms)
+  - [Prerequisites](#prerequisites)
+  - [Usage Instructions](#usage-instructions)
+    - [Create your workspace](#create-your-workspace)
+    - [Bringup your workspace](#bringup-your-workspace)
+    - [Update your workspace](#update-your-workspace)
+    - [Check your workspace](#check-your-workspace)
+    - [Build your workspace](#build-your-workspace)
+    - [Test your workspace](#test-your-workspace)
+    - [Delete your workspace](#delete-your-workspace)
+- [Contributing](#contributing)
+  - [Usual workflows](#usual-workflows)
+  - [Using binary underlays](#using-binary-underlays)
+  - [List of repositories](#list-of-repositories)
+  - [How to use CI](#how-to-use-ci)
+- [Troubleshooting](#troubleshooting)
+  - [Issue forensics](#issue-forensics)
+
 # Introduction
 
 This repository contains `.repos` files and tools that enable the creation and
@@ -151,6 +173,12 @@ applies.
    sudo prereqs-install -t all src
    ```
 
+   Warning
+   :   Package prerequisites are satisfied system wide. `prereqs-install` does not provide
+       any support to undo its effects. In this regard, disposable containerized workspaces
+       help keep development environments clean (as system wide installations within a container
+       are limited to that container).
+
    You will need to `bounce` your workspace for installation to take effect. Alternatively, you may
    exit and re-enter your workspace -- just **make sure changes are saved** if you do so.
 
@@ -174,6 +202,12 @@ applies.
    rosdep update
    rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11 PROJ4" --from-paths src
    ```
+
+   Warning
+   :   Package dependencies are installed system wide. `rosdep` does not provide any support
+       to remove the dependencies it brings. In this regard, disposable containerized workspaces
+       help keep development environments clean (as system wide installations within a container
+       are limited to that container).
 
    You will need to `bounce` your workspace for installation to take effect. Alternatively, you may exit
    and re-enter your workspace -- just **make sure changes are saved** if you do so.
@@ -358,6 +392,89 @@ In addition to these tools, we also count on `wsetup` to standardize and simplif
 development workspaces by means of containerization, and `prereqs-install` to deal with all the non-standard
 preconditions that our packages introduce but `rosdep` cannot satisfy. **These tools are not part of the
 standard ROS2's development workflow**, and therefore their usage and extension should be sparse at best.
+
+Warning
+:   Tools like `prereqs-install` and `rosdep` abstract away platform specific details only for the simplest dependency
+    management tasks. To deal with more complex situations like version downgrading or even conflicts, one must fall back
+    to the appropriate package manager e.g. `apt`.
+
+## Using binary underlays
+
+In ROS 2 workspace parlance, an overlay workspace is a workspace that builds on top of another, previously
+built workspace i.e. the underlay workspace. A binary underlay is thus the install space of a pre-built
+workspace, that packages in downstream workspaces can use to meet their dependencies. As a result, the amount
+of code that needs to be compiled when building downstream workspaces gets reduced, enabling faster builds. You may
+refer to [`colcon` documentation and tutorials](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/#source-an-underlay)
+for further details.
+
+Several binary underlays are available for download and installation:
+
+- `maliput-desktop-YYYYMMDD-bionic-tar.gz`
+
+  Built nightly, targeting Ubuntu Bionic 18.04 LTS. Contains all known packages in all our repositories as of
+  the specified date (DD/MM/YYYY). To be found at `s3://driving-sim/projects/maliput/packages/nightlies/`.
+
+- `maliput-desktop-latest-bionic.tar.gz`
+
+  Built nightly, targeting Ubuntu Bionic 18.04 LTS. Contains the most recent versions of all packages known in
+  all our repositories. To be found at `s3://driving-sim/projects/maliput/packages/nightlies/`.
+
+In the following, it is assumed that you want to use a full `maliput-desktop` underlay for working on a
+downstream package of your own. As such, it suggests the installation of a `maliput-desktop` binary underlay,
+that brings all known packages in all our repositories. You should choose an underlay that is appropriate for
+your intended purpose.
+
+1. Download the binary underlay tarball of choice from dsim's S3 bucket:
+
+   ```sh
+   aws s3 cp s3://driving-sim/projects/maliput/packages/nightlies/maliput-desktop-latest-bionic.tar.gz \
+      /path/to/workspace/maliput-desktop-latest-bionic.tar.gz
+   ```
+
+   It is assumed that you have the right AWS credentials configured in your system.
+   See [AWS CLI user guide to configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) for further reference.
+
+2. Bring up the workspace to use the binary underlay with:
+
+   ```sh
+   cd /path/to/workspace
+   source bringup
+   ```
+
+3. Extract binary underlay tarball:
+
+   ```sh
+   sudo mkdir -p /opt/maliput-desktop
+   sudo tar -zxvf maliput-desktop-latest-bionic.tar.gz -C /opt/maliput-desktop --strip 1
+   ```
+
+4. Install all underlay packages' prerequisites, including drake and ignition binaries:
+
+   ```sh
+   sudo prereqs-install -t all /opt/maliput-desktop
+   ```
+
+   You will need to exit and re-enter the workspace for installation to take effect.
+   **Make sure changes are saved upon leave!**
+
+5. Install all underlay packages' dependencies:
+
+   ```sh
+   rosdep update
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11 PROJ4" --from-paths /opt/maliput-desktop/*
+   ```
+
+6. When exiting the workspace, make sure changes are saved!
+
+From then on, before building the workspace, you must source the underlay as follows:
+
+```sh
+source /opt/maliput-desktop/setup.bash
+```
+
+Note
+:  Having an underlay around does not make it a requirement for all workspace builds, but only for
+   those that rely on that underlay to get their dependencies met.
 
 ## List of repositories
 
