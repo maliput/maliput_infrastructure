@@ -403,14 +403,26 @@ Warning
 In ROS 2 workspace parlance, an overlay workspace is a workspace that builds on top of another, previously
 built workspace i.e. the underlay workspace. A binary underlay is thus the install space of a pre-built
 workspace, that packages in downstream workspaces can use to meet their dependencies. As a result, the amount
-of code that needs to be compiled when building those workspaces gets reduced, enabling faster builds. You may
+of code that needs to be compiled when building downstream workspaces gets reduced, enabling faster builds. You may
 refer to [`colcon` documentation and tutorials](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/#source-an-underlay)
 for further details.
 
-Several binary underlays are available for download and installation. In the following, it is assumed
-that you want to use a full underlay for working on a downstream package of your own. As such, it suggests
-the installation of a `maliput-desktop` binary underlay, that brings all known packages in all our repositories.
-You should choose an underlay that is appropriate for your intended purpose.
+Several binary underlays are available for download and installation:
+
+- `maliput-desktop-YYYYMMDD-bionic-tar.gz`
+
+  Built nightly, targeting Ubuntu Bionic 18.04 LTS. Contains all known packages in all our repositories as of
+  the specified date (DD/MM/YYYY). To be found at `s3://driving-sim/projects/maliput/packages/nightlies/`.
+
+- `maliput-desktop-latest-bionic.tar.gz`
+
+  Built nightly, targeting Ubuntu Bionic 18.04 LTS. Contains the most recent versions of all packages known in
+  all our repositories. To be found at `s3://driving-sim/projects/maliput/packages/nightlies/`.
+
+In the following, it is assumed that you want to use a full `maliput-desktop` underlay for working on a
+downstream package of your own. As such, it suggests the installation of a `maliput-desktop` binary underlay,
+that brings all known packages in all our repositories. You should choose an underlay that is appropriate for
+your intended purpose.
 
 1. Download the binary underlay tarball of choice from dsim's S3 bucket:
 
