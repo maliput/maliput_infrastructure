@@ -8,3 +8,4 @@ repositories:
   ign_transport   : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-transport.git',     version: 'ign-transport5' }
   ign_rendering   : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-rendering.git',     version: 'ign-rendering2' }
   ign_gui         : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-gui.git',           version: 'ign-gui0' }
+  ign_plugin      : { type: 'hg',  url: 'https://bitbucket.org/ignitionrobotics/ign-plugin.git',        version: 'ign-plugin1' }
