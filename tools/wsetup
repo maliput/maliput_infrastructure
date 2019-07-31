@@ -165,6 +165,8 @@ set -o pipefail
 set -o xtrace
 @% endif %@
 
+WORKSPACE_USER=${SUDO_USER:-$(whoami)}
+
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
 WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
@@ -253,6 +255,12 @@ cat > $WORKSPACE_SCRIPT <<EOF
 
 /bin/bash --rcfile $WORKSPACE_RCFILE -i \\$@
 EOF
+
+sudo chown $WORKSPACE_USER:$WORKSPACE_USER \\
+  $WORKSPACE_SCRIPT $WORKSPACE_RCFILE $WORKSPACE_PATH
+
+sudo chown -R $WORKSPACE_USER:$WORKSPACE_USER $WORKSPACE_PATH/.ws
+
 echo "> Workspace setup successfully"
 """
 
