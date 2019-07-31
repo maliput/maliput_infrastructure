@@ -71,16 +71,12 @@ if __name__ == '__main__':
         help='Force interactive installation i.e. do prompt for user input.'
     )
     parser.add_argument(
-        '-q', '--quiet', action='store_true', default=False,
+        '-qq', '--qquiet', action='store_true', default=False,
         help='Print prerequisite installation outcome only.'
     )
     parser.add_argument(
-        '-v', '--verbose', action='store_true', default=False,
-        help='Print prerequisite installation output.'
-    )
-    parser.add_argument(
-        '-vv', '--vverbose', action='store_true', default=False,
-        help='Print prerequisite installation raw output.'
+        '-q', '--quiet', action='store_true', default=False,
+        help='Print prerequisite installation output only.'
     )
 
     args = parser.parse_args()
@@ -99,7 +95,7 @@ if __name__ == '__main__':
         env['DEBIAN_FRONTEND'] = 'noninteractive'
     env['PATH'] = ':'.join([env.get('PATH', ''), PATH_TO_BASH_LIBS])
 
-    if not args.quiet:
+    if not args.qquiet:
         print('┌ Checking configuration...')
         if 'PREREQS_TAGS' in env and env['PREREQS_TAGS']:
             print('│  Tags: ', env['PREREQS_TAGS'])
@@ -120,7 +116,7 @@ if __name__ == '__main__':
                 path, prereqs_names, excluded_paths
             ):
                 print('• Installing prerequisites at ', path_to_prereqs, flush=True)
-                have_raw_output = args.interactive or args.vverbose
+                have_raw_output = args.interactive or (not args.quiet and not args.qquiet)
                 process = subprocess.run(
                     path_to_prereqs,
                     stdout=subprocess.PIPE if not have_raw_output else None,
@@ -129,7 +125,7 @@ if __name__ == '__main__':
                     env=env
                 )
                 if not have_raw_output:
-                    if args.verbose or (not args.quiet and process.returncode != 0):
+                    if not args.qquiet or process.returncode != 0:
                         stdout_lines = process.stdout.decode('utf-8').splitlines()
                         stderr_lines = process.stderr.decode('utf-8').splitlines()
                         max_line_length = 0
@@ -165,6 +161,6 @@ if __name__ == '__main__':
             exitcode = 1
             if not args.keep_going:
                 break
-    if not paths_processed and not args.quiet:
+    if not paths_processed and not args.qquiet:
         print('? No prerequisites were processed')
     sys.exit(exitcode)
