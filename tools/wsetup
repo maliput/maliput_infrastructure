@@ -186,9 +186,9 @@ sudo chmod +x ${TOOL_PATH}
 
 @% endfor %@
 
-@% if verbose %@
+@% if not verbose and quiet %@
 
-PREREQ_OPTS="${PREREQ_OPTS:-} -vv"
+PREREQ_OPTS="${PREREQ_OPTS:-} -q"
 
 @% endif %@
 
@@ -274,7 +274,11 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         '-v', '--verbose', action='store_true', default=False,
-        help='Increase setup process verbosity.'
+        help='Increase the setup process verbosity.'
+    )
+    parser.add_argument(
+        '-q', '--quiet', action='store_true', default=False,
+        help='Reduce the setup process verbosity.'
     )
     parser.add_argument(
         '-o', '--output', action='store_true', default=False,
@@ -307,7 +311,8 @@ if __name__ == '__main__':
         'workspace_name': os.path.basename(
             os.path.realpath(args.path)
         ),
-        'verbose': args.verbose
+        'verbose': args.verbose,
+        'quiet': args.quiet
     }
     if args.no_container:
         if not args.output and not is_sudo():
@@ -337,6 +342,8 @@ if __name__ == '__main__':
     else:
         template = env.from_string(DOCKERIZED_SETUP_SCRIPT_TEMPLATE)
         wsetup_cmd = [__file__, '-o', '--no-container']
+        if args.quiet:
+            wsetup_cmd.append('-q')
         if args.verbose:
             wsetup_cmd.append('-v')
         for prereqs in args.extra_prereqs:
