@@ -26,7 +26,7 @@ This repository contains `.repos` files and tools that enable the creation and
 maintenance of development workspaces. Each `.repos` file brings in a subset
 of all needed packages.
 
-For instance, [`maliput.repos`](maliput.repos) pulls all `maliput` packages on road network
+For instance, [`dsim.repos`](dsim.repos) pulls all `maliput` packages on road network
 descriptions, plus the `malidrive` backend package and `delphyne` packages for
 visualization and prototyping.
 
@@ -70,8 +70,8 @@ visualization and prototyping.
 
 In the following, it is assumed that you want to create a workspace for working on Maliput and
 Malidrive. As such, it suggests the creation of a workspace in a `maliput_ws` directory and
-pulling sources from the [`maliput.repos`](maliput.repos) file. You should choose a name that is appropriate
-for your intended purpose.
+pulling sources from the [`dsim.repos`](dsim.repos) file. You should choose a name that is
+appropriate for your intended purpose.
 
 ### Create a workspace
 
@@ -140,10 +140,10 @@ Note
 Whether you are doing this for the first time or updating an existing workspace, the same procedure
 applies.
 
-1. Copy the latest [`maliput.repos`](maliput.repos) file into your workspace:
+1. Copy the latest [`dsim.repos`](dsim.repos) file into your workspace:
 
    ```sh
-   cp dsim-repos-index/maliput.repos maliput_ws/.
+   cp dsim-repos-index/dsim.repos maliput_ws/.
    ```
 
 2. Bring up the workspace to be updated:
@@ -157,7 +157,7 @@ applies.
 
    ```sh
    mkdir -p src
-   vcs import src < maliput.repos  # clone and/or checkout
+   vcs import src < dsim.repos  # clone and/or checkout
    vcs pull src  # fetch and merge (usually fast-forward)
    ```
 
@@ -409,26 +409,26 @@ for further details.
 
 Several binary underlays are available for download and installation:
 
-- `maliput-desktop-YYYYMMDD-bionic-tar.gz`
+- `dsim-desktop-YYYYMMDD-bionic-tar.gz`
 
   Built nightly, targeting Ubuntu Bionic 18.04 LTS. Contains all known packages in all our repositories as of
   the specified date (DD/MM/YYYY). To be found at `s3://driving-sim/projects/maliput/packages/nightlies/`.
 
-- `maliput-desktop-latest-bionic.tar.gz`
+- `dsim-desktop-latest-bionic.tar.gz`
 
   Built nightly, targeting Ubuntu Bionic 18.04 LTS. Contains the most recent versions of all packages known in
   all our repositories. To be found at `s3://driving-sim/projects/maliput/packages/nightlies/`.
 
-In the following, it is assumed that you want to use a full `maliput-desktop` underlay for working on a
-downstream package of your own. As such, it suggests the installation of a `maliput-desktop` binary underlay,
+In the following, it is assumed that you want to use a full `dsim-desktop` underlay for working on a
+downstream package of your own. As such, it suggests the installation of a `dsim-desktop` binary underlay,
 that brings all known packages in all our repositories. You should choose an underlay that is appropriate for
 your intended purpose.
 
 1. Download the binary underlay tarball of choice from dsim's S3 bucket:
 
    ```sh
-   aws s3 cp s3://driving-sim/projects/maliput/packages/nightlies/maliput-desktop-latest-bionic.tar.gz \
-      /path/to/workspace/maliput-desktop-latest-bionic.tar.gz
+   aws s3 cp s3://driving-sim/projects/maliput/packages/nightlies/dsim-desktop-latest-bionic.tar.gz \
+      /path/to/workspace/dsim-desktop-latest-bionic.tar.gz
    ```
 
    It is assumed that you have the right AWS credentials configured in your system.
@@ -444,14 +444,14 @@ your intended purpose.
 3. Extract binary underlay tarball:
 
    ```sh
-   sudo mkdir -p /opt/maliput-desktop
-   sudo tar -zxvf maliput-desktop-latest-bionic.tar.gz -C /opt/maliput-desktop --strip 1
+   sudo mkdir -p /opt/dsim-desktop
+   sudo tar -zxvf dsim-desktop-latest-bionic.tar.gz -C /opt/dsim-desktop --strip 1
    ```
 
 4. Install all underlay packages' prerequisites, including drake and ignition binaries:
 
    ```sh
-   sudo prereqs-install -t all /opt/maliput-desktop
+   sudo prereqs-install -t all /opt/dsim-desktop
    ```
 
    You will need to exit and re-enter the workspace for installation to take effect.
@@ -461,7 +461,7 @@ your intended purpose.
 
    ```sh
    rosdep update
-   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11 PROJ4" --from-paths /opt/maliput-desktop/*
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11 PROJ4" --from-paths /opt/dsim-desktop/*
    ```
 
 6. When exiting the workspace, make sure changes are saved!
@@ -469,7 +469,7 @@ your intended purpose.
 From then on, before building the workspace, you must source the underlay as follows:
 
 ```sh
-source /opt/maliput-desktop/setup.bash
+source /opt/dsim-desktop/setup.bash
 ```
 
 Note
