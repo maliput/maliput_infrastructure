@@ -68,10 +68,11 @@ visualization and prototyping.
 
 ## Usage instructions
 
-In the following, it is assumed that you want to create a workspace for working on Maliput and
-Malidrive. As such, it suggests the creation of a workspace in a `maliput_ws` directory and
-pulling sources from the [`dsim.repos`](dsim.repos) file. You should choose a name that is
-appropriate for your intended purpose.
+In the following, it is assumed that you want to create a workspace containing
+all of DSIM's (Driving Simulation's) repositories, but with a focus on Maliput
+and Malidrive development. As such, it suggests the creation of a workspace in a
+`maliput_ws` directory and pulling sources from the [`dsim.repos`](dsim.repos)
+file. You should choose a name that is appropriate for your intended purpose.
 
 ### Create a workspace
 
