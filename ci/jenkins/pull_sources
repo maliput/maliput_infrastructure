@@ -23,7 +23,7 @@ export GIT_SSH=$GIT_SSH_FILE
 
 mkdir -p src
 
-vcs import --force src < ./index/maliput.repos
+vcs import --force src < ./index/dsim.repos
 
 vcs pull src || true
 

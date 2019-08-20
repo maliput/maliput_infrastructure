@@ -5,7 +5,7 @@ set -eo pipefail
 BUCKET_NAME=${BUCKET_NAME:-driving-sim/projects/maliput/packages/nightlies}
 
 # Rename nightly build.
-BUNDLE_NAME=${BUNDLE_NAME:-maliput-desktop}
+BUNDLE_NAME=${BUNDLE_NAME:-dsim-desktop}
 mv install ${BUNDLE_NAME}
 
 # Compress current nightly build.
