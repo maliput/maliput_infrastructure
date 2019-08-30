@@ -34,11 +34,16 @@ visualization and prototyping.
 
 ## Supported platforms
 
-* For regular workspaces, only Ubuntu Bionic Beaver 18.04 LTS is supported as
-  the host OS.
+* Docker containerized workspaces (**recommended**): only Nvidia-powered
+  machines running an `nvidia-docker`
+  [supported host OS](https://github.com/NVIDIA/nvidia-docker#quickstart) are
+  supported. When setting up docker, do *not* add yourself to the "docker" group
+  since that represents a security risk
+  ([it is equivalent to password-less `sudo`](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user)).
+  The instructions below use `sudo -g docker [command]` as a workaround.
 
-* For containerized workspaces, only nvidia powered machines running an `nvidia-docker`
-  [supported host OS](https://github.com/NVIDIA/nvidia-docker#quickstart) are supported.
+* Non-containerized workspaces: Ubuntu Bionic Beaver 18.04 LTS only.
+
 
 ## Prerequisites
 
@@ -76,10 +81,10 @@ file. You should choose a name that is appropriate for your intended purpose.
 
 ### Create a workspace
 
-To create a regular (containerized) workspace, run:
+To create a containerized workspace, run:
 
 ```sh
-dsim-repos-index/tools/wsetup maliput_ws
+sudo -g docker dsim-repos-index/tools/wsetup maliput_ws
 ```
 
 Note
@@ -100,7 +105,14 @@ Note
 :  Bear in mind that using a non-containerized workspace makes reproducing and troubleshooting
    issues harder for others. Thus, we highly recommend that you use a containerized workspace.
 
-If need be, additional prerequisites for the workspace can be supplied upon workspace creation:
+If need be, additional prerequisites for the workspace can be supplied upon workspace creation.
+Example using a containerized workspace:
+
+```sh
+sudo -g docker dsim-repos-index/tools/wsetup -e path/to/custom/prereqs maliput_ws
+```
+
+Example using non-containerized workspace:
 
 ```sh
 dsim-repos-index/tools/wsetup -e path/to/custom/prereqs maliput_ws
@@ -147,12 +159,7 @@ applies.
    cp dsim-repos-index/dsim.repos maliput_ws/.
    ```
 
-2. Bring up the workspace to be updated:
-
-   ```sh
-   cd maliput_ws
-   source bringup
-   ```
+2. [Bring up your workspace.](#bring-up-your-workspace)
 
 3. Update all repositories in your workspace:
 
@@ -235,12 +242,7 @@ the filesystem that hosts it. However, if a workspace is containerized and no cu
 applied by the user, repositories alone carry the source code and state the list of system dependencies
 necessary to build and execute. And we can easily inspect repositories.
 
-1. Bring up the workspace to check:
-
-   ```sh
-   cd maliput_ws
-   source bringup
-   ```
+1. [Bring up your workspace](#bring-up-your-workspace)
 
 2. To check repositories' status, run:
 
@@ -271,11 +273,7 @@ if `vcs` isn't enough or to the specific package managers (e.g. `apt` or `pip`) 
 
 ### Build your workspace
 
-1. Bring up the workspace to build on:
-
-   ```sh
-   source bringup
-   ```
+1. [Bring up your workspace](#bring-up-your-workspace)
 
 2. Build the workspace, which can be done in full or partially.
 
@@ -435,12 +433,7 @@ your intended purpose.
    It is assumed that you have the right AWS credentials configured in your system.
    See [AWS CLI user guide to configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) for further reference.
 
-2. Bring up the workspace to use the binary underlay with:
-
-   ```sh
-   cd /path/to/workspace
-   source bringup
-   ```
+2. [Bring up your workspace.](#bring-up-your-workspace)
 
 3. Extract binary underlay tarball:
 
