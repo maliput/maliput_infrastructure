@@ -5,4 +5,4 @@ repositories:
   drake_vendor    : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/drake-vendor.git',          version: 'master' }
   malidrive       : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/malidrive.git',         version: 'master' }
   proj4           : { type: 'git', url: 'https://github.com/OSGeo/proj.4.git',                          version: '5.2.0'  }
-  pybind11        : { type: 'git', url: 'https://github.com/RobotLocomotion/pybind11.git',                          version: 'drake'  }
+  pybind11        : { type: 'git', url: 'https://github.com/RobotLocomotion/pybind11.git',                          version: '96ea0fa9b803bca9ce65630ae92ab50d13058b63'  }
