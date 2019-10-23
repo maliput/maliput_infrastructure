@@ -19,7 +19,7 @@ chmod 0755 $GIT_SSH_FILE
 export GIT_SSH=$GIT_SSH_FILE
 
 # Publish documentation to dsim-docs repository.
-DSIM_DOCS_HTML_ROOT=$(realpath ./install/dsim-docs-bundler/share/dsim-docs-bundler/doc/html)
+DSIM_DOCS_HTML_ROOT=$(realpath ./install/dsim-docs-bundler/share/dsim-docs-bundler/doc/dsim-docs/html)
 
 git clone git@github.com:ToyotaResearchInstitute/dsim-docs.git pub
 pushd pub
@@ -28,7 +28,7 @@ if [ -d docs ]; then
 fi
 cp -rf ${DSIM_DOCS_HTML_ROOT} docs
 git add --all .
-git commit -m "DSim documentation nightly update."
+git commit -m "Nightly update"
 git push origin master
 popd
 
