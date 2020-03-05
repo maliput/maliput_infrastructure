@@ -7,3 +7,4 @@ repositories:
   dsim_docs_bundler   : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/dsim-docs-bundler.git',        version: 'master' }
   malidrive           : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/malidrive.git',                version: 'master' }
   proj4               : { type: 'git', url: 'https://github.com/OSGeo/proj.4.git',                                 version: '5.2.0'  }
+  pybind11            : { type: 'git', url: 'https://github.com/RobotLocomotion/pybind11.git',                     version: '69a5d92a5ff9fe84581a1edeb6051a8c21d9eb97'  }
