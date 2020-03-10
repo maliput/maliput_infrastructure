@@ -480,6 +480,7 @@ repositories for upstream dependencies:
 - [ToyotaResearchInstitute/drake-vendor](https://github.com/ToyotaResearchInstitute/drake-vendor/), that contains a vendoring package for [`drake`](https://github.com/RobotLocomotion/drake).
 - [ToyotaResearchInstitute/malidrive](https://github.com/ToyotaResearchInstitute/malidrive/), that contains a package with a `maliput` backend for the OpenDrive specification.
 - [ToyotaResearchInstitute/maliput](https://github.com/ToyotaResearchInstitute/maliput/), that contains packages introducing `maliput`, a road network runtime interface, and reference backends: `dragway` and `multilane`.
+- [ToyotaResearchInstitute/maliput-integration](https://github.com/ToyotaResearchInstitute/maliput-integration/), that contains integration examples and tools that unify `maliput` core and its possible backends.
 
 ## How to use CI
 
