@@ -1,6 +1,7 @@
 repositories:
   ament_cmake_doxygen : { type: 'git', url: 'https://github.com/ToyotaResearchInstitute/ament_cmake_doxygen.git',  version: 'master' }
   maliput             : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput.git',                  version: 'master' }
+  maliput_multilane   : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput-multilane.git',        version: 'master' }
   maliput_integration : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput-integration.git',      version: 'master' }
   delphyne            : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',                 version: 'master' }
   delphyne_gui        : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne-gui.git',             version: 'master' }
