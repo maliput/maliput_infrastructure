@@ -1,12 +1,12 @@
 repositories:
-  ament_cmake_doxygen : { type: 'git', url: 'https://github.com/ToyotaResearchInstitute/ament_cmake_doxygen.git',  version: 'master' }
-  maliput             : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput.git',                  version: 'master' }
-  maliput_integration : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput-integration.git',      version: 'master' }
+  ament_cmake_doxygen       : { type: 'git', url: 'https://github.com/ToyotaResearchInstitute/ament_cmake_doxygen.git',   version: 'master' }
+  maliput                   : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput.git',                   version: 'master' }
+  maliput_integration       : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput-integration.git',       version: 'master' }
   maliput_integration_tests : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput-integration-tests.git', version: 'master' }
-  delphyne            : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',                 version: 'master' }
-  delphyne_gui        : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne-gui.git',             version: 'master' }
-  drake_vendor        : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/drake-vendor.git',             version: 'master' }
-  dsim_docs_bundler   : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/dsim-docs-bundler.git',        version: 'master' }
-  malidrive           : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/malidrive.git',                version: 'master' }
-  proj4               : { type: 'git', url: 'https://github.com/OSGeo/proj.4.git',                                 version: '5.2.0'  }
-  pybind11            : { type: 'git', url: 'https://github.com/RobotLocomotion/pybind11.git',                     version: '69a5d92a5ff9fe84581a1edeb6051a8c21d9eb97'  }
+  delphyne                  : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',                  version: 'master' }
+  delphyne_gui              : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne-gui.git',              version: 'master' }
+  drake_vendor              : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/drake-vendor.git',              version: 'master' }
+  dsim_docs_bundler         : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/dsim-docs-bundler.git',         version: 'master' }
+  malidrive                 : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/malidrive.git',                 version: 'master' }
+  proj4                     : { type: 'git', url: 'https://github.com/OSGeo/proj.4.git',                                  version: '5.2.0'  }
+  pybind11                  : { type: 'git', url: 'https://github.com/RobotLocomotion/pybind11.git',                      version: '69a5d92a5ff9fe84581a1edeb6051a8c21d9eb97'  }
