@@ -482,6 +482,7 @@ repositories for upstream dependencies:
 - [ToyotaResearchInstitute/maliput](https://github.com/ToyotaResearchInstitute/maliput/), that contains packages introducing `maliput` and a road network runtime interface.
 - [ToyotaResearchInstitute/maliput-dragway](https://github.com/ToyotaResearchInstitute/maliput-dragway/), that contains an implementation of Maliput's API that allows users to instantiate a multilane dragway.
 - [ToyotaResearchInstitute/maliput-integration](https://github.com/ToyotaResearchInstitute/maliput-integration/), that contains integration examples and tools that unify `maliput` core and its possible backends.
+- [ToyotaResearchInstitute/maliput-multilane](https://github.com/ToyotaResearchInstitute/maliput-multilane/), that contains an implementation of Maliput's API that allows users to instantiate a multilane road.
 
 ## How to use CI
 
