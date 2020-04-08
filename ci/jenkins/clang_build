@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -eo pipefail
+
+JOBS=$(($(getconf _NPROCESSORS_ONLN)/2))
+
+MAKEFLAGS="-j${JOBS}" CC=clang CXX=clang++ colcon build \
+  --parallel-workers ${JOBS} \
+  -DCMAKE_LINKER=/usr/bin/llvm-ld \
+  ${COLCON_BUILD_EXTRA_ARGS:-}

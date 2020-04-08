@@ -9,3 +9,9 @@ stage('build') {
 stage('test') {
    sh './index/ci/jenkins/ws ./index/ci/jenkins/test'
 }
+stage('tear_down_build') {
+   sh './index/ci/jenkins/ws ./index/ci/jenkins/tear_down_build'
+}
+stage('clang_build') {
+   sh './index/ci/jenkins/ws ./index/ci/jenkins/clang_build'
+}
