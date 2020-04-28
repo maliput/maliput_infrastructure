@@ -23,7 +23,9 @@ node('delphyne-linux-bionic-unprovisioned') {
         if (env.BRANCH_NAME == 'master' && timeTriggered()) {
           load './index/cd/jenkins/pipeline.groovy'
         } else {
-          load './index/ci/jenkins/pipeline.groovy'
+          withEnv(['ENABLE_TSAN=ON']) {
+            load './index/ci/jenkins/pipeline.groovy'
+          }
         }
       } finally {
         cleanWs(notFailBuild: true)
