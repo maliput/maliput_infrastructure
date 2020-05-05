@@ -15,3 +15,21 @@ stage('tear_down_build') {
 stage('clang_build') {
    sh './index/ci/jenkins/ws ./index/ci/jenkins/clang_build'
 }
+stage('tear_down_build') {
+   sh './index/ci/jenkins/ws ./index/ci/jenkins/tear_down_build'
+}
+stage('address_sanitizer') {
+   sh './index/ci/jenkins/ws ./index/ci/jenkins/address_sanitizer'
+}
+stage('tear_down_build') {
+   sh './index/ci/jenkins/ws ./index/ci/jenkins/tear_down_build'
+}
+stage('undefined_sanitizer') {
+   sh './index/ci/jenkins/ws ./index/ci/jenkins/undefined_sanitizer'
+}
+stage('tear_down_build') {
+   sh './index/ci/jenkins/ws ./index/ci/jenkins/tear_down_build'
+}
+stage('thread_sanitizer') {
+   sh './index/ci/jenkins/ws ./index/ci/jenkins/thread_sanitizer'
+}
