@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-def pipelines = ['gcc_clang_build', 'address_sanitizer', 'ubsan_tsan_sanitizer', 'scan_build']
+def pipelines = ['gcc_clang_build', 'address_sanitizer', 'ubsan_tsan_sanitizer']
 def branches = [:]
 for ( pipeline in pipelines ) {
   def branchName = pipeline
@@ -26,6 +26,6 @@ for ( pipeline in pipelines ) {
   }
 }
 
-
+branches.failFast = true
 // Give the branches to Jenkins for parallel execution:
 parallel branches
