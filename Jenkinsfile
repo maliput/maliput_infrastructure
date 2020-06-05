@@ -24,7 +24,7 @@ node('delphyne-linux-bionic-unprovisioned') {
           load './index/cd/jenkins/pipeline.groovy'
         } else {
           withEnv(['ENABLE_TSAN=ON']) {
-            load './index/ci/jenkins/pipeline.groovy'
+            load './index/ci/jenkins/pipeline_gcc_clang_build.groovy'
           }
         }
       } finally {
