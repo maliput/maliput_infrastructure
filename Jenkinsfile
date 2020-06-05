@@ -1,44 +1,25 @@
 #!/usr/bin/env groovy
 
-// TODO(hidmic): have another, more appropriate label for nodes
-node('delphyne-linux-bionic-unprovisioned') {
-  // From empirical evidence it takes ~10 minutes to install dependencies
-  // and ~20 minutes to build and run the tests.  That adds up to 30 minutes
-  // which we double to 60 to give us enough leeway.
-  timeout(60) {
-    ansiColor('xterm') {
-      def triggers = []
-      if (env.BRANCH_NAME == 'master') {
-        triggers << cron('H H(7-8) * * *')
-      }
-      properties ([
-        pipelineTriggers(triggers)
-      ])
-      try {
-        stage('checkout') {
-          dir('index') {
-            checkout scm
-          }
+def pipelines = ['pipeline_scan_build', 'pipeline_address_sanitizer', 'pipeline_ubsan_tsan_sanitizer', 'pipeline_scan_build']
+def branches = [:]
+for ( pipeline in pipelines ) {
+    def branchName = pipeline
+
+    branches[branchName] = {
+        node('delphyne-linux-bionic-unprovisioned') {
+            stage(branchName) {
+                println('Running ' + branchName)
+              stage(branchName + 'inside stage') {
+                println('Running ' + branchName)
+            }
+            }
         }
-        if (env.BRANCH_NAME == 'master' && timeTriggered()) {
-          load './index/cd/jenkins/pipeline.groovy'
-        } else {
-          withEnv(['ENABLE_TSAN=ON']) {
-            load './index/ci/jenkins/pipeline_gcc_clang_build.groovy'
-          }
-        }
-      } finally {
-        cleanWs(notFailBuild: true)
-      }
     }
-  }
 }
-def timeTriggered() {
-  def causes = currentBuild.getBuildCauses()
-  for (cause in causes) {
-    if (cause._class.toString().contains('TimerTrigger')) {
-      return true;
-    }
-  }
-  return false;
+
+// Give the branches to Jenkins for parallel execution:
+parallel branches
+
+node('delphyne-linux-bionic-unprovisioned') {
+   println('Finishing work')
 }
