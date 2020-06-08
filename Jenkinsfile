@@ -1,26 +1,23 @@
 #!/usr/bin/env groovy
 
-def pipelines = ['gcc_clang_build', 'address_sanitizer', 'ubsan_tsan_sanitizer']
+def pipelines = ['gcc', 'clang', 'asan', 'ubsan', 'tsan']
 def branches = [:]
 for ( pipeline in pipelines ) {
   def branchName = pipeline
 
   branches[branchName] = {
     node('delphyne-linux-bionic-unprovisioned') {
-      stage(branchName) {
-        try {
-          stage('checkout') {
-            dir('index') {
-              checkout scm
-            }
+      try {
+        stage('[' + branchName + ']' + 'checkout') {
+          dir('index') {
+            checkout scm
           }
-          withEnv(['ENABLE_TSAN=ON']) {
-            println('./index/ci/jenkins/pipeline_'+branchName+'.groovy')
-            load './index/ci/jenkins/pipeline_'+branchName+'.groovy'
-          }
-        } finally {
-          cleanWs(notFailBuild: true)
         }
+        withEnv(['ENABLE_TSAN=ON']) {
+          load './index/ci/jenkins/pipeline_' + branchName + '.groovy'
+        }
+      } finally {
+        cleanWs(notFailBuild: true)
       }
     }
   }
