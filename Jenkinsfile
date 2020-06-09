@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-def pipelines = ['gcc', 'clang', 'asan', 'ubsan', 'tsan']
+def pipelines = ['gcc', 'clang', 'asan', 'ubsan', 'tsan', 'scan_build']
 def branches = [:]
 
 if (env.BRANCH_NAME == 'master' && timeTriggered()) {
