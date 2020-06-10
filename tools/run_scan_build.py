@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# Copyright 2020 Toyota Research Institute
 
 import os
 import sys
@@ -17,13 +18,10 @@ def get_package_dependencies_names(packages_up_to = None):
 
 # Get the paths located in the `filepath` and save them in the `store` set.
 def get_exclusion_paths_from_file(filepath, store):
-  try:
+  if(os.path.exists(filepath)):
     with open(filepath) as fp:
       for line in fp.readlines():
           store.add(line.replace('\n', ' '))
-    return 0
-  except FileNotFoundError:
-    return 1
 
 # Convert a set of paths in a `--exclude`s arguments of scan-build command.
 def convert_in_exclude_argument(paths):
@@ -45,9 +43,9 @@ def get_effective_key(args):
     if (keys[i].counter > 0):
       keys[i].index = args.index(potential_key.name)
 
-  if (keys[0].counter is 0 and keys[1].counter is 0):
+  if (keys[0].counter == 0 and keys[1].counter == 0):
     return ''
-  elif (keys[0].counter is keys[1].counter):
+  elif (keys[0].counter == keys[1].counter):
     #  When there are two keys present, it just cares about the first one as colcon does.
     return keys[0].name if keys[0].index < keys[1].index else keys[1].name
   else:
