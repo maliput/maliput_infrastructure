@@ -343,6 +343,26 @@ Note
 :  See [`colcon` documentation](https://colcon.readthedocs.io/en/released/user/how-to.html#run-specific-tests)
 for further reference on `test` support.
 
+### Build your workspace using Static Analyzer
+
+In order to verify your code you can run the [Clang Static Analyzer](https://clang-analyzer.llvm.org/).
+A useful script called `run_scan_build` is located in the workspace's root (by default `maliput_ws` folder).
+
+This executable takes as arguments all the colcon arguments you may want to use and run the `scan-build` command.
+
+1. [Bring up your workspace](#bring-up-your-workspace)
+
+2. Execute `run_scan_build`.
+
+  if no `--packages-up-to` or `packages-select` argument is passed it will scan-build the entire workspace.
+  ```sh
+  ./run_scan_build
+  ```
+  However, if you want to scan up to `malidrive` package, for example, you can do:
+  ```sh
+  ./run_scan_build --packages-up-to malidrive
+  ```
+
 ### Delete your workspace
 
 You may also dispose of a workspace. That is, to dispose of the container image, if any, and all workspace

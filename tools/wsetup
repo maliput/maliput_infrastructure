@@ -168,6 +168,7 @@ set -o xtrace
 WORKSPACE_USER=${SUDO_USER:-$(whoami)}
 
 WORKSPACE_PATH=$(realpath ${1:-$(pwd)})
+WORKSPACE_SCAN_BUILD_SCRIPT=$WORKSPACE_PATH/run_scan_build
 WORKSPACE_SCRIPT=$WORKSPACE_PATH/bringup
 WORKSPACE_RCFILE=$WORKSPACE_PATH/.bashrc
 
@@ -185,6 +186,17 @@ sudo tee ${TOOL_PATH} > /dev/null <<"EOF"
 EOF
 
 sudo chmod +x ${TOOL_PATH}
+
+@% endfor %@
+
+echo ">> Installing run_scan_build"
+@% for name, content in scan_build %@
+
+sudo tee ${WORKSPACE_SCAN_BUILD_SCRIPT} > /dev/null <<"EOF"
+@{ content }@
+EOF
+
+sudo chmod +x ${WORKSPACE_SCAN_BUILD_SCRIPT}
 
 @% endfor %@
 
@@ -327,6 +339,7 @@ if __name__ == '__main__':
             print('Need sudo to setup non-containerized workspace')
             sys.exit(1)
         template = env.from_string(SETUP_SCRIPT_TEMPLATE)
+        context['scan_build'] = []
         context['tools'] = []
         for filename in os.listdir(PATH_TO_SCRIPT_DIR):
             fullpath = os.path.join(PATH_TO_SCRIPT_DIR, filename)
@@ -335,7 +348,10 @@ if __name__ == '__main__':
             if fullpath == PATH_TO_SCRIPT:
                 continue
             with open(fullpath, 'r') as f:
-                context['tools'].append((filename, f.read()))
+                if filename == "run_scan_build.py":
+                  context['scan_build'].append((filename, f.read()))
+                else:
+                  context['tools'].append((filename, f.read()))
         context['prereqs'] = []
         path_to_default_prereqs = os.path.join(
             PATH_TO_SCRIPT_DIR, 'etc', 'default.prereqs'
