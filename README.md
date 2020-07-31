@@ -11,6 +11,8 @@
     - [Check your workspace](#check-your-workspace)
     - [Build your workspace](#build-your-workspace)
     - [Test your workspace](#test-your-workspace)
+    - [Build your workspace using Static Analyzer](#build-your-workspace-using-static-analyzer)
+    - [Build doxygen documentation](#build-doxygen-documentation)
     - [Delete your workspace](#delete-your-workspace)
 - [Contributing](#contributing)
   - [Usual workflows](#usual-workflows)
@@ -361,6 +363,23 @@ This executable takes as arguments all the colcon arguments you may want to use 
   However, if you want to scan up to `malidrive` package, for example, you can do:
   ```sh
   ./run_scan_build --packages-up-to malidrive
+  ```
+
+### Build doxygen documentation
+
+1. [Bring up your workspace](#bring-up-your-workspace)
+
+2. Build the workspace, which can be done in full or partially. In particular,
+   we are interested in compiling `dsim-docs-bundler`
+
+  ```sh
+  colcon build --packages-up-to dsim-docs-bundler
+  ```
+
+3. Open the documentation with your favorite browser. If Google Chrome is available, you can run:
+
+  ```sh
+  google-chrome install/dsim-docs-bundler/share/dsim-docs-bundler/doc/dsim-docs/html/index.html
   ```
 
 ### Delete your workspace
