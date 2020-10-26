@@ -83,7 +83,12 @@ def generate_exclude_args(argv):
 
   exclusion_paths = set()
   for package in packages_to_get_exclude_file_of:
+    # TODO(francocipollone): Some repos don't have the suppression file in the ideal location.
+    #                        The following logic must be improved or the location of the suppression
+    #                        file should be standardized.
     filepath = "src/{}/tools/scan_build.supp".format(package)
+    get_exclusion_paths_from_file(filepath, exclusion_paths)
+    filepath = "src/{}/{}/tools/scan_build.supp".format(package, package)
     get_exclusion_paths_from_file(filepath, exclusion_paths)
   return convert_in_exclude_argument(exclusion_paths)
 
