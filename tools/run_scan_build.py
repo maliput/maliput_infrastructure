@@ -83,8 +83,12 @@ def generate_exclude_args(argv):
 
   exclusion_paths = set()
   for package in packages_to_get_exclude_file_of:
-    filepath = "src/{}/tools/scan_build.supp".format(package)
-    get_exclusion_paths_from_file(filepath, exclusion_paths)
+    package_path = os.popen('colcon list --packages-select ' + package + ' --paths-only')
+    command = 'find ' + package_path.read().splitlines()[0] + ' -name scan_build.supp'
+    find = os.popen(command)
+    supp_filepaths = find.read().splitlines()
+    for filepath in supp_filepaths:
+      get_exclusion_paths_from_file(filepath, exclusion_paths)
   return convert_in_exclude_argument(exclusion_paths)
 
 def main(argv):
