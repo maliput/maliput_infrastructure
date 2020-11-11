@@ -14,4 +14,4 @@ MAKEFLAGS="-j${JOBS}" CC=clang CXX=clang++ colcon build \
 source ./install/setup.bash
 
 UBSAN_OPTIONS=halt_on_error=1 colcon test --event-handlers=console_direct+ --return-code-on-test-failure \
-       --packages-skip PROJ4 pybind11 ${COLCON_TEST_EXTRA_ARGS:-}
+       --packages-skip pybind11 ${COLCON_TEST_EXTRA_ARGS:-}

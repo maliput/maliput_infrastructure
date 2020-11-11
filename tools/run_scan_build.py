@@ -4,7 +4,7 @@
 import os
 import sys
 
-EXTRA_EXCLUDE_ARGS = " --exclude src/pybind11 --exclude src/proj4 --exclude /usr/include/eigen3 "
+EXTRA_EXCLUDE_ARGS = " --exclude src/pybind11 --exclude /usr/include/eigen3 "
 
 # Returns a set of dependencies by name of all the `packages-up-to` argument. When None is provided, all the packages are returned.
 def get_package_dependencies_names(packages_up_to = None):
