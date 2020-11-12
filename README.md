@@ -210,7 +210,7 @@ applies.
 
    ```sh
    rosdep update
-   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 PROJ4 pybind11" --from-paths src
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" --from-paths src
    ```
 
    Warning
@@ -261,7 +261,7 @@ necessary to build and execute. And we can easily inspect repositories.
 4. To see if (most of) our versioned packages' dependencies have been met, run:
 
    ```sh
-   rosdep check --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11 PROJ4" --from-paths src
+   rosdep check --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11" --from-paths src
    ```
 
    Note though that currently not all workspace prerequisites are nor can be dealt with using `rosdep`
@@ -338,7 +338,7 @@ Note
 In a built workspace, run:
 
 ```sh
-colcon test --event-handlers=console_direct+ --return-code-on-test-failure --packages-skip PROJ4 pybind11
+colcon test --event-handlers=console_direct+ --return-code-on-test-failure --packages-skip pybind11
 ```
 
 Note
@@ -501,7 +501,7 @@ your intended purpose.
 
    ```sh
    rosdep update
-   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11 PROJ4" --from-paths /opt/dsim-desktop/*
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" --from-paths /opt/dsim-desktop/*
    ```
 
 6. When exiting the workspace, make sure changes are saved!
