@@ -1,0 +1,107 @@
+name: Compile and test
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron:  '0 9 * * *' # 9:00am UTC, 1:00am PST.
+
+env:
+  PACKAGE_NAME: dsim-repos-index
+  ROS_DISTRO: dashing
+  ROS_WS: maliput_ws
+
+jobs:
+  compile_and_test:
+    name: Compile and test
+    runs-on: ubuntu-18.04
+    container:
+      image: ubuntu:18.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        path: ${{ env.ROS_WS }}/src/${{ env.PACKAGE_NAME }}
+    # clone private dependencies
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/maliput
+        path: ${{ env.ROS_WS }}/src/maliput
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/maliput-dragway
+        path: ${{ env.ROS_WS }}/src/maliput_dragway
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/maliput-multilane
+        path: ${{ env.ROS_WS }}/src/maliput_multilane
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/malidrive
+        path: ${{ env.ROS_WS }}/src/malidrive
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/delphyne
+        path: ${{ env.ROS_WS }}/src/delphyne
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/delphyne-gui
+        path: ${{ env.ROS_WS }}/src/delphyne-gui
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/drake-vendor
+        path: ${{ env.ROS_WS }}/src/drake_vendor
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    # use setup-ros action to get vcs, rosdep, and colcon
+    - uses: ros-tooling/setup-ros@0.0.25
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    # install drake_vendor prereqs using dsim-repos-index/tools/prereqs.lib
+    - name: install drake_vendor prereqs
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}/src/drake_vendor
+      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t drake .
+    # install delphyne prereqs using dsim-repos-index/tools/prereqs.lib
+    - name: install delphyne prereqs
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}/src/delphyne
+      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
+    # install delphyne-gui prereqs using dsim-repos-index/tools/prereqs.lib
+    - name: install delphyne-gui prereqs
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}/src/delphyne-gui
+      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
+    # clone public dependencies
+    - name: vcs import
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: vcs import src < src/${PACKAGE_NAME}/.github/dependencies.repos
+    - run: colcon graph
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+    - name: rosdep install
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: |
+        rosdep update;
+        rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
+          --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" \
+          --from-paths src
+    - name: colcon build libraries
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: |
+        . /opt/ros/${ROS_DISTRO}/setup.bash;
+        colcon build --event-handlers=console_direct+
+    - name: colcon test
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: |
+        . /opt/ros/${ROS_DISTRO}/setup.bash;
+        colcon test --event-handlers=console_direct+;
+        colcon test-result --verbose;
