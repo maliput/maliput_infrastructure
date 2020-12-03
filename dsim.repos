@@ -3,6 +3,7 @@ repositories:
   maliput                   : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput.git',                   version: 'master' }
   maliput_documentation     : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput-documentation.git',     version: 'main' }
   maliput_dragway           : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput-dragway.git',           version: 'master' }
+  maliput_malidrive         : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_malidrive.git',         version: 'main' }
   maliput_multilane         : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput-multilane.git',         version: 'master' }
   maliput_integration       : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput-integration.git',       version: 'master' }
   maliput_integration_tests : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput-integration-tests.git', version: 'master' }
