@@ -31,7 +31,7 @@ jobs:
         apt install -y git;
     - uses: actions/checkout@v2
       with:
-        path: ${{ PACKAGE_NAME }}
+        path: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}
     # clone private dependencies
     - uses: actions/checkout@v2
       with:
