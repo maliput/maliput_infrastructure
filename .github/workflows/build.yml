@@ -1,4 +1,4 @@
-name: Compile and test
+name: gcc
 
 on:
   push:
