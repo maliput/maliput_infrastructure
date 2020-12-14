@@ -6,7 +6,7 @@ on:
       - master
   pull_request:
   schedule:
-    - cron:  '0 9 * * *' # 9:00am UTC, 1:00am PST.
+    - cron:  '0 9 * * 1' # 9:00am UTC, 1:00am PST every Monday.
 
 env:
   PACKAGE_NAME: dsim-repos-index
