@@ -4,10 +4,13 @@
 import os
 import sys
 
-EXTRA_EXCLUDE_ARGS = " --exclude src/pybind11 --exclude /usr/include/eigen3 "
+EXTRA_EXCLUDE_ARGS = " --exclude src/pybind11 --exclude /usr/include/eigen3 --exclude src/ign-gui0 --exclude /usr/include/x86_64-linux-gnu/qt5 "
 
-# Returns a set of dependencies by name of all the `packages-up-to` argument. When None is provided, all the packages are returned.
 def get_package_dependencies_names(packages_up_to = None):
+  '''
+  Returns a set of dependencies by name of all the `packages-up-to` argument.
+  When None is provided, all the packages are returned.
+  '''
   stream = os.popen('colcon graph') if not packages_up_to else os.popen('colcon graph --packages-up-to ' + packages_up_to)
 
   colcon_graph = stream.read().splitlines()
@@ -16,15 +19,19 @@ def get_package_dependencies_names(packages_up_to = None):
     result.add(line[:line.find(' ')])
   return result
 
-# Get the paths located in the `filepath` and save them in the `store` set.
 def get_exclusion_paths_from_file(filepath, store):
+  '''
+  Get the paths located in the `filepath` and save them in the `store` set.
+  '''
   if(os.path.exists(filepath)):
     with open(filepath) as fp:
       for line in fp.readlines():
           store.add(line.replace('\n', ' '))
 
-# Convert a set of paths in a `--exclude`s arguments of scan-build command.
 def convert_in_exclude_argument(paths):
+  '''
+  Convert a set of paths in a `--exclude`s arguments of scan-build command.
+  '''
   final_string = ''
   for path in paths:
     final_string = final_string + " --exclude " + str(path)
