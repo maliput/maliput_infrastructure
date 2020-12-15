@@ -1,10 +1,6 @@
 name: clang
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
   schedule:
     - cron:  '0 9 * * 1' # 9:00am UTC, 1:00am PST every Monday.
 
