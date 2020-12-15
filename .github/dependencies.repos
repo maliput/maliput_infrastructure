@@ -3,6 +3,10 @@ repositories:
     type: git
     url: https://github.com/ToyotaResearchInstitute/ament_cmake_doxygen
     version: master
+  ign-gui0:
+    type: git
+    url: https://github.com/scpeters/ign-gui
+    version: gui0_blueprint
   pybind11:
     type: git
     url: https://github.com/RobotLocomotion/pybind11.git
