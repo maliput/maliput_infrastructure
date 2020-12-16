@@ -4,4 +4,4 @@ set -eo pipefail
 
 rosdep update
 
-sudo rosdep install -i -y --rosdistro=$ROS_DISTRO --skip-keys="ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" --from-paths src
+sudo rosdep install -i -y --rosdistro=$ROS_DISTRO --skip-keys="ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" --from-paths src
