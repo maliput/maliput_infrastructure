@@ -13,4 +13,4 @@ repositories:
   dsim_docs_bundler         : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/dsim-docs-bundler.git',         version: 'master' }
   malidrive                 : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/malidrive.git',                 version: 'master' }
   pybind11                  : { type: 'git', url: 'https://github.com/RobotLocomotion/pybind11.git',                      version: '69a5d92a5ff9fe84581a1edeb6051a8c21d9eb97'  }
-  ign-gui0                  : { type: 'git', url: 'https://github.com/scpeters/ign-gui' version: 'gui0_blueprint' }
+  ign-gui0                  : { type: 'git', url: 'https://github.com/scpeters/ign-gui', version: 'gui0_blueprint' }
