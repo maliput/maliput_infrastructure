@@ -29,16 +29,6 @@ jobs:
         apt install -y software-properties-common;
         add-apt-repository -y -u ppa:git-core/ppa;
         apt install -y git;
-    # configure AWS credentials to push the install space when the schedule event triggers the job.
-    - name: Configure AWS credentials
-      # TODO(agalbachicar) Uncomment once it has been tested.
-      # on: [schedule]
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        # TODO(agalbachicar): Use the same region where things are configured.
-        aws-region: us-east-1
     - uses: actions/checkout@v2
       with:
         path: dsim-repos-index
@@ -157,6 +147,15 @@ jobs:
         . /opt/ros/${ROS_DISTRO}/setup.bash;
         colcon test --event-handlers=console_direct+;
         colcon test-result --verbose;
+    # configure AWS credentials to push the install space when the schedule event triggers the job.
+    - name: Configure AWS credentials
+      # TODO(agalbachicar) Uncomment once it has been tested.
+      # on: [schedule]
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
     - name: Create tarball and push it to AWS
       # TODO(agalbachicar) Uncomment once it has been tested.
       # on: [schedule]
