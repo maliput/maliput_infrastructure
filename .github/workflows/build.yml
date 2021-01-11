@@ -162,12 +162,12 @@ jobs:
       working-directory: ${{ env.ROS_WS }}
       env:
         BUNDLE_NAME: dsim_desktop
-        CURRENT_BUNDLE_TARBALL_NAME: dsim_desktop_${{date +%Y%m%d}}_bionic.tar.gz
         LATEST_BUNDLE_TARBALL_NAME: dsim_desktop_latest_bionic.tar.gz
         BUCKET_NAME: driving-sim/projects/maliput/packages/nightlies
       run: |
         echo "Moving install space to ${BUNDLE_NAME}";
         mv install ${BUNDLE_NAME};
+        CURRENT_BUNDLE_TARBALL_NAME="${BUNDLE_NAME}_${{date +%Y%m%d}}_bionic.tar.gz"
         echo "Compressing tarball ${CURRENT_BUNDLE_TARBALL_NAME}";
         tar -czvf ${CURRENT_BUNDLE_TARBALL_NAME} ${BUNDLE_NAME};
         echo "Pushing latest tarball."
