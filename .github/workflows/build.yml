@@ -167,7 +167,7 @@ jobs:
       run: |
         echo "Moving install space to ${BUNDLE_NAME}";
         mv install ${BUNDLE_NAME};
-        CURRENT_BUNDLE_TARBALL_NAME="${BUNDLE_NAME}_${{date +%Y%m%d}}_bionic.tar.gz"
+        CURRENT_BUNDLE_TARBALL_NAME="${BUNDLE_NAME}_$(date +%Y%m%d)_bionic.tar.gz"
         echo "Compressing tarball ${CURRENT_BUNDLE_TARBALL_NAME}";
         tar -czvf ${CURRENT_BUNDLE_TARBALL_NAME} ${BUNDLE_NAME};
         echo "Pushing latest tarball."
