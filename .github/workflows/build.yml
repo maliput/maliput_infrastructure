@@ -167,6 +167,8 @@ jobs:
         LATEST_BUNDLE_TARBALL_NAME: dsim_desktop_latest_bionic.tar.gz
         BUCKET_NAME: driving-sim/projects/maliput/packages/nightlies
       run: |
+        apt update;
+        apt install -y awscli;
         echo "Moving install space to ${BUNDLE_NAME}";
         mv install ${BUNDLE_NAME};
         CURRENT_BUNDLE_TARBALL_NAME="${BUNDLE_NAME}_$(date +%Y%m%d)_bionic.tar.gz"
