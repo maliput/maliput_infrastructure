@@ -8,6 +8,8 @@ jobs:
   compile_and_test:
     name: Compile and test
     runs-on: ubuntu-18.04
+    container:
+      image: ubuntu:18.04
     steps:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
