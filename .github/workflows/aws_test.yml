@@ -11,12 +11,18 @@ jobs:
     container:
       image: ubuntu:18.04
     steps:
+    - name: Install aws cli
+      run: |
+        apt-get update;
+        apt-get install -y awscli;
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
+    - name: Tests aws cli
+      shell: bash
       env:
         BUCKET_NAME: driving-sim/projects/maliput/packages/nightlies/
       run: |
