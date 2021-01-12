@@ -151,7 +151,7 @@ jobs:
     # Note that a file with the name of the bundle is created to pass the value
     # step to step.
     - name: Install aws cli
-      on: [schedule]
+      if: ${{ github.event_name == 'schedule' }}
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       env:
@@ -165,20 +165,20 @@ jobs:
         tar -czvf ${CURRENT_BUNDLE_TARBALL_NAME} ${BUNDLE_NAME};
     # configure AWS credentials to push the install space when the schedule event triggers the job.
     - name: Configure AWS credentials
-      on: [schedule]
+      if: ${{ github.event_name == 'schedule' }}
       uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
     - name: Install aws cli
-      on: [schedule]
+      if: ${{ github.event_name == 'schedule' }}
       shell: bash
       run: |
         apt update;
         apt install -y software-properties-common awscli;
     - name: Create tarball and push it to AWS
-      on: [schedule]
+      if: ${{ github.event_name == 'schedule' }}
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       env:
