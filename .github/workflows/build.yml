@@ -1,182 +1,189 @@
-# name: gcc
+name: gcc
 
-# on:
-#   push:
-#   pull_request:
-#   schedule:
-#     - cron:  '0 9 * * *' # 9:00am UTC, 1:00am PST.
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron:  '0 9 * * *' # 9:00am UTC, 1:00am PST.
 
-# env:
-#   PACKAGE_NAME: dsim-repos-index
-#   ROS_DISTRO: dashing
-#   ROS_WS: maliput_ws
+env:
+  PACKAGE_NAME: dsim-repos-index
+  ROS_DISTRO: dashing
+  ROS_WS: maliput_ws
 
-# jobs:
-#   compile_and_test:
-#     name: Compile and test
-#     runs-on: ubuntu-18.04
-#     container:
-#       image: ubuntu:18.04
-#     steps:
-#     # setup-ros first since it installs git, which is needed to fetch all branches from actions/checkout
-#     - uses: ros-tooling/setup-ros@0.0.26
-#     # install git from ppa since git 2.18+ is needed to fetch all branches from actions/checkout
-#     # this step can be removed on 20.04
-#     - name: install git from ppa
-#       shell: bash
-#       run: |
-#         apt update;
-#         apt install -y software-properties-common;
-#         add-apt-repository -y -u ppa:git-core/ppa;
-#         apt install -y git;
-#     - uses: actions/checkout@v2
-#       with:
-#         path: dsim-repos-index
-#     # clone private dependencies
-#     - uses: actions/checkout@v2
-#       with:
-#         repository: ToyotaResearchInstitute/maliput
-#         fetch-depth: 0
-#         path: ${{ env.ROS_WS }}/src/maliput
-#         token: ${{ secrets.MALIPUT_TOKEN }}
-#     - uses: actions/checkout@v2
-#       with:
-#         repository: ToyotaResearchInstitute/maliput-dragway
-#         fetch-depth: 0
-#         path: ${{ env.ROS_WS }}/src/maliput_dragway
-#         token: ${{ secrets.MALIPUT_TOKEN }}
-#     - uses: actions/checkout@v2
-#       with:
-#         repository: ToyotaResearchInstitute/maliput-multilane
-#         fetch-depth: 0
-#         path: ${{ env.ROS_WS }}/src/maliput_multilane
-#         token: ${{ secrets.MALIPUT_TOKEN }}
-#     - uses: actions/checkout@v2
-#       with:
-#         repository: ToyotaResearchInstitute/maliput_malidrive
-#         fetch-depth: 0
-#         path: ${{ env.ROS_WS }}/src/maliput_malidrive
-#         token: ${{ secrets.MALIPUT_TOKEN }}
-#     - uses: actions/checkout@v2
-#       with:
-#         repository: ToyotaResearchInstitute/malidrive
-#         fetch-depth: 0
-#         path: ${{ env.ROS_WS }}/src/malidrive
-#         token: ${{ secrets.MALIPUT_TOKEN }}
-#     - uses: actions/checkout@v2
-#       with:
-#         repository: ToyotaResearchInstitute/delphyne
-#         fetch-depth: 0
-#         path: ${{ env.ROS_WS }}/src/delphyne
-#         token: ${{ secrets.MALIPUT_TOKEN }}
-#     - uses: actions/checkout@v2
-#       with:
-#         repository: ToyotaResearchInstitute/delphyne-gui
-#         fetch-depth: 0
-#         path: ${{ env.ROS_WS }}/src/delphyne-gui
-#         token: ${{ secrets.MALIPUT_TOKEN }}
-#     - uses: actions/checkout@v2
-#       with:
-#         repository: ToyotaResearchInstitute/drake-vendor
-#         fetch-depth: 0
-#         path: ${{ env.ROS_WS }}/src/drake_vendor
-#         token: ${{ secrets.MALIPUT_TOKEN }}
-#     - uses: actions/checkout@v2
-#       with:
-#         repository: ToyotaResearchInstitute/maliput-documentation
-#         fetch-depth: 0
-#         path: ${{ env.ROS_WS }}/src/maliput_documentation
-#         token: ${{ secrets.MALIPUT_TOKEN }}
-#     - uses: actions/checkout@v2
-#       with:
-#         repository: ToyotaResearchInstitute/maliput-integration
-#         fetch-depth: 0
-#         path: ${{ env.ROS_WS }}/src/maliput_integration
-#         token: ${{ secrets.MALIPUT_TOKEN }}
-#     - uses: actions/checkout@v2
-#       with:
-#         repository: ToyotaResearchInstitute/maliput-integration-tests
-#         fetch-depth: 0
-#         path: ${{ env.ROS_WS }}/src/maliput_integration_tests
-#         token: ${{ secrets.MALIPUT_TOKEN }}
-#     - name: check if dependencies have a matching branch
-#       shell: bash
-#       working-directory: ${{ env.ROS_WS }}/src
-#       run: ${GITHUB_WORKSPACE}/dsim-repos-index/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
-#     # install drake_vendor prereqs using dsim-repos-index/tools/prereqs.lib
-#     - name: install drake_vendor prereqs
-#       shell: bash
-#       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
-#       run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t drake .
-#     # install delphyne prereqs using dsim-repos-index/tools/prereqs.lib
-#     - name: install delphyne prereqs
-#       shell: bash
-#       working-directory: ${{ env.ROS_WS }}/src/delphyne
-#       run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
-#     # install delphyne-gui prereqs using dsim-repos-index/tools/prereqs.lib
-#     - name: install delphyne-gui prereqs
-#       shell: bash
-#       working-directory: ${{ env.ROS_WS }}/src/delphyne-gui
-#       run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
-#     # clone public dependencies
-#     - name: vcs import
-#       shell: bash
-#       working-directory: ${{ env.ROS_WS }}
-#       run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos
-#     - run: colcon graph
-#       shell: bash
-#       working-directory: ${{ env.ROS_WS }}
-#     - name: rosdep install
-#       shell: bash
-#       working-directory: ${{ env.ROS_WS }}
-#       run: |
-#         rosdep update;
-#         rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
-#           --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" \
-#           --from-paths src
-#     - name: colcon build libraries
-#       shell: bash
-#       working-directory: ${{ env.ROS_WS }}
-#       run: |
-#         . /opt/ros/${ROS_DISTRO}/setup.bash;
-#         colcon build --event-handlers=console_direct+
-# # TODO(agalbachicar): Restore once the workflow successes.
-# #    - name: colcon test
-# #      shell: bash
-# #      working-directory: ${{ env.ROS_WS }}
-# #      run: |
-# #        . /opt/ros/${ROS_DISTRO}/setup.bash;
-# #        colcon test --event-handlers=console_direct+;
-# #        colcon test-result --verbose;
-#     # configure AWS credentials to push the install space when the schedule event triggers the job.
-#     - name: Configure AWS credentials
-#       # TODO(agalbachicar) Uncomment once it has been tested.
-#       # on: [schedule]
-#       uses: aws-actions/configure-aws-credentials@v1
-#       with:
-#         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#         aws-region: us-east-1
-#     - name: Create tarball and push it to AWS
-#       # TODO(agalbachicar) Uncomment once it has been tested.
-#       # on: [schedule]
-#       shell: bash
-#       working-directory: ${{ env.ROS_WS }}
-#       env:
-#         BUNDLE_NAME: dsim_desktop
-#         LATEST_BUNDLE_TARBALL_NAME: dsim_desktop_latest_bionic.tar.gz
-#         BUCKET_NAME: driving-sim/projects/maliput/packages/nightlies
-#       run: |
-#         apt update;
-#         apt install -y awscli;
-#         echo "Moving install space to ${BUNDLE_NAME}";
-#         mv install ${BUNDLE_NAME};
-#         CURRENT_BUNDLE_TARBALL_NAME="${BUNDLE_NAME}_$(date +%Y%m%d)_bionic.tar.gz"
-#         echo "Compressing tarball ${CURRENT_BUNDLE_TARBALL_NAME}";
-#         tar -czvf ${CURRENT_BUNDLE_TARBALL_NAME} ${BUNDLE_NAME};
-#         echo "Pushing latest tarball."
-#         aws s3 cp ${CURRENT_BUNDLE_TARBALL_NAME} s3://${BUCKET_NAME}/${CURRENT_BUNDLE_TARBALL_NAME};
-#         echo "Pushing and overwriting latest nightly build tarball ${LATEST_BUNDLE_TARBALL_NAME}";"
-#         aws s3 cp s3://${BUCKET_NAME}/${CURRENT_BUNDLE_TARBALL_NAME} s3://${BUCKET_NAME}/${LATEST_BUNDLE_TARBALL_NAME};
+jobs:
+  compile_and_test:
+    name: Compile and test
+    runs-on: ubuntu-18.04
+    container:
+      image: ubuntu:18.04
+    steps:
+    # setup-ros first since it installs git, which is needed to fetch all branches from actions/checkout
+    - uses: ros-tooling/setup-ros@0.0.26
+    # install git from ppa since git 2.18+ is needed to fetch all branches from actions/checkout
+    # this step can be removed on 20.04
+    - name: install git from ppa
+      shell: bash
+      run: |
+        apt update;
+        apt install -y software-properties-common;
+        add-apt-repository -y -u ppa:git-core/ppa;
+        apt install -y git;
+    - uses: actions/checkout@v2
+      with:
+        path: dsim-repos-index
+    # clone private dependencies
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/maliput
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/maliput
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/maliput-dragway
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/maliput_dragway
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/maliput-multilane
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/maliput_multilane
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/maliput_malidrive
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/maliput_malidrive
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/malidrive
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/malidrive
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/delphyne
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/delphyne
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/delphyne-gui
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/delphyne-gui
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/drake-vendor
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/drake_vendor
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/maliput-documentation
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/maliput_documentation
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/maliput-integration
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/maliput_integration
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
+        repository: ToyotaResearchInstitute/maliput-integration-tests
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/maliput_integration_tests
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - name: check if dependencies have a matching branch
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}/src
+      run: ${GITHUB_WORKSPACE}/dsim-repos-index/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
+    # install drake_vendor prereqs using dsim-repos-index/tools/prereqs.lib
+    - name: install drake_vendor prereqs
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}/src/drake_vendor
+      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t drake .
+    # install delphyne prereqs using dsim-repos-index/tools/prereqs.lib
+    - name: install delphyne prereqs
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}/src/delphyne
+      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
+    # install delphyne-gui prereqs using dsim-repos-index/tools/prereqs.lib
+    - name: install delphyne-gui prereqs
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}/src/delphyne-gui
+      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
+    # clone public dependencies
+    - name: vcs import
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos
+    - run: colcon graph
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+    - name: rosdep install
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: |
+        rosdep update;
+        rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
+          --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" \
+          --from-paths src
+# TODO(agalbachicar): Restore once the workflow successes.
+    # - name: colcon build libraries
+    #   shell: bash
+    #   working-directory: ${{ env.ROS_WS }}
+    #   run: |
+    #     . /opt/ros/${ROS_DISTRO}/setup.bash;
+    #     colcon build --event-handlers=console_direct+
+   # - name: colcon test
+   #   shell: bash
+   #   working-directory: ${{ env.ROS_WS }}
+   #   run: |
+   #     . /opt/ros/${ROS_DISTRO}/setup.bash;
+   #     colcon test --event-handlers=console_direct+;
+   #     colcon test-result --verbose;
+    # configure AWS credentials to push the install space when the schedule event triggers the job.
+    - name: Configure AWS credentials
+      # TODO(agalbachicar) Uncomment once it has been tested.
+      # on: [schedule]
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    - name: Install aws cli
+      # TODO(agalbachicar) Uncomment once it has been tested.
+      # on: [schedule]
+      shell: bash
+      run: |
+        apt update;
+        apt install -y software-properties-common awscli;
+    - name: Create tarball and push it to AWS
+      # TODO(agalbachicar) Uncomment once it has been tested.
+      # on: [schedule]
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      env:
+        BUNDLE_NAME: dsim_desktop
+        LATEST_BUNDLE_TARBALL_NAME: dsim_desktop_latest_bionic.tar.gz
+        BUCKET_NAME: driving-sim/projects/maliput/packages/nightlies
+      run: |
+        aws s3 ls ${BUCKET_NAME};
+      # run: |
+      #   echo "Moving install space to ${BUNDLE_NAME}";
+      #   mv install ${BUNDLE_NAME};
+      #   CURRENT_BUNDLE_TARBALL_NAME="${BUNDLE_NAME}_$(date +%Y%m%d)_bionic.tar.gz"
+      #   echo "Compressing tarball ${CURRENT_BUNDLE_TARBALL_NAME}";
+      #   tar -czvf ${CURRENT_BUNDLE_TARBALL_NAME} ${BUNDLE_NAME};
+      #   echo "Pushing latest tarball."
+      #   aws s3 cp ${CURRENT_BUNDLE_TARBALL_NAME} s3://${BUCKET_NAME}/${CURRENT_BUNDLE_TARBALL_NAME};
+      #   echo "Pushing and overwriting latest nightly build tarball ${LATEST_BUNDLE_TARBALL_NAME}";"
+      #   aws s3 cp s3://${BUCKET_NAME}/${CURRENT_BUNDLE_TARBALL_NAME} s3://${BUCKET_NAME}/${LATEST_BUNDLE_TARBALL_NAME};
 
 
