@@ -22,5 +22,7 @@ jobs:
       env:
         BUCKET_NAME: driving-sim/projects/maliput/packages/nightlies/
       run: |
+        echo $PATH;
+        ls -lash /usr/bin/aws;
         aws s3 ls ${BUCKET_NAME};
 
