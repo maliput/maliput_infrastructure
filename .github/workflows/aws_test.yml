@@ -19,7 +19,7 @@ jobs:
         aws-region: us-east-1
     - name: Install aws cli
       run: |
-        apt-get update;
+        apt update;
         apt install -y software-properties-common awscli;
     - name: Tests aws cli
       shell: bash
