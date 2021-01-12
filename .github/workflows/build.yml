@@ -189,5 +189,5 @@ jobs:
       run: |
         echo "Pushing latest tarball."
         aws s3 cp $(cat bundle_file_name) s3://${BUCKET_NAME}/$(cat bundle_file_name);
-        echo "Pushing and overwriting latest nightly build tarball ${LATEST_BUNDLE_TARBALL_NAME}";"
+        echo "Pushing and overwriting latest nightly build tarball ${LATEST_BUNDLE_TARBALL_NAME}";
         aws s3 cp s3://${BUCKET_NAME}/$(cat bundle_file_name) s3://${BUCKET_NAME}/${LATEST_BUNDLE_TARBALL_NAME};
