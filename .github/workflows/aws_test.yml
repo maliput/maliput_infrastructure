@@ -18,6 +18,7 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
     - name: Install aws cli
+      shell: bash
       run: |
         apt update;
         apt install -y software-properties-common awscli;
