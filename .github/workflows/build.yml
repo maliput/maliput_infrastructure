@@ -150,7 +150,7 @@ jobs:
     # create tarball to push to aws s3 bucket
     # Note that a file with the name of the bundle is created to pass the value
     # step to step.
-    - name: Install aws cli
+    - name: Create tarball to store in AWS S3 bucket.
       if: ${{ github.event_name == 'schedule' }}
       shell: bash
       working-directory: ${{ env.ROS_WS }}
@@ -177,7 +177,7 @@ jobs:
       run: |
         apt update;
         apt install -y software-properties-common awscli;
-    - name: Create tarball and push it to AWS
+    - name: Push tarball to AWS S3
       if: ${{ github.event_name == 'schedule' }}
       shell: bash
       working-directory: ${{ env.ROS_WS }}
@@ -185,7 +185,7 @@ jobs:
         LATEST_BUNDLE_TARBALL_NAME: dsim_desktop_latest_bionic.tar.gz
         BUCKET_NAME: driving-sim/projects/maliput/packages/nightlies
       run: |
-        echo "Pushing latest tarball."
+        echo "Pushing current tarball."
         aws s3 cp $(cat bundle_file_name) s3://${BUCKET_NAME}/$(cat bundle_file_name);
         echo "Pushing and overwriting latest nightly build tarball ${LATEST_BUNDLE_TARBALL_NAME}";
         aws s3 cp s3://${BUCKET_NAME}/$(cat bundle_file_name) s3://${BUCKET_NAME}/${LATEST_BUNDLE_TARBALL_NAME};
