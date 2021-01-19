@@ -147,3 +147,45 @@ jobs:
         . /opt/ros/${ROS_DISTRO}/setup.bash;
         colcon test --event-handlers=console_direct+;
         colcon test-result --verbose;
+    # create tarball to push to aws s3 bucket
+    # Note that a file with the name of the bundle is created to pass the value
+    # step to step.
+    - name: Create tarball to store in AWS S3 bucket.
+      if: ${{ github.event_name == 'schedule' }}
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      env:
+        BUNDLE_NAME: dsim_desktop
+      run: |
+        echo "Moving install space to ${BUNDLE_NAME}";
+        mv install ${BUNDLE_NAME};
+        CURRENT_BUNDLE_TARBALL_NAME="${BUNDLE_NAME}_$(date +%Y%m%d)_bionic.tar.gz"
+        echo $CURRENT_BUNDLE_TARBALL_NAME > bundle_file_name
+        echo "Compressing tarball ${CURRENT_BUNDLE_TARBALL_NAME}";
+        tar -czvf ${CURRENT_BUNDLE_TARBALL_NAME} ${BUNDLE_NAME};
+    # configure AWS credentials to push the install space when the schedule event triggers the job.
+    - name: Configure AWS credentials
+      if: ${{ github.event_name == 'schedule' }}
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+    - name: Install aws cli
+      if: ${{ github.event_name == 'schedule' }}
+      shell: bash
+      run: |
+        apt update;
+        apt install -y software-properties-common awscli;
+    - name: Push tarball to AWS S3
+      if: ${{ github.event_name == 'schedule' }}
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      env:
+        LATEST_BUNDLE_TARBALL_NAME: dsim_desktop_latest_bionic.tar.gz
+        BUCKET_NAME: driving-sim/projects/maliput/packages/nightlies
+      run: |
+        echo "Pushing current tarball."
+        aws s3 cp $(cat bundle_file_name) s3://${BUCKET_NAME}/$(cat bundle_file_name);
+        echo "Pushing and overwriting latest nightly build tarball ${LATEST_BUNDLE_TARBALL_NAME}";
+        aws s3 cp s3://${BUCKET_NAME}/$(cat bundle_file_name) s3://${BUCKET_NAME}/${LATEST_BUNDLE_TARBALL_NAME};
