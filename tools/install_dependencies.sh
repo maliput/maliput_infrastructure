@@ -19,10 +19,9 @@ pull_apt_keys() {
     for keyserver in hkp://p80.pool.sks-keyservers.net:80 hkp://pgp.mit.edu:80 hkp://keyserver.ubuntu.com:80 ; do
         apt-key adv --keyserver $keyserver --recv-keys $1 || continue
         success=1
-        break
+        return 0
     done
-
-    #TODO: Exit if it fails to pull APT keys from keyservers
+    return 1
 }
 
 #######################################

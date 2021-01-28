@@ -41,18 +41,25 @@ visualization and prototyping.
 
 * Docker containerized workspaces (**recommended**): A docker image is provided in order to
   shows the steps needed to set up the environment in a containerized workspace.
-
+  When setting up docker, do *not* add yourself to the "docker" group
+  since that represents a security risk
+  ([it is equivalent to password-less `sudo`](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user)).
+  The instructions below use `sudo` for building the image and running the container as a workaround.
 * Non-containerized workspaces: Ubuntu Bionic Beaver 18.04 LTS only.
 
 
 ## Prerequisites
 
 * To get all necessary tools and repos files, clone this repo locally.
-
+    ```sh
+    git clone git@github.com:ToyotaResearchInstitute/dsim-repos-index.git
+    ```
 * To pull private repositories, the current user default SSH keys will be used
   (and thus assumed as both necessary and sufficient for the purpose).
 
-* Containerized workspaces require having [`docker engine`](https://docs.docker.com/engine/install/) installed in host machine
+* Containerized workspaces require having [`docker engine`](https://docs.docker.com/engine/install/) installed in host machine.
+  Also, you can use `nvidia-docker2`. Follow their [instructions](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker) if you want to install it.
+
 
 ## Usage instructions
 
@@ -64,45 +71,72 @@ file.
 
 ### Create a workspace
 
-Whether you would like to have a containerized or a non-containerized workspace the instructions
-are in essence similar.
+Whether you would like to have a containerized or a non-containerized workspace the instructions are similar.
 
-Note
+---
+**NOTE**
 :  Bear in mind that using a non-containerized workspace makes reproducing and troubleshooting
    issues harder for others. Thus, we highly recommend that you use a containerized workspace.
+
+---
+
 To create a containerized workspace, run:
 
  **Create a containerized workspace**
-1. Clone the repository:
+1. Build the docker image.
    ```sh
-   git clone https://github.com/ToyotaResearchInstitute/dsim-repos-index
+   sudo ./dsim-repos-index/docker/build.sh
    ```
-2. Create the workspace folder:
+   If you are using nvidia-docker2 add the `--nvidia` option.
+   ```sh
+   sudo ./dsim-repos-index/docker/build.sh --nvidia
+   ```
+   ---
+   **NOTE**: `build.sh --help` for more options:
+      1.  `-in` `--image_name`	Name of the image to be built (default maliput_ws_ubuntu)
+      1.  `-ws` `--workspace_folder`	Name of the workspace folder (default maliput_ws)
+   ---
+
+1. Create the workspace folder, `maliput_ws` by default:
    ```sh
    mkdir -p maliput_ws
    ```
-3. Copy `dsim-repos-index/dsim.repos` file into `maliput_ws` workspace folder.
+   ---
+   **NOTE**:
+   Instructions assumes that `maliput_ws` folder is at the same level as the cloned repository folder `dsim-repos-index`.
+
+   ---
+
+1. Copy `dsim-repos-index/tools/install_dependencies` file into `maliput_ws` workspace folder.
+    It will be used to install all the system and build system dependencies.
+   ```sh
+   cp dsim-repos-index/dsim.repos maliput_ws/.
+   ```
+1. Copy `dsim-repos-index/dsim.repos` file into `maliput_ws` workspace folder.
     It will be used to bring all the repositories later on.
    ```sh
    cp dsim-repos-index/dsim.repos maliput_ws/.
    ```
-4. Build the docker image.
+1. Run the container.
    ```sh
-   ./dsim-repos-index/docker/build.sh
+   sudo ./dsim-repos-index/docker/run.sh
    ```
-5. Run the container.
+   If you are using nvidia-docker2 add the `--nvidia` option.
    ```sh
-   ./dsim-repos-index/docker/run.sh
+   sudo ./dsim-repos-index/docker/run.sh --nvidia
    ```
-6. Install dependencies.
+    ---
+    **NOTE**:
+    `run.sh --help` for more options:
+      1.	`-in` `--image_name`	Name of the image to be run (default maliput_ws_ubuntu)
+      1.	`-cn` `--container_name`	Name of the container(default maliput_ws)
+    ---
+1. Install dependencies.
    ```sh
-   cd /tmp/ws_setup/
    sudo ./install_dependencies.sh
-   cd ~/maliput_ws
    ```
-7. Bring/update all the repositories in your workspace.
+1. Bring/update all the repositories in your workspace.
    ```sh
-   cd ~/maliput_ws
    mkdir -p src
    vcs import src < dsim.repos  # clone and/or checkout
    vcs pull src  # fetch and merge (usually fast-forward)
@@ -114,12 +148,12 @@ To create a containerized workspace, run:
    or commit. Also, note that you can equally bring other repositories as well by repeating
    this `import` and `pull` operation using additional `.repos` files.
 
-8. Install drake.
+1. Install drake.
     ```sh
     sudo ./src/drake_vendor/drake_installer
     ```
 
-9. Install all packages' dependencies:
+1. Install all packages' dependencies:
 
    ```sh
    rosdep update
@@ -132,7 +166,7 @@ To create a containerized workspace, run:
        help keep development environments clean (as system wide installations within a container
        are limited to that container).
 
-10. Source ROS environment:
+1. Source ROS environment:
 
    ```sh
    source /opt/ros/$ROS_DISTRO/setup.bash
@@ -298,6 +332,7 @@ repositories for upstream dependencies:
 - [ToyotaResearchInstitute/maliput-dragway](https://github.com/ToyotaResearchInstitute/maliput-dragway/), that contains an implementation of Maliput's API that allows users to instantiate a multilane dragway.
 - [ToyotaResearchInstitute/maliput-integration](https://github.com/ToyotaResearchInstitute/maliput-integration/), that contains integration examples and tools that unify `maliput` core and its possible backends.
 - [ToyotaResearchInstitute/maliput-multilane](https://github.com/ToyotaResearchInstitute/maliput-multilane/), that contains an implementation of Maliput's API that allows users to instantiate a multilane road.
+- [ToyotaResearchInstitute/maliput_documentation](https://github.com/ToyotaResearchInstitute/maliput_documentation/), that contains a high level documentation (sphinx) and Changelog for maliput & family.
 
 ## How to use CI
 
