@@ -5,13 +5,13 @@ set -e
 
 # Prints information about usage.
 function show_help() {
-  echo $'\nUsage: \t build.sh [OPTIONS] \n
+  echo $'\nUsage:\t build.sh [OPTIONS] \n
   Options:\n
-  \t-nv --nvidia\t       Image should have NVIDIA capabilities. \n
-  \t-in --image_name\tName of the image to be built (default maliput_ws_ubuntu)\n
-  \t-ws --workspace_name\tName of the workspace folder (default maliput_ws)\n
+  \t-n --nvidia\t\t Image should have NVIDIA capabilities. \n
+  \t-i --image_name\t\t Name of the image to be built (default maliput_ws_ubuntu)\n
+  \t-w --workspace_name\t Name of the workspace folder (default maliput_ws)\n
   Example:\n
-  \tbuild.sh --nvidia --image_name=custom_image_name --ws=maliput_ws \n'
+  \tbuild.sh --nvidia --image_name=custom_image_name --workspace_name=maliput_ws \n'
 }
 
 echo "Building the docker image"
@@ -30,9 +30,14 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-docker build -t ${IMAGE_NAME:-maliput_ws_ubuntu} \
-     --file $SCRIPT_FOLDER_PATH/${DOCKERFILE:-Dockerfile} \
+# Update the arguments to default values if needed.
+IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu}
+DOCKERFILE_PATH=$SCRIPT_FOLDER_PATH/${DOCKERFILE:-Dockerfile}
+WORKSPACE_NAME=${WORKSPACE_NAME:-maliput_ws}
+
+docker build -t $IMAGE_NAME \
+     --file $DOCKERFILE_PATH \
      --build-arg USERID=$(id -u) \
      --build-arg USER=$(whoami) \
-     --build-arg WORKSPACE_NAME=${WORKSPACE_NAME:-maliput_ws} \
+     --build-arg WORKSPACE_NAME=$WORKSPACE_NAME \
      $DSIM_FOLDER_PATH

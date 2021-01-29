@@ -92,8 +92,8 @@ Whether you would like to have a containerized or a non-containerized workspace 
    ```
    ---
    **NOTE**: `build.sh --help` for more options:
-      1.  `-in` `--image_name`	Name of the image to be built (default maliput_ws_ubuntu)
-      1.  `-ws` `--workspace_name`	Name of the workspace folder (default maliput_ws)
+      1.  `-i` `--image_name`	Name of the image to be built (default maliput_ws_ubuntu)
+      1.  `-w` `--workspace_name`	Name of the workspace folder (default maliput_ws)
    ---
 
 1. Create the workspace folder, `maliput_ws` by default:
@@ -122,9 +122,9 @@ Whether you would like to have a containerized or a non-containerized workspace 
     ---
     **NOTE**:
     `run.sh --help` for more options:
-      1.	`-in` `--image_name`	Name of the image to be run (default maliput_ws_ubuntu)
-      1.	`-cn` `--container_name`	Name of the container(default maliput_ws)
-      1.	`-ws` `--workspace`	Relative or absolute path to the workspace you want to bind. (default to location of dsim-repos-index folder)
+      1.	`-i` `--image_name`	Name of the image to be run (default maliput_ws_ubuntu)
+      1.	`-c` `--container_name`	Name of the container(default maliput_ws)
+      1.	`-w` `--workspace`	Relative or absolute path to the workspace you want to bind. (default to location of dsim-repos-index folder)
     ---
 1. Install dependencies.
    During docker build stage a script is copied into the container at `/home/$USER/`.

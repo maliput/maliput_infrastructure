@@ -5,13 +5,13 @@ set -e
 
 # Prints information about usage.
 function show_help() {
-  echo $'\nUsage: \t run.sh [OPTIONS] \n
+  echo $'\nUsage:\t run.sh [OPTIONS] \n
   Options:\n
-  \t-nv --nvidia\t        Selects nvidia runtime. \n
-  \t-in --image_name\tName of the image to be run (default maliput_ws_ubuntu)\n
-  \t-cn --container_name\tName of the container(default maliput_ws)\n
-  \t-ws --workspace\tRelative or absolute path to the workspace you want to bind. (default to location of dsim-repos-index folder)\n
-  Example:\n
+  \t-n --nvidia\t\t Selects nvidia runtime. \n
+  \t-i --image_name\t\t Name of the image to be run (default maliput_ws_ubuntu)\n
+  \t-c --container_name\t Name of the container(default maliput_ws)\n
+  \t-w --workspace\t\t Relative or absolute path to the workspace you want to bind. (default to location of dsim-repos-index folder)\n
+  Examples:\n
   \trun.sh --nvidia --image_name=custom_image_name --container_name=custom_container_name \n
   \trun.sh --workspace=/path/to/your/ws_folder \n'
 }
@@ -46,12 +46,17 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-# Obtain effective workspace path.
+# Use default if empty.
 WORKSPACE=${WORKSPACE:-${DSIM_REPOS_PARENT_FOLDER_PATH}/maliput_ws}
+# Convert into a absolute path if relative.
 if is_relative_path $WORKSPACE ; then
   WORKSPACE="${RUN_LOCATION}/$WORKSPACE"
 fi
 WORKSPACE_FOLDER=$( basename $WORKSPACE )
+
+# Update the arguments to default values if needed.
+IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu}
+CONTAINER_NAME=${CONTAINER_NAME:-maliput_ws}
 
 xhost +
 docker run -it --rm --runtime=$RUNTIME \
@@ -61,5 +66,5 @@ docker run -it --rm --runtime=$RUNTIME \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -v ${WORKSPACE}/:/home/$(whoami)/$WORKSPACE_FOLDER/ \
        -v /home/$USER/.ssh:/home/$USER/.ssh \
-       --name ${CONTAINER_NAME:-maliput_ws} ${IMAGE_NAME:-maliput_ws_ubuntu}
+       --name $CONTAINER_NAME $IMAGE_NAME
 xhost -
