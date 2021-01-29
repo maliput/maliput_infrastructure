@@ -11,7 +11,7 @@ function show_help() {
   \t-i --image_name\t\t Name of the image to be built (default maliput_ws_ubuntu)\n
   \t-w --workspace_name\t Name of the workspace folder (default maliput_ws)\n
   Example:\n
-  \tbuild.sh --nvidia --image_name=custom_image_name --workspace_name=maliput_ws \n'
+  \tbuild.sh --nvidia --image_name custom_image_name --workspace_name maliput_ws \n'
 }
 
 echo "Building the docker image"
@@ -22,8 +22,8 @@ DSIM_FOLDER_PATH="$(cd "$(dirname "$0")"; cd .. ; pwd)"
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -n|--nvidia) DOCKERFILE="Dockerfile.nvidia" ;;
-        -i=*|--image_name=*) IMAGE_NAME="${1#*=}" ;;
-        -w=*|--workspace_name=*) WORKSPACE_NAME="${1#*=}" ;;
+        -i|--image_name) IMAGE_NAME="${2}"; shift ;;
+        -w|--workspace_name) WORKSPACE_NAME="${2}"; shift ;;
         -h|--help) show_help ; exit 1 ;;
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
@@ -35,7 +35,7 @@ IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu}
 DOCKERFILE_PATH=$SCRIPT_FOLDER_PATH/${DOCKERFILE:-Dockerfile}
 WORKSPACE_NAME=${WORKSPACE_NAME:-maliput_ws}
 
-docker build -t $IMAGE_NAME \
+sudo docker build -t $IMAGE_NAME \
      --file $DOCKERFILE_PATH \
      --build-arg USERID=$(id -u) \
      --build-arg USER=$(whoami) \

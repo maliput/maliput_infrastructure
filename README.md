@@ -32,9 +32,9 @@ This repository contains `.repos` files and tools that enable the creation and
 maintenance of development workspaces. Each `.repos` file brings in a subset
 of all needed packages.
 
-For instance, [`dsim.repos`](dsim.repos) pulls all `maliput` packages on road network
-descriptions, plus the `malidrive` backend package and `delphyne` packages for
-visualization and prototyping.
+For instance, [`maliput.repos`](maliput.repos) pulls all `maliput` packages on road network
+descriptions, plus the backend packages like `maliput_malidrive`, `maliput_dragway` and `maliput_multilane` and other packages for
+integration proposes and documentation.
 
 # Workspaces
 
@@ -67,7 +67,7 @@ visualization and prototyping.
 In the following, it is assumed that you want to create a workspace containing
 all of DSIM's (Driving Simulation's) repositories, but with a focus on Maliput
 and Malidrive development. As such, it suggests the creation of a workspace in a
-`maliput_ws` directory and pulling sources from the [`dsim.repos`](dsim.repos)
+`maliput_ws` directory and pulling sources from the [`maliput.repos`](maliput.repos)
 file.
 
 ### Create a workspace
@@ -84,11 +84,11 @@ Whether you would like to have a containerized or a non-containerized workspace 
  **Create a containerized workspace**
 1. Build the docker image.
    ```sh
-   sudo ./dsim-repos-index/docker/build.sh
+   ./dsim-repos-index/docker/build.sh
    ```
    If you are using nvidia-docker2 add the `--nvidia` option.
    ```sh
-   sudo ./dsim-repos-index/docker/build.sh --nvidia
+   ./dsim-repos-index/docker/build.sh --nvidia
    ```
    ---
    **NOTE**: `build.sh --help` for more options:
@@ -106,18 +106,18 @@ Whether you would like to have a containerized or a non-containerized workspace 
 
    ---
 
-1. Copy `dsim-repos-index/dsim.repos` file into `maliput_ws` workspace folder.
+1. Copy `dsim-repos-index/maliput.repos` file into `maliput_ws` workspace folder.
     It will be used to bring all the repositories later on.
    ```sh
-   cp dsim-repos-index/dsim.repos maliput_ws/
+   cp dsim-repos-index/maliput.repos maliput_ws/
    ```
 1. Run the container.
    ```sh
-   sudo ./dsim-repos-index/docker/run.sh
+   ./dsim-repos-index/docker/run.sh
    ```
    If you are using nvidia-docker2 add the `--nvidia` option.
    ```sh
-   sudo ./dsim-repos-index/docker/run.sh --nvidia
+   ./dsim-repos-index/docker/run.sh --nvidia
    ```
     ---
     **NOTE**:
@@ -134,7 +134,7 @@ Whether you would like to have a containerized or a non-containerized workspace 
 1. Bring/update all the repositories in your workspace.
    ```sh
    mkdir -p src
-   vcs import src < dsim.repos  # clone and/or checkout
+   vcs import src < maliput.repos  # clone and/or checkout
    vcs pull src  # fetch and merge (usually fast-forward)
    ```
 

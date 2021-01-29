@@ -12,8 +12,8 @@ function show_help() {
   \t-c --container_name\t Name of the container(default maliput_ws)\n
   \t-w --workspace\t\t Relative or absolute path to the workspace you want to bind. (default to location of dsim-repos-index folder)\n
   Examples:\n
-  \trun.sh --nvidia --image_name=custom_image_name --container_name=custom_container_name \n
-  \trun.sh --workspace=/path/to/your/ws_folder \n'
+  \trun.sh --nvidia --image_name custom_image_name --container_name custom_container_name \n
+  \trun.sh --workspace /path/to/your/ws_folder \n'
 }
 
 # Returns true when the path is relative, false otherwise.
@@ -37,9 +37,9 @@ RUN_LOCATION="$(pwd)"
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -n|--nvidia) RUNTIME="nvidia" ;;
-        -i=*|--image_name=*) IMAGE_NAME="${1#*=}" ;;
-        -c=*|--container_name=*) CONTAINER_NAME="${1#*=}" ;;
-        -w=*|--workspace=*) WORKSPACE="${1#*=}" ;;
+        -i|--image_name) IMAGE_NAME="${2}"; shift ;;
+        -c|--container_name) CONTAINER_NAME="${2}"; shift ;;
+        -w|--workspace) WORKSPACE="${2}"; shift ;;
         -h|--help) show_help ; exit 1 ;;
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
@@ -59,7 +59,7 @@ IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu}
 CONTAINER_NAME=${CONTAINER_NAME:-maliput_ws}
 
 xhost +
-docker run -it --rm --runtime=$RUNTIME \
+sudo docker run -it --rm --runtime=$RUNTIME \
        -e DISPLAY=$DISPLAY \
        -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
        -v $(dirname $SSH_AUTH_SOCK):$(dirname $SSH_AUTH_SOCK) \
