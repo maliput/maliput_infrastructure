@@ -17,8 +17,9 @@
     - [Test your workspace](#test-your-workspace)
     - [Build your workspace using Static Analyzer](#build-your-workspace-using-static-analyzer)
     - [Build doxygen documentation](#build-doxygen-documentation)
+    - [Delete your workspace](#delete-your-workspace)
 - [Contributing](#contributing)
-  - [Usual workflows](#usual-workflows)
+  - [Usual workflow](#usual-workflow)
   - [Using binary underlays](#using-binary-underlays)
   - [List of repositories](#list-of-repositories)
   - [How to use CI](#how-to-use-ci)
@@ -80,8 +81,6 @@ Whether you would like to have a containerized or a non-containerized workspace 
 
 ---
 
-To create a containerized workspace, run:
-
  **Create a containerized workspace**
 1. Build the docker image.
    ```sh
@@ -94,7 +93,7 @@ To create a containerized workspace, run:
    ---
    **NOTE**: `build.sh --help` for more options:
       1.  `-in` `--image_name`	Name of the image to be built (default maliput_ws_ubuntu)
-      1.  `-ws` `--workspace_folder`	Name of the workspace folder (default maliput_ws)
+      1.  `-ws` `--workspace_name`	Name of the workspace folder (default maliput_ws)
    ---
 
 1. Create the workspace folder, `maliput_ws` by default:
@@ -107,15 +106,10 @@ To create a containerized workspace, run:
 
    ---
 
-1. Copy `dsim-repos-index/tools/install_dependencies` file into `maliput_ws` workspace folder.
-    It will be used to install all the system and build system dependencies.
-   ```sh
-   cp dsim-repos-index/dsim.repos maliput_ws/.
-   ```
 1. Copy `dsim-repos-index/dsim.repos` file into `maliput_ws` workspace folder.
     It will be used to bring all the repositories later on.
    ```sh
-   cp dsim-repos-index/dsim.repos maliput_ws/.
+   cp dsim-repos-index/dsim.repos maliput_ws/
    ```
 1. Run the container.
    ```sh
@@ -130,10 +124,12 @@ To create a containerized workspace, run:
     `run.sh --help` for more options:
       1.	`-in` `--image_name`	Name of the image to be run (default maliput_ws_ubuntu)
       1.	`-cn` `--container_name`	Name of the container(default maliput_ws)
+      1.	`-ws` `--workspace`	Relative or absolute path to the workspace you want to bind. (default to location of dsim-repos-index folder)
     ---
 1. Install dependencies.
+   During docker build stage a script is copied into the container at `/home/$USER/`.
    ```sh
-   sudo ./install_dependencies.sh
+   sudo ./../install_dependencies.sh
    ```
 1. Bring/update all the repositories in your workspace.
    ```sh
@@ -287,7 +283,7 @@ for further reference on `test` support.
 
 ### Build your workspace using Static Analyzer
 
-TODO
+  TODO
 
 ### Build doxygen documentation
 
@@ -309,14 +305,110 @@ TODO
   google-chrome install/dsim-docs-bundler/share/dsim-docs-bundler/doc/dsim-docs/html/index.html
   ```
 
+### Delete your workspace
+
+  TODO
+
 # Contributing
 
 ## Usual workflow
 
-  TODO
+Ours is similar to ROS2's development workflow, and thus many of their tools and practices apply equally.
+
+Workspaces are managed via [`vcs`](https://github.com/dirk-thomas/vcstool), a tool that helps in dealing with
+sources distributed across multiple repositories, not necessarily versioned with the same tool (support for `git`,
+`hg`, `svn` and `bazaar` is readily available). `vcs` uses `.repos` files for a listing of version pinned sources.
+
+Dependency management is taken care of by [`rosdep`](https://docs.ros.org/independent/api/rosdep/html/commands.html),
+a tool that can crawl `package.xml` files and resolve dependencies into a call to the appropriate package
+manager for the current platform by means of a public database known as [rosdistro](https://github.com/ros/rosdistro).
+
+To build and test packages, [`colcon`](https://colcon.readthedocs.io/en/released/) abstracts away the details of the
+specific build system and testing tools in use and arbitrates these operations to take place in topological order.
+Operations will be run in parallel by default.
+
+---
+**NOTE**: In all three cases above, the tools delegate the actual work to the right tool for each package and
+focus instead on bridging the gap between them. Thus, for instance, `colcon` builds interdependent
+CMake packages by running `cmake` and `make` in the right order and setting up the environment for
+the artifacts to be available. Same applies for `vcs` and `rosdep`.
+
+---
+**NOTE**: These tools do not strive to act like a proxy for every configuration setting or command line option
+that underlying tools they delegate work to may have. Thus, it may be necessary to configure the underlying
+tool in addition to the configuration for these tools to attain a desired behavior. For instance, limiting
+`colcon` parallelism with the `--parallel-workers` switch has no impact on `make` parallelization settings
+if this tool is being used.
+
+---
 
 ## Using binary underlays
+
+In ROS 2 workspace parlance, an overlay workspace is a workspace that builds on top of another, previously
+built workspace i.e. the underlay workspace. A binary underlay is thus the install space of a pre-built
+workspace, that packages in downstream workspaces can use to meet their dependencies. As a result, the amount
+of code that needs to be compiled when building downstream workspaces gets reduced, enabling faster builds. You may
+refer to [`colcon` documentation and tutorials](https://index.ros.org/doc/ros2/Tutorials/Colcon-Tutorial/#source-an-underlay)
+for further details.
+
+Several binary underlays are available for download and installation:
+
+- `dsim-desktop-YYYYMMDD-bionic-tar.gz`
+
+  Built nightly, targeting Ubuntu Bionic 18.04 LTS. Contains all known packages in all our repositories as of
+  the specified date (DD/MM/YYYY). To be found at `s3://driving-sim/projects/maliput/packages/nightlies/`.
+
+- `dsim-desktop-latest-bionic.tar.gz`
+
+  Built nightly, targeting Ubuntu Bionic 18.04 LTS. Contains the most recent versions of all packages known in
+  all our repositories. To be found at `s3://driving-sim/projects/maliput/packages/nightlies/`.
+
+In the following, it is assumed that you want to use a full `dsim-desktop` underlay for working on a
+downstream package of your own. As such, it suggests the installation of a `dsim-desktop` binary underlay,
+that brings all known packages in all our repositories. You should choose an underlay that is appropriate for
+your intended purpose.
+
+1. Download the binary underlay tarball of choice from dsim's S3 bucket:
+
+   ```sh
+   aws s3 cp s3://driving-sim/projects/maliput/packages/nightlies/dsim-desktop-latest-bionic.tar.gz \
+      /path/to/workspace/dsim-desktop-latest-bionic.tar.gz
+   ```
+
+   It is assumed that you have the right AWS credentials configured in your system.
+   See [AWS CLI user guide to configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) for further reference.
+
+1. Extract binary underlay tarball:
+
+   ```sh
+   sudo mkdir -p /opt/dsim-desktop
+   sudo tar -zxvf dsim-desktop-latest-bionic.tar.gz -C /opt/dsim-desktop --strip 1
+   ```
+
+1. Install all underlay packages' prerequisites, including drake and ignition binaries:
+
+   TODO
+
+1. Install all underlay packages' dependencies:
+
+   ```sh
+   rosdep update
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" --from-paths /opt/dsim-desktop/*
+   ```
+
+1. When exiting the workspace, make sure changes are saved!
+
   TODO
+
+From then on, before building the workspace, you must source the underlay as follows:
+
+```sh
+source /opt/dsim-desktop/setup.bash
+```
+
+Note
+:  Having an underlay around does not make it a requirement for all workspace builds, but only for
+   those that rely on that underlay to get their dependencies met.
 
 ## List of repositories
 
@@ -350,13 +442,3 @@ e.g. `my_github_user/my_patch_name`.
 
 When reproducing issues, either related to the codebase or to the infrastructure
 that supports it, recreating the environment in which these issues arose is crucial.
-
-Using .repos files does half the work by allowing codebase version pinning.
-Containerized workspaces do the other half along with the `wsetup` tool, and thus
-their use is encouraged. The tool itself does not setup workspaces but generates a
-script that does the heavy lifting. Said script can be retrieved instead of executed
-by means of the `-o` flag:
-
-```sh
-dsim-repos-index/tools/wsetup -o setup.sh [...other-args...]
-```

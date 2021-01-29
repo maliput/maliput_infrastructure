@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright 2021 Toyota Research Institute
 
 set -e pipefail
 
