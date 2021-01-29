@@ -27,7 +27,9 @@ RUN echo "export QT_X11_NO_MITSHM=1" >> /home/$USER/.bashrc
 
 USER $USER
 
-ARG WORKSPACE_FOLDER
-WORKDIR /home/$USER/$WORKSPACE_FOLDER
+COPY tools/install_dependencies.sh /home/$USER/
+
+ARG WORKSPACE_NAME
+WORKDIR /home/$USER/$WORKSPACE_NAME
 
 CMD ["/bin/bash"]
