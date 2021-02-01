@@ -81,9 +81,8 @@ xhost -
 
 # Trap workspace exits and give the user the choice to save changes.
 function onexit() {
-  read -p 'Do you want to save all workspace changes? [y/N]: ' answer
+  read -p 'Do you want to save all workspace changes? [y/n]: ' answer
   if [[ "${answer:0:1}" =~ y|Y ]]; then
-    rv=12  # Re-using SIGUSR2.
     sudo docker commit $CONTAINER_NAME $IMAGE_NAME
   fi
   docker stop $CONTAINER_NAME > /dev/null
