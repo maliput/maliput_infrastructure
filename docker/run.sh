@@ -62,8 +62,14 @@ SSH_PATH=/home/$USER/.ssh
 WORKSPACE_CONTAINER=/home/$(whoami)/$WORKSPACE_FOLDER/
 SSH_AUTH_SOCK_USER=$SSH_AUTH_SOCK
 
+# Check if name container is already taken.
+if sudo -g docker docker container ls -a | grep $CONTAINER_NAME -c &> /dev/null; then
+   echo "Docker container already opened."
+   exit 1
+fi
+
 xhost +
-sudo docker run -it --rm --runtime=$RUNTIME \
+sudo docker run -it --runtime=$RUNTIME \
        -e DISPLAY=$DISPLAY \
        -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK_USER \
        -v $(dirname $SSH_AUTH_SOCK_USER):$(dirname $SSH_AUTH_SOCK_USER) \
@@ -72,3 +78,16 @@ sudo docker run -it --rm --runtime=$RUNTIME \
        -v $SSH_PATH:$SSH_PATH \
        --name $CONTAINER_NAME $IMAGE_NAME
 xhost -
+
+# Trap workspace exits and give the user the choice to save changes.
+function onexit() {
+  read -p 'Do you want to save all workspace changes? [y/N]: ' answer
+  if [[ "${answer:0:1}" =~ y|Y ]]; then
+    rv=12  # Re-using SIGUSR2.
+    sudo docker commit $CONTAINER_NAME $IMAGE_NAME
+  fi
+  docker stop $CONTAINER_NAME > /dev/null
+  docker rm $CONTAINER_NAME > /dev/null
+}
+
+trap onexit EXIT
