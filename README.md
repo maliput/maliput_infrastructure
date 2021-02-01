@@ -12,6 +12,8 @@
   - [Prerequisites](#prerequisites)
   - [Usage Instructions](#usage-instructions)
     - [Create a workspace](#create-a-workspace)
+      - [Create a containerized workspace](#create-a-containerized-workspace)
+      - [Create a non-containerized workspace](#create-a-non-containerized-workspace)
     - [Check your workspace](#check-your-workspace)
     - [Build your workspace](#build-your-workspace)
     - [Test your workspace](#test-your-workspace)
@@ -81,8 +83,8 @@ Whether you would like to have a containerized or a non-containerized workspace 
 
 ---
 
- **Create a containerized workspace**
-1. Build the docker image.
+ #### **Create a containerized workspace**
+1. #### Build the docker image.
    ```sh
    ./dsim-repos-index/docker/build.sh
    ```
@@ -96,22 +98,23 @@ Whether you would like to have a containerized or a non-containerized workspace 
       1.  `-w` `--workspace_name`	Name of the workspace folder (default maliput_ws)
    ---
 
-1. Create the workspace folder, `maliput_ws` by default:
+2. #### Create the workspace folder:
    ```sh
    mkdir -p maliput_ws
    ```
    ---
    **NOTE**:
-   Instructions assumes that `maliput_ws` folder is at the same level as the cloned repository folder `dsim-repos-index`.
+   Instructions assumes `maliput_ws` folder name as default and its location at the same level as the cloned repository folder `dsim-repos-index`.
 
    ---
 
-1. Copy `dsim-repos-index/maliput.repos` file into `maliput_ws` workspace folder.
+3. #### Copy .repos file:
+    Copy `dsim-repos-index/maliput.repos` file into `maliput_ws` workspace folder.
     It will be used to bring all the repositories later on.
    ```sh
    cp dsim-repos-index/maliput.repos maliput_ws/
    ```
-1. Run the container.
+4. #### Run the container:
    ```sh
    ./dsim-repos-index/docker/run.sh
    ```
@@ -126,12 +129,13 @@ Whether you would like to have a containerized or a non-containerized workspace 
       1.	`-c` `--container_name`	Name of the container(default maliput_ws)
       1.	`-w` `--workspace`	Relative or absolute path to the workspace you want to bind. (default to location of dsim-repos-index folder)
     ---
-1. Install dependencies.
+5. #### Install dependencies:
    During docker build stage a script is copied into the container at `/home/$USER/`.
    ```sh
    sudo ./../install_dependencies.sh
    ```
-1. Bring/update all the repositories in your workspace.
+6. #### Bring/update all the repositories in your workspace:
+   Standing at the root of your workspace folder.
    ```sh
    mkdir -p src
    vcs import src < maliput.repos  # clone and/or checkout
@@ -144,12 +148,12 @@ Whether you would like to have a containerized or a non-containerized workspace 
    or commit. Also, note that you can equally bring other repositories as well by repeating
    this `import` and `pull` operation using additional `.repos` files.
 
-1. Install drake.
+7. #### Install drake:
     ```sh
     sudo ./src/drake_vendor/drake_installer
     ```
 
-1. Install all packages' dependencies:
+8. #### Install all packages' dependencies:
 
    First update the `ROS_DISTRO` environment variable with your `ros2` version, e.g.:
    ```sh
@@ -167,16 +171,28 @@ Whether you would like to have a containerized or a non-containerized workspace 
        help keep development environments clean (as system wide installations within a container
        are limited to that container).
 
-1. Source ROS environment:
+9. #### Source ROS environment:
 
    ```sh
    source /opt/ros/$ROS_DISTRO/setup.bash
    ```
 
 
- **Create a non-containerized workspace**
+ #### **Create a non-containerized workspace**
 
-  TODO.
+  If the workspace is not meant to be run using a container the steps are pretty similar but
+  docker related commands must be avoided:
+
+ 1. [Create the workspace folder](#create-the-workspace-folder)
+ 2. [Copy .repos file](#copy-.repos-file)
+ 3. Install dependencies:
+     ```sh
+       sudo ./dsim-repos-index/tools/install_dependencies.sh
+     ```
+ 4. [Bring/update all the repositories in your workspace](#bring/update-all-the-repositories-in-your-workspace)
+ 5. [Install Drake](#install-drake)
+ 6. [Install all packages' dependencies](#install-all-packages'-dependencies)
+ 7. [Source ROS environment](#source-ros-environment)
 
 ### Check your workspace
 
