@@ -35,9 +35,12 @@ IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu}
 DOCKERFILE_PATH=$SCRIPT_FOLDER_PATH/${DOCKERFILE:-Dockerfile}
 WORKSPACE_NAME=${WORKSPACE_NAME:-maliput_ws}
 
+USERID=$(id -u)
+USER=$(whoami)
+
 sudo docker build -t $IMAGE_NAME \
      --file $DOCKERFILE_PATH \
-     --build-arg USERID=$(id -u) \
-     --build-arg USER=$(whoami) \
+     --build-arg USERID=$USERID \
+     --build-arg USER=$USER \
      --build-arg WORKSPACE_NAME=$WORKSPACE_NAME \
      $DSIM_FOLDER_PATH

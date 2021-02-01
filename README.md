@@ -151,6 +151,11 @@ Whether you would like to have a containerized or a non-containerized workspace 
 
 1. Install all packages' dependencies:
 
+   First update the `ROS_DISTRO` environment variable with your `ros2` version, e.g.:
+   ```sh
+   export ROS_DISTRO=dashing
+   ```
+   Install dependencies via `rosdep`:
    ```sh
    rosdep update
    rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" --from-paths src

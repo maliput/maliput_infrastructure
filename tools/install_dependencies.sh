@@ -153,8 +153,6 @@ if ! grep -q "^export ROS_DISTRO=" ~/.bashrc; then
     cat >> ~/.bashrc <<< "export ROS_DISTRO=$ROS_DISTRO"
 fi
 
-export ROS_DISTRO=$ROS_DISTRO
-
 # We initialize rosdep and discard the stdout message
 # that recommends to run rosdep update.
 rosdep init > /dev/null

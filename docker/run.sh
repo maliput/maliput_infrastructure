@@ -58,13 +58,17 @@ WORKSPACE_FOLDER=$( basename $WORKSPACE )
 IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu}
 CONTAINER_NAME=${CONTAINER_NAME:-maliput_ws}
 
+SSH_PATH=/home/$USER/.ssh
+WORKSPACE_CONTAINER=/home/$(whoami)/$WORKSPACE_FOLDER/
+SSH_AUTH_SOCK_USER=$SSH_AUTH_SOCK
+
 xhost +
 sudo docker run -it --rm --runtime=$RUNTIME \
        -e DISPLAY=$DISPLAY \
-       -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK \
-       -v $(dirname $SSH_AUTH_SOCK):$(dirname $SSH_AUTH_SOCK) \
+       -e SSH_AUTH_SOCK=$SSH_AUTH_SOCK_USER \
+       -v $(dirname $SSH_AUTH_SOCK_USER):$(dirname $SSH_AUTH_SOCK_USER) \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
-       -v ${WORKSPACE}/:/home/$(whoami)/$WORKSPACE_FOLDER/ \
-       -v /home/$USER/.ssh:/home/$USER/.ssh \
+       -v ${WORKSPACE}:$WORKSPACE_CONTAINER \
+       -v $SSH_PATH:$SSH_PATH \
        --name $CONTAINER_NAME $IMAGE_NAME
 xhost -
