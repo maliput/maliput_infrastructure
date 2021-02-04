@@ -1,9 +1,3 @@
-# Important:
-  Given that the way the workspace is set up is currently being modified a new readme file takes place.
-  **This readme file is work in progress.**
-
-  For full information please refer to [previous README.md](DEPRECATED_README.md)
-
 # Table of Contents
 
 - [Introduction](#introduction)
@@ -12,8 +6,8 @@
   - [Prerequisites](#prerequisites)
   - [Usage Instructions](#usage-instructions)
     - [Create a workspace](#create-a-workspace)
-      - [Create a containerized workspace](#create-a-containerized-workspace)
-      - [Create a non-containerized workspace](#create-a-non-containerized-workspace)
+    - [Bring up your workspace](#bring-up-your-workspace)
+    - [Update your workspace](#update-your-workspace)
     - [Check your workspace](#check-your-workspace)
     - [Build your workspace](#build-your-workspace)
     - [Test your workspace](#test-your-workspace)
@@ -21,7 +15,7 @@
     - [Build doxygen documentation](#build-doxygen-documentation)
     - [Delete your workspace](#delete-your-workspace)
 - [Contributing](#contributing)
-  - [Usual workflow](#usual-workflow)
+  - [Usual workflows](#usual-workflows)
   - [Using binary underlays](#using-binary-underlays)
   - [List of repositories](#list-of-repositories)
   - [How to use CI](#how-to-use-ci)
@@ -34,111 +28,146 @@ This repository contains `.repos` files and tools that enable the creation and
 maintenance of development workspaces. Each `.repos` file brings in a subset
 of all needed packages.
 
-For instance, [`maliput.repos`](maliput.repos) pulls all `maliput` packages on road network
-descriptions, plus the backend packages like `maliput_malidrive`, `maliput_dragway` and `maliput_multilane` and other packages for
-integration proposes and documentation.
+For instance, [`dsim.repos`](dsim.repos) pulls all `maliput` packages on road network
+descriptions, plus the `malidrive` backend package and `delphyne` packages for
+visualization and prototyping.
 
 # Workspaces
 
 ## Supported platforms
 
-* Docker containerized workspaces (**recommended**): A docker image is provided in order to
-  shows the steps needed to set up the environment in a containerized workspace.
-  When setting up docker, do *not* add yourself to the "docker" group
+* Docker containerized workspaces (**recommended**): only Nvidia-powered
+  machines running an `nvidia-docker`
+  [supported host OS](https://github.com/NVIDIA/nvidia-docker#quickstart) are
+  supported. When setting up docker, do *not* add yourself to the "docker" group
   since that represents a security risk
   ([it is equivalent to password-less `sudo`](https://docs.docker.com/install/linux/linux-postinstall/#manage-docker-as-a-non-root-user)).
-  The instructions below use `sudo` for building the image and running the container as a workaround.
+  The instructions below use `sudo -g docker [command]` as a workaround.
+
 * Non-containerized workspaces: Ubuntu Bionic Beaver 18.04 LTS only.
 
 
 ## Prerequisites
 
-* To get all necessary tools and repos files, clone this repo locally.
-    ```sh
-    git clone git@github.com:ToyotaResearchInstitute/dsim-repos-index.git
-    ```
+* To get all necessary tools and repos files, clone this repo locally. Tools require
+  Python 3.5 or superior.
+
 * To pull private repositories, the current user default SSH keys will be used
   (and thus assumed as both necessary and sufficient for the purpose).
 
-* Containerized workspaces require having [`docker engine`](https://docs.docker.com/engine/install/) installed in host machine.
-  Also, you can use `nvidia-docker2`. Follow their [instructions](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html#docker) if you want to install it.
+* Containerized workspaces require `nvidia-docker2` by default, so ensure you have
+  an NVIDIA card and drivers are properly installed.
 
+* All system dependencies required by the tools included in this repository can
+  be installed by running:
+
+  ```sh
+  cd dsim-repos-index
+  sudo ./tools/prereqs-install .
+  ```
+
+  To install `nvidia-docker2`, also run:
+
+  ```sh
+  cd dsim-repos-index
+  sudo ./tools/prereqs-install -t nvidia .
+  ```
 
 ## Usage instructions
 
 In the following, it is assumed that you want to create a workspace containing
 all of DSIM's (Driving Simulation's) repositories, but with a focus on Maliput
 and Malidrive development. As such, it suggests the creation of a workspace in a
-`maliput_ws` directory and pulling sources from the [`maliput.repos`](maliput.repos)
-file.
+`maliput_ws` directory and pulling sources from the [`dsim.repos`](dsim.repos)
+file. You should choose a name that is appropriate for your intended purpose.
 
 ### Create a workspace
 
-Whether you would like to have a containerized or a non-containerized workspace the instructions are similar.
+To create a containerized workspace, run:
 
----
-**NOTE**
+```sh
+sudo -g docker dsim-repos-index/tools/wsetup maliput_ws
+```
+
+Note
+:  The container image will be called maliput_ws:<UNIX timestamp>.
+   Using UNIX timestamps for tags reduce the likelihood of name collision
+   when multiple workspaces are present on the same host machine.
+
+To create a non-containerized workspace, run:
+
+```sh
+sudo dsim-repos-index/tools/wsetup --no-container maliput_ws
+```
+
+Setting up non-containerized workspaces requires sudo credentials to carry out all necessary
+installations.
+
+Note
 :  Bear in mind that using a non-containerized workspace makes reproducing and troubleshooting
    issues harder for others. Thus, we highly recommend that you use a containerized workspace.
 
----
+If need be, additional prerequisites for the workspace can be supplied upon workspace creation.
+Example using a containerized workspace:
 
- #### **Create a containerized workspace**
-1. #### Build the docker image.
-   ```sh
-   ./dsim-repos-index/docker/build.sh
-   ```
-   If you are using nvidia-docker2 add the `--nvidia` option.
-   ```sh
-   ./dsim-repos-index/docker/build.sh --nvidia
-   ```
-   ---
-   **NOTE**: `build.sh --help` for more options:
-      1.  `-i` `--image_name`	Name of the image to be built (default maliput_ws_ubuntu)
-      1.  `-w` `--workspace_name`	Name of the workspace folder (default maliput_ws)
-   ---
+```sh
+sudo -g docker dsim-repos-index/tools/wsetup -e path/to/custom/prereqs maliput_ws
+```
 
-2. #### Create the workspace folder:
-   ```sh
-   mkdir -p maliput_ws
-   ```
-   ---
-   **NOTE**:
-   Instructions assumes `maliput_ws` folder name as default and its location at the same level as the cloned repository folder `dsim-repos-index`.
+Example using non-containerized workspace:
 
-   ---
+```sh
+dsim-repos-index/tools/wsetup -e path/to/custom/prereqs maliput_ws
+```
 
-3. #### Copy .repos file:
-    Copy `dsim-repos-index/maliput.repos` file into `maliput_ws` workspace folder.
-    It will be used to bring all the repositories later on.
+These operations will setup a workspace, but without any sources yet. Follow the instructions on
+how to [update your workspace](#update-your-workspace) to get them for the first time.
+
+### Bring up your workspace
+
+To bring up your workspace, run:
+
+```sh
+cd maliput_ws
+source bringup
+```
+
+You can always leave the workspace by `exit`ing it.
+
+Note
+:  Upon exiting a containerized workspace, you'll be prompted as to whether container changes
+   should be saved. For the sake of storage efficiency, only save them if you've applied changes
+   outside the workspace directory and to the container filesystem itself (e.g. you installed a
+   new package or tool using `apt`) and you wish to keep them.
+
+In certain cases e.g. after installing packages, you may want to reset the workspace shell
+environment as if you had just brought it up. To do so, from within the workspace run:
+
+```sh
+bounce
+```
+
+Note
+:  Bouncing a workspace **will not save it**. To save, you must exit the workspace.
+
+### Update your workspace
+
+Whether you are doing this for the first time or updating an existing workspace, the same procedure
+applies.
+
+1. Copy the latest [`dsim.repos`](dsim.repos) file into your workspace:
+
    ```sh
-   cp dsim-repos-index/maliput.repos maliput_ws/
+   cp dsim-repos-index/dsim.repos maliput_ws/.
    ```
-4. #### Run the container:
-   ```sh
-   ./dsim-repos-index/docker/run.sh
-   ```
-   If you are using nvidia-docker2 add the `--nvidia` option.
-   ```sh
-   ./dsim-repos-index/docker/run.sh --nvidia
-   ```
-    ---
-    **NOTE**:
-    `run.sh --help` for more options:
-      1.	`-i` `--image_name`	Name of the image to be run (default maliput_ws_ubuntu)
-      1.	`-c` `--container_name`	Name of the container(default maliput_ws)
-      1.	`-w` `--workspace`	Relative or absolute path to the workspace you want to bind. (default to location of dsim-repos-index folder)
-    ---
-5. #### Install dependencies:
-   During docker build stage a script is copied into the container at `/home/$USER/`.
-   ```sh
-   sudo ./../install_dependencies.sh
-   ```
-6. #### Bring/update all the repositories in your workspace:
-   Standing at the root of your workspace folder.
+
+2. [Bring up your workspace.](#bring-up-your-workspace)
+
+3. Update all repositories in your workspace:
+
    ```sh
    mkdir -p src
-   vcs import src < maliput.repos  # clone and/or checkout
+   vcs import src < dsim.repos  # clone and/or checkout
    vcs pull src  # fetch and merge (usually fast-forward)
    ```
 
@@ -148,18 +177,37 @@ Whether you would like to have a containerized or a non-containerized workspace 
    or commit. Also, note that you can equally bring other repositories as well by repeating
    this `import` and `pull` operation using additional `.repos` files.
 
-7. #### Install drake:
-    ```sh
-    sudo ./src/drake_vendor/drake_installer
-    ```
+4. Install all packages' prerequisites, including drake and ignition binaries:
 
-8. #### Install all packages' dependencies:
-
-   First update the `ROS_DISTRO` environment variable with your `ros2` version, e.g.:
    ```sh
-   export ROS_DISTRO=dashing
+   sudo prereqs-install -t all src
    ```
-   Install dependencies via `rosdep`:
+
+   Warning
+   :   Package prerequisites are satisfied system wide. `prereqs-install` does not provide
+       any support to undo its effects. In this regard, disposable containerized workspaces
+       help keep development environments clean (as system wide installations within a container
+       are limited to that container).
+
+   You will need to `bounce` your workspace for installation to take effect. Alternatively, you may
+   exit and re-enter your workspace -- just **make sure changes are saved** if you do so.
+
+   Also, check each package `prereqs` file to see what other tags are available and their
+   implications. For instance, if building drake from source and using ignition binaries,
+   you may want to run:
+
+   ```sh
+   sudo prereqs-install -t default -t ignition src
+   ```
+
+   Likewise, if building ignition from source and using drake binaries, run:
+
+   ```sh
+   sudo prereqs-install -t default -t drake src
+   ```
+
+5. Install all packages' dependencies:
+
    ```sh
    rosdep update
    rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" --from-paths src
@@ -171,28 +219,23 @@ Whether you would like to have a containerized or a non-containerized workspace 
        help keep development environments clean (as system wide installations within a container
        are limited to that container).
 
-9. #### Source ROS environment:
+   You will need to `bounce` your workspace for installation to take effect. Alternatively, you may exit
+   and re-enter your workspace -- just **make sure changes are saved** if you do so.
 
-   ```sh
-   source /opt/ros/$ROS_DISTRO/setup.bash
-   ```
+   If having issues with this step, make sure the `$ROS_DISTRO` environment variable is defined. If not, first ensure
+   you didn't skip step 4, including either bouncing the workspace or exiting and re-entering it while saving all
+   changes in the process, to make sure that prerequisites installation took effect.
 
+6. When exiting the workspace, **make sure changes are saved**!
 
- #### **Create a non-containerized workspace**
-
-  If the workspace is not meant to be run using a container the steps are pretty similar but
-  docker related commands must be avoided:
-
- 1. [Create the workspace folder](#create-the-workspace-folder)
- 2. [Copy .repos file](#copy-.repos-file)
- 3. Install dependencies:
-     ```sh
-       sudo ./dsim-repos-index/tools/install_dependencies.sh
-     ```
- 4. [Bring/update all the repositories in your workspace](#bring/update-all-the-repositories-in-your-workspace)
- 5. [Install Drake](#install-drake)
- 6. [Install all packages' dependencies](#install-all-packages'-dependencies)
- 7. [Source ROS environment](#source-ros-environment)
+The above sequence allows for full workspace updates, but it's not binding. A conscious user may want
+to only update dependencies for a patch he's working on (and thus, only steps 4 and 5 apply, and
+maybe not even both depending on if the dependency was declared in a `package.xml` or is being brought
+by a `prereqs` file) or even customize the workspace for a one time use. If in a containerized workspace,
+upon exit one may choose to not save any modifications and keep the environment clean.  Note that this does
+not apply to the workspace directory itself, as it exists outside and beyond the container lifetime, but
+since repositories are versioned, changes can be checked out, stashed or even reverted. In extreme cases,
+setting up disposable workspaces remains an option.
 
 ### Check your workspace
 
@@ -201,19 +244,21 @@ the filesystem that hosts it. However, if a workspace is containerized and no cu
 applied by the user, repositories alone carry the source code and state the list of system dependencies
 necessary to build and execute. And we can easily inspect repositories.
 
-1. To check repositories' status, run:
+1. [Bring up your workspace](#bring-up-your-workspace)
+
+2. To check repositories' status, run:
 
    ```sh
    vcs status src
    ```
 
-2. To see changes in the repositories' working tree, run:
+3. To see changes in the repositories' working tree, run:
 
    ```sh
    vcs diff src
    ```
 
-3. To see if (most of) our versioned packages' dependencies have been met, run:
+4. To see if (most of) our versioned packages' dependencies have been met, run:
 
    ```sh
    rosdep check --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11" --from-paths src
@@ -230,11 +275,9 @@ if `vcs` isn't enough or to the specific package managers (e.g. `apt` or `pip`) 
 
 ### Build your workspace
 
-1. Build the workspace, which can be done in full or partially.
-   Standing at `maliput_ws` root folder:
-   ```sh
-   cd ~/maliput_ws
-   ```
+1. [Bring up your workspace](#bring-up-your-workspace)
+
+2. Build the workspace, which can be done in full or partially.
 
    To build all packages:
 
@@ -277,7 +320,7 @@ Note
    CC=clang CXX=clang++ colcon build --packages-up-to maliput malidrive
    ```
 
-2. Source the workspace:
+3. Source the workspace:
 
    ```sh
    source install/setup.bash
@@ -304,23 +347,36 @@ for further reference on `test` support.
 
 ### Build your workspace using Static Analyzer
 
-  TODO
+In order to verify your code you can run the [Clang Static Analyzer](https://clang-analyzer.llvm.org/).
+A useful script called `run_scan_build` is located in the workspace's root (by default `maliput_ws` folder).
+
+This executable takes as arguments all the colcon arguments you may want to use and run the `scan-build` command.
+
+1. [Bring up your workspace](#bring-up-your-workspace)
+
+2. Execute `run_scan_build`.
+
+  if no `--packages-up-to` or `packages-select` argument is passed it will scan-build the entire workspace.
+  ```sh
+  ./run_scan_build
+  ```
+  However, if you want to scan up to `malidrive` package, for example, you can do:
+  ```sh
+  ./run_scan_build --packages-up-to malidrive
+  ```
 
 ### Build doxygen documentation
 
-1. Build the workspace, which can be done in full or partially. In particular,
-   we are interested in compiling `dsim-docs-bundler`
+1. [Bring up your workspace](#bring-up-your-workspace)
 
-   Standing at `maliput_ws` root folder:
-   ```sh
-   cd ~/maliput_ws
-   ```
+2. Build the workspace, which can be done in full or partially. In particular,
+   we are interested in compiling `dsim-docs-bundler`
 
   ```sh
   colcon build --packages-up-to dsim-docs-bundler
   ```
 
-2. Open the documentation with your favorite browser. If Google Chrome is available, you can run:
+3. Open the documentation with your favorite browser. If Google Chrome is available, you can run:
 
   ```sh
   google-chrome install/dsim-docs-bundler/share/dsim-docs-bundler/doc/dsim-docs/html/index.html
@@ -328,7 +384,23 @@ for further reference on `test` support.
 
 ### Delete your workspace
 
-  TODO
+You may also dispose of a workspace. That is, to dispose of the container image, if any, and all workspace
+specific files e.g. the `bringup` script. Once inside of your workspace, run:
+
+```sh
+nuke
+```
+
+Note that all files and directories added by the user within the workspace directory itself, like the typical
+`build`, `install`, `log` and `src` directories, will not be affected by this operation. To get rid of those
+as well, simply remove the workspace directory once outside the workspace:
+
+```sh
+rm -rf maliput_ws
+```
+
+**Warning**
+:  You'll be prompted twice for confirmation. This is a permanent removal. It cannot be undone.
 
 # Contributing
 
@@ -348,20 +420,28 @@ To build and test packages, [`colcon`](https://colcon.readthedocs.io/en/released
 specific build system and testing tools in use and arbitrates these operations to take place in topological order.
 Operations will be run in parallel by default.
 
----
-**NOTE**: In all three cases above, the tools delegate the actual work to the right tool for each package and
+Note
+: In all three cases above, the tools delegate the actual work to the right tool for each package and
 focus instead on bridging the gap between them. Thus, for instance, `colcon` builds interdependent
 CMake packages by running `cmake` and `make` in the right order and setting up the environment for
 the artifacts to be available. Same applies for `vcs` and `rosdep`.
 
----
-**NOTE**: These tools do not strive to act like a proxy for every configuration setting or command line option
+Note
+: These tools do not strive to act like a proxy for every configuration setting or command line option
 that underlying tools they delegate work to may have. Thus, it may be necessary to configure the underlying
 tool in addition to the configuration for these tools to attain a desired behavior. For instance, limiting
 `colcon` parallelism with the `--parallel-workers` switch has no impact on `make` parallelization settings
 if this tool is being used.
 
----
+In addition to these tools, we also count on `wsetup` to standardize and simplify the setup of our
+development workspaces by means of containerization, and `prereqs-install` to deal with all the non-standard
+preconditions that our packages introduce but `rosdep` cannot satisfy. **These tools are not part of the
+standard ROS2's development workflow**, and therefore their usage and extension should be sparse at best.
+
+Warning
+:   Tools like `prereqs-install` and `rosdep` abstract away platform specific details only for the simplest dependency
+    management tasks. To deal with more complex situations like version downgrading or even conflicts, one must fall back
+    to the appropriate package manager e.g. `apt`.
 
 ## Using binary underlays
 
@@ -399,27 +479,32 @@ your intended purpose.
    It is assumed that you have the right AWS credentials configured in your system.
    See [AWS CLI user guide to configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) for further reference.
 
-1. Extract binary underlay tarball:
+2. [Bring up your workspace.](#bring-up-your-workspace)
+
+3. Extract binary underlay tarball:
 
    ```sh
    sudo mkdir -p /opt/dsim-desktop
    sudo tar -zxvf dsim-desktop-latest-bionic.tar.gz -C /opt/dsim-desktop --strip 1
    ```
 
-1. Install all underlay packages' prerequisites, including drake and ignition binaries:
+4. Install all underlay packages' prerequisites, including drake and ignition binaries:
 
-   TODO
+   ```sh
+   sudo prereqs-install -t all /opt/dsim-desktop
+   ```
 
-1. Install all underlay packages' dependencies:
+   You will need to exit and re-enter the workspace for installation to take effect.
+   **Make sure changes are saved upon leave!**
+
+5. Install all underlay packages' dependencies:
 
    ```sh
    rosdep update
    rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" --from-paths /opt/dsim-desktop/*
    ```
 
-1. When exiting the workspace, make sure changes are saved!
-
-  TODO
+6. When exiting the workspace, make sure changes are saved!
 
 From then on, before building the workspace, you must source the underlay as follows:
 
@@ -441,11 +526,9 @@ repositories for upstream dependencies:
 - [ToyotaResearchInstitute/drake-vendor](https://github.com/ToyotaResearchInstitute/drake-vendor/), that contains a vendoring package for [`drake`](https://github.com/RobotLocomotion/drake).
 - [ToyotaResearchInstitute/malidrive](https://github.com/ToyotaResearchInstitute/malidrive/), that contains a package with a `maliput` backend for the OpenDrive specification.
 - [ToyotaResearchInstitute/maliput](https://github.com/ToyotaResearchInstitute/maliput/), that contains packages introducing `maliput` and a road network runtime interface.
-- [ToyotaResearchInstitute/maliput_malidrive](https://github.com/ToyotaResearchInstitute/maliput_malidrive/), that contains a package with a `maliput` backend for the OpenDrive specification.
 - [ToyotaResearchInstitute/maliput-dragway](https://github.com/ToyotaResearchInstitute/maliput-dragway/), that contains an implementation of Maliput's API that allows users to instantiate a multilane dragway.
 - [ToyotaResearchInstitute/maliput-integration](https://github.com/ToyotaResearchInstitute/maliput-integration/), that contains integration examples and tools that unify `maliput` core and its possible backends.
 - [ToyotaResearchInstitute/maliput-multilane](https://github.com/ToyotaResearchInstitute/maliput-multilane/), that contains an implementation of Maliput's API that allows users to instantiate a multilane road.
-- [ToyotaResearchInstitute/maliput_documentation](https://github.com/ToyotaResearchInstitute/maliput_documentation/), that contains a high level documentation (sphinx) and Changelog for maliput & family.
 
 ## How to use CI
 
@@ -463,3 +546,13 @@ e.g. `my_github_user/my_patch_name`.
 
 When reproducing issues, either related to the codebase or to the infrastructure
 that supports it, recreating the environment in which these issues arose is crucial.
+
+Using .repos files does half the work by allowing codebase version pinning.
+Containerized workspaces do the other half along with the `wsetup` tool, and thus
+their use is encouraged. The tool itself does not setup workspaces but generates a
+script that does the heavy lifting. Said script can be retrieved instead of executed
+by means of the `-o` flag:
+
+```sh
+dsim-repos-index/tools/wsetup -o setup.sh [...other-args...]
+```
