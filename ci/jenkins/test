@@ -1,8 +1,0 @@
-#!/bin/bash
-
-set -eo pipefail
-
-source ./install/setup.bash
-
-colcon test --event-handlers=console_direct+ --return-code-on-test-failure \
-       --packages-skip pybind11 ${COLCON_TEST_EXTRA_ARGS:-}
