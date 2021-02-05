@@ -148,12 +148,8 @@ Whether you would like to have a containerized or a non-containerized workspace 
    or commit. Also, note that you can equally bring other repositories as well by repeating
    this `import` and `pull` operation using additional `.repos` files.
 
-7. #### Install drake:
-    ```sh
-    sudo ./src/drake_vendor/drake_installer
-    ```
 
-8. #### Install all packages' dependencies:
+7. #### Install all packages' dependencies:
 
    First update the `ROS_DISTRO` environment variable with your `ros2` version, e.g.:
    ```sh
@@ -170,6 +166,11 @@ Whether you would like to have a containerized or a non-containerized workspace 
        to remove the dependencies it brings. In this regard, disposable containerized workspaces
        help keep development environments clean (as system wide installations within a container
        are limited to that container).
+
+8. #### Install drake:
+    ```sh
+    sudo ./src/drake_vendor/drake_installer
+    ```
 
 9. #### Source ROS environment:
 
@@ -190,8 +191,8 @@ Whether you would like to have a containerized or a non-containerized workspace 
        sudo ./dsim-repos-index/tools/install_dependencies.sh
      ```
  4. [Bring/update all the repositories in your workspace](#bring/update-all-the-repositories-in-your-workspace)
- 5. [Install Drake](#install-drake)
- 6. [Install all packages' dependencies](#install-all-packages'-dependencies)
+ 5. [Install all packages' dependencies](#install-all-packages'-dependencies)
+ 6. [Install Drake](#install-drake)
  7. [Source ROS environment](#source-ros-environment)
 
 ### Check your workspace
