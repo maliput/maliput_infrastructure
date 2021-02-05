@@ -1,4 +1,4 @@
-name: gcc
+name: workspace
 
 on:
   push:
@@ -11,7 +11,6 @@ env:
   ROS_DISTRO: dashing
   ROS_WS: maliput_ws
   DEBIAN_FRONTEND: noninteractive
-  TERM: linux
 
 jobs:
   compile_and_test:
@@ -98,7 +97,8 @@ jobs:
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      # TODO: Do not remove ign-gui0 folder when it is needed.
+      # ign-gui0 is removed because it is only necessary for delphyne* packages, not for
+      # the others.
       run: |
         vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos;
         rm -rf src/ign-gui0;
@@ -116,7 +116,7 @@ jobs:
     - name: install drake via drake_vendor
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      run: sudo ./src/drake_vendor/drake_installer
+      run: ./src/drake_vendor/drake_installer
     - name: colcon build libraries
       shell: bash
       working-directory: ${{ env.ROS_WS }}
