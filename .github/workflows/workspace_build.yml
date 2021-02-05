@@ -1,4 +1,4 @@
-name: workspace
+name: gcc-workspace-build
 
 on:
   push:
@@ -10,6 +10,8 @@ env:
   PACKAGE_NAME: dsim-repos-index
   ROS_DISTRO: dashing
   ROS_WS: maliput_ws
+  # We want zero interaction while installing or upgrading the system via apt.
+  # It accepts the default answer for all questions.
   DEBIAN_FRONTEND: noninteractive
 
 jobs:
