@@ -162,7 +162,7 @@ Whether you would like to have a containerized or a non-containerized workspace 
    Install dependencies via `rosdep`:
    ```sh
    rosdep update
-   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" --from-paths src
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 pybind11" --from-paths src
    ```
 
    Warning
@@ -216,7 +216,7 @@ necessary to build and execute. And we can easily inspect repositories.
 3. To see if (most of) our versioned packages' dependencies have been met, run:
 
    ```sh
-   rosdep check --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 libqt5multimedia5 pybind11" --from-paths src
+   rosdep check --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 pybind11" --from-paths src
    ```
 
    Note though that currently not all workspace prerequisites are nor can be dealt with using `rosdep`
@@ -414,7 +414,7 @@ your intended purpose.
 
    ```sh
    rosdep update
-   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" --from-paths /opt/dsim-desktop/*
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 pybind11" --from-paths /opt/dsim-desktop/*
    ```
 
 1. When exiting the workspace, make sure changes are saved!
