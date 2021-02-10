@@ -1,23 +1,26 @@
-name: scan_build
+name: gcc-workspace-build
 
 on:
+  push:
+  pull_request:
   schedule:
-    - cron:  '0 9 * * 1' # 9:00am UTC, 1:00am PST every Monday.
+    - cron:  '0 9 * * *' # 9:00am UTC, 1:00am PST.
 
 env:
   PACKAGE_NAME: dsim-repos-index
   ROS_DISTRO: dashing
   ROS_WS: maliput_ws
+  # We want zero interaction while installing or upgrading the system via apt.
+  # It accepts the default answer for all questions.
+  DEBIAN_FRONTEND: noninteractive
 
 jobs:
-  static_analysis:
-    name: Static analysis
+  compile_and_test:
+    name: Verify workspace set up
     runs-on: ubuntu-18.04
     container:
       image: ubuntu:18.04
     steps:
-    # setup-ros first since it installs git, which is needed to fetch all branches from actions/checkout
-    - uses: ros-tooling/setup-ros@0.1.2
     # install git from ppa since git 2.18+ is needed to fetch all branches from actions/checkout
     # this step can be removed on 20.04
     - name: install git from ppa
@@ -30,6 +33,9 @@ jobs:
     - uses: actions/checkout@v2
       with:
         path: dsim-repos-index
+    - name: install dependencies
+      shell: bash
+      run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/tools/install_dependencies.sh
     # clone private dependencies
     - uses: actions/checkout@v2
       with:
@@ -63,18 +69,6 @@ jobs:
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
       with:
-        repository: ToyotaResearchInstitute/delphyne
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/delphyne
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/delphyne-gui
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/delphyne-gui
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
         repository: ToyotaResearchInstitute/drake-vendor
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/drake_vendor
@@ -100,30 +94,16 @@ jobs:
     - name: check if dependencies have a matching branch
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src
-      run: ${GITHUB_WORKSPACE}/dsim-repos-index/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
-    # install drake_vendor prereqs using dsim-repos-index/tools/prereqs.lib
-    - name: install drake_vendor prereqs
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}/src/drake_vendor
-      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t drake .
-    # install delphyne prereqs using dsim-repos-index/tools/prereqs.lib
-    - name: install delphyne prereqs
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}/src/delphyne
-      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
-    # install delphyne-gui prereqs using dsim-repos-index/tools/prereqs.lib
-    - name: install delphyne-gui prereqs
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}/src/delphyne-gui
-      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
-    - name: clang 8 install
-      shell: bash
-      run: ${GITHUB_WORKSPACE}/dsim-repos-index/.github/clang_suite_installation.sh
+      run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
     # clone public dependencies
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos
+      # ign-gui0 is removed because it is only necessary for delphyne* packages, not for
+      # the others.
+      run: |
+        vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos;
+        rm -rf src/ign-gui0;
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
@@ -133,13 +113,15 @@ jobs:
       run: |
         rosdep update;
         rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
-          --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 pybind11" \
+          --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 libqt5multimedia5 pybind11" \
           --from-paths src
-    - name: scan_build
+    - name: install drake via drake_vendor
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: ./src/drake_vendor/drake_installer
+    - name: colcon build libraries
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
         . /opt/ros/${ROS_DISTRO}/setup.bash;
-        ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/tools/run_scan_build.py \
-          --cmake-args -DCMAKE_LINKER=/usr/bin/llvm-ld \
-          --event-handlers=console_direct+;
+        colcon build --event-handlers=console_direct+
