@@ -272,10 +272,10 @@ that `CMAKE_BUILD_TYPE=Debug`. You can force it by passing `--cmake-args -DCMAKE
 to `colcon`.
 
 Note
-:  If you want to build with `clang`, run the following:
+:  If you want to build with `clang-8`, run the following:
 
    ```sh
-   CC=clang CXX=clang++ colcon build --packages-up-to maliput malidrive
+   CC=clang-8 CXX=clang++-8 colcon build --packages-up-to maliput malidrive
    ```
 
 2. Source the workspace:
