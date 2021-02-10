@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-18.04
     container:
       image: ubuntu:18.04
+    env:
+      LINKER_PATH: /usr/bin/lld-8
     steps:
     # setup-ros first since it installs git, which is needed to fetch all branches from actions/checkout
     - uses: ros-tooling/setup-ros@0.1.2
@@ -141,5 +143,5 @@ jobs:
       run: |
         . /opt/ros/${ROS_DISTRO}/setup.bash;
         ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/tools/run_scan_build.py \
-          --cmake-args -DCMAKE_LINKER=/usr/bin/llvm-ld \
+          --cmake-args -DCMAKE_LINKER=${LINKER_PATH} \
           --event-handlers=console_direct+;

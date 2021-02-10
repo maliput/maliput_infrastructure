@@ -275,7 +275,7 @@ Note
 :  If you want to build with `clang-8`, run the following:
 
    ```sh
-   CC=clang-8 CXX=clang++-8 colcon build --packages-up-to maliput malidrive
+   CC=clang-8 CXX=clang++-8 colcon build --packages-up-to maliput malidrive --cmake-args ' -DCMAKE_LINKER=usr/bin/lld-8'
    ```
 
 2. Source the workspace:
