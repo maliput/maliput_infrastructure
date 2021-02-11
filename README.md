@@ -134,8 +134,7 @@ and satisfy their dependencies.
        help keep development environments clean (as system wide installations within a container
        are limited to that container).
 
-   **Important**: If you are following the instructions to work with the `delphyne` repositories too, not all the dependencies
-    are met with `rosdep`. The following instructions shows the way to install the missing dependencies:
+   **Important**: If you are following the instructions to work with the `delphyne` repositories too, you should know that not all the dependencies are met with `rosdep`. The following list of steps will allow you to get your environment ready for `delphyne` packages:
     ```sh
       echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | \
             sudo tee --append /etc/apt/sources.list.d/gazebo-stable.list
@@ -168,7 +167,7 @@ and satisfy their dependencies.
  #### **Optional: Create a containerized workspace**
 
   If the workspace is meant to be run using a container the steps are pretty similar.
-  We provide the necessary machinery to `build` and `run` a docker image:
+  We provide the necessary machinery to `build` and `run` a docker image and container:
 
 1. #### Build the docker image.
    ```sh
@@ -334,14 +333,16 @@ for further reference on `test` support.
 In order to verify your code you can run the [Clang Static Analyzer](https://clang-analyzer.llvm.org/).
 A useful script called `run_scan_build` is located in the `.github` folder in every repository.
 
-This executable takes as arguments all the colcon arguments you may want to use and run the `scan-build` command.
+The script will forward arguments to `colcon build` so you can use colcon's CLI machinery to choose which packages to evaluate.
 
-  if no `--packages-up-to` or `packages-select` argument is passed it will scan-build the entire workspace.
+To run `scan-build` on all packages in the workspace:
+
   ```sh
-  cd `maliput_ws`.
   ./src/maliput/.github/run_scan_build
   ```
-  However, if you want to scan up to `malidrive` package, for example, you can do:
+
+To run scan-build up to malidrive:
+
   ```sh
   ./src/maliput/.github/run_scan_build --packages-up-to malidrive
   ```
@@ -372,7 +373,7 @@ This executable takes as arguments all the colcon arguments you may want to use 
    ```sh
     docker rmi maliput_ws_ubuntu
    ```
-  Or whatever name was given to the image.
+  Consider replacing `maliput_ws_ubuntu` by your image name when using a custom one.
 
 # Contributing
 
