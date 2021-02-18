@@ -1,9 +1,3 @@
-# Important:
-  Given that the way the workspace is set up is currently being modified a new readme file takes place.
-  **This readme file is work in progress.**
-
-  For full information please refer to [previous README.md](DEPRECATED_README.md)
-
 # Table of Contents
 
 - [Introduction](#introduction)
@@ -12,8 +6,7 @@
   - [Prerequisites](#prerequisites)
   - [Usage Instructions](#usage-instructions)
     - [Create a workspace](#create-a-workspace)
-      - [Create a containerized workspace](#create-a-containerized-workspace)
-      - [Create a non-containerized workspace](#create-a-non-containerized-workspace)
+      - [Create a containerized workspace](#optional-create-a-containerized-workspace)
     - [Check your workspace](#check-your-workspace)
     - [Build your workspace](#build-your-workspace)
     - [Test your workspace](#test-your-workspace)
@@ -70,35 +63,12 @@ In the following, it is assumed that you want to create a workspace containing
 all of DSIM's (Driving Simulation's) repositories, but with a focus on Maliput
 and Malidrive development. As such, it suggests the creation of a workspace in a
 `maliput_ws` directory and pulling sources from the [`maliput.repos`](maliput.repos)
-file.
+file. Nevertheless, the instructions also provide information on how to bring `delphyne` repositories if needed,
+and satisfy their dependencies.
 
 ### Create a workspace
 
-Whether you would like to have a containerized or a non-containerized workspace the instructions are similar.
-
----
-**NOTE**
-:  Bear in mind that using a non-containerized workspace makes reproducing and troubleshooting
-   issues harder for others. Thus, we highly recommend that you use a containerized workspace.
-
----
-
- #### **Create a containerized workspace**
-1. #### Build the docker image.
-   ```sh
-   ./dsim-repos-index/docker/build.sh
-   ```
-   If you are using nvidia-docker2 add the `--nvidia` option.
-   ```sh
-   ./dsim-repos-index/docker/build.sh --nvidia
-   ```
-   ---
-   **NOTE**: `build.sh --help` for more options:
-      1.  `-i` `--image_name`	Name of the image to be built (default maliput_ws_ubuntu)
-      1.  `-w` `--workspace_name`	Name of the workspace folder (default maliput_ws)
-   ---
-
-2. #### Create the workspace folder:
+1. #### Create the workspace folder:
    ```sh
    mkdir -p maliput_ws
    ```
@@ -108,33 +78,30 @@ Whether you would like to have a containerized or a non-containerized workspace 
 
    ---
 
-3. #### Copy .repos file:
+2. #### Copy .repos file:
     Copy `dsim-repos-index/maliput.repos` file into `maliput_ws` workspace folder.
     It will be used to bring all the repositories later on.
    ```sh
    cp dsim-repos-index/maliput.repos maliput_ws/
    ```
-4. #### Run the container:
+
+   **Important**: If you would like to bring the `delphyne` repositories too.
+                  It is `dsim.repos` the name of the file you should copy instead.
    ```sh
-   ./dsim-repos-index/docker/run.sh
+   cp dsim-repos-index/maliput.repos maliput_ws/
    ```
-   If you are using nvidia-docker2 add the `--nvidia` option.
-   ```sh
-   ./dsim-repos-index/docker/run.sh --nvidia
-   ```
-    ---
-    **NOTE**:
-    `run.sh --help` for more options:
-      1.	`-i` `--image_name`	Name of the image to be run (default maliput_ws_ubuntu)
-      1.	`-c` `--container_name`	Name of the container(default maliput_ws)
-      1.	`-w` `--workspace`	Relative or absolute path to the workspace you want to bind. (default to location of dsim-repos-index folder)
-    ---
-5. #### Install dependencies:
-   During docker build stage a script is copied into the container at `/home/$USER/`.
-   ```sh
-   sudo ./../install_dependencies.sh
-   ```
-6. #### Bring/update all the repositories in your workspace:
+
+3. Install dependencies:
+    ```sh
+      sudo ./dsim-repos-index/tools/install_dependencies.sh
+    ```
+
+4. #### Bring/update all the repositories in your workspace:
+   Bring all the repositories listed in `maliput.repos` file.
+
+   **Important**: `maliput.repos` should be changed by `dsim.repos` depending on which file you copied
+                  at [Copy .repos file](#copy-repos-file) step.
+
    Standing at the root of your workspace folder.
    ```sh
    mkdir -p src
@@ -149,7 +116,7 @@ Whether you would like to have a containerized or a non-containerized workspace 
    this `import` and `pull` operation using additional `.repos` files.
 
 
-7. #### Install all packages' dependencies:
+5. #### Install all packages' dependencies:
 
    First update the `ROS_DISTRO` environment variable with your `ros2` version, e.g.:
    ```sh
@@ -167,33 +134,91 @@ Whether you would like to have a containerized or a non-containerized workspace 
        help keep development environments clean (as system wide installations within a container
        are limited to that container).
 
-8. #### Install drake:
+   **Important**: If you are following the instructions to work with the `delphyne` repositories too, you should know that not all the dependencies are met with `rosdep`. The following list of steps will allow you to get your environment ready for `delphyne` packages:
+    ```sh
+      echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | \
+            sudo tee --append /etc/apt/sources.list.d/gazebo-stable.list
+      sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
+
+      sudo apt update
+      sudo apt -y install --no-install-recommends \
+                      libignition-common3-dev \
+                      libignition-math6-dev \
+                      libignition-msgs4-dev \
+                      libignition-tools-dev \
+                      libignition-cmake1-dev \
+                      libignition-cmake2-dev \
+                      libignition-rendering2-dev \
+                      libignition-gui2-dev \
+                      libignition-transport7-dev
+    ```
+
+6. #### Install drake:
     ```sh
     sudo ./src/drake_vendor/drake_installer
     ```
 
-9. #### Source ROS environment:
+7. #### Source ROS environment:
 
    ```sh
    source /opt/ros/$ROS_DISTRO/setup.bash
    ```
 
+ #### **Optional: Create a containerized workspace**
 
- #### **Create a non-containerized workspace**
+  If the workspace is meant to be run using a container the steps are pretty similar.
+  We provide the necessary machinery to `build` and `run` a docker image and container:
 
-  If the workspace is not meant to be run using a container the steps are pretty similar but
-  docker related commands must be avoided:
+1. #### Build the docker image.
+   ```sh
+   ./dsim-repos-index/docker/build.sh
+   ```
+   If you are using nvidia-docker2 add the `--nvidia` option.
+   ```sh
+   ./dsim-repos-index/docker/build.sh --nvidia
+   ```
+   ---
+   **NOTE**: `build.sh --help` for more options:
+      1.  `-i` `--image_name`	Name of the image to be built (default maliput_ws_ubuntu)
+      1.  `-w` `--workspace_name`	Name of the workspace folder (default maliput_ws)
+   ---
 
- 1. [Create the workspace folder](#create-the-workspace-folder)
- 2. [Copy .repos file](#copy-.repos-file)
- 3. Install dependencies:
-     ```sh
-       sudo ./dsim-repos-index/tools/install_dependencies.sh
-     ```
- 4. [Bring/update all the repositories in your workspace](#bring/update-all-the-repositories-in-your-workspace)
- 5. [Install all packages' dependencies](#install-all-packages'-dependencies)
- 6. [Install Drake](#install-drake)
- 7. [Source ROS environment](#source-ros-environment)
+2. [Create the workspace folder](#create-the-workspace-folder)
+3. [Copy .repos file](#copy-.repos-file)
+
+4. #### Run the container:
+   ```sh
+   ./dsim-repos-index/docker/run.sh
+   ```
+   If you are using nvidia-docker2 add the `--nvidia` option.
+   ```sh
+   ./dsim-repos-index/docker/run.sh --nvidia
+   ```
+    ---
+    **NOTE**:
+    `run.sh --help` for more options:
+      1.	`-i` `--image_name`	Name of the image to be run (default maliput_ws_ubuntu)
+      1.	`-c` `--container_name`	Name of the container(default maliput_ws)
+      1.	`-w` `--workspace`	Relative or absolute path to the workspace you want to bind. (default to location of dsim-repos-index folder)
+    ---
+
+5. #### Install dependencies:
+   During docker build stage a script is copied into the container at `/home/$USER/`.
+   ```sh
+   sudo ./../install_dependencies.sh
+   ```
+
+6. [Bring/update all the repositories in your workspace](#bring/update-all-the-repositories-in-your-workspace)
+7. [Install all packages' dependencies](#install-all-packages'-dependencies)
+8. [Install Drake](#install-drake)
+9. [Source ROS environment](#source-ros-environment)
+
+---
+**NOTE**
+:  Bear in mind that using a non-containerized workspace makes reproducing and troubleshooting
+   issues harder for others.
+
+---
 
 ### Check your workspace
 
@@ -305,7 +330,22 @@ for further reference on `test` support.
 
 ### Build your workspace using Static Analyzer
 
-  TODO
+In order to verify your code you can run the [Clang Static Analyzer](https://clang-analyzer.llvm.org/).
+A useful script called `run_scan_build` is located in the `.github` folder in every repository.
+
+The script will forward arguments to `colcon build` so you can use colcon's CLI machinery to choose which packages to evaluate.
+
+To run `scan-build` on all packages in the workspace:
+
+  ```sh
+  ./src/maliput/.github/run_scan_build
+  ```
+
+To run scan-build up to malidrive:
+
+  ```sh
+  ./src/maliput/.github/run_scan_build --packages-up-to malidrive
+  ```
 
 ### Build doxygen documentation
 
@@ -329,7 +369,11 @@ for further reference on `test` support.
 
 ### Delete your workspace
 
-  TODO
+  Containerized workspace could be deleted simply deleting the docker image:
+   ```sh
+    docker rmi maliput_ws_ubuntu
+   ```
+  Consider replacing `maliput_ws_ubuntu` by your image name when using a custom one.
 
 # Contributing
 
@@ -400,27 +444,60 @@ your intended purpose.
    It is assumed that you have the right AWS credentials configured in your system.
    See [AWS CLI user guide to configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) for further reference.
 
-1. Extract binary underlay tarball:
+2. Extract binary underlay tarball:
 
    ```sh
    sudo mkdir -p /opt/dsim-desktop
    sudo tar -zxvf dsim-desktop-latest-bionic.tar.gz -C /opt/dsim-desktop --strip 1
    ```
 
-1. Install all underlay packages' prerequisites, including drake and ignition binaries:
-
-   TODO
-
-1. Install all underlay packages' dependencies:
+3. Install prerequisites:
 
    ```sh
+    echo "deb http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" | \
+          sudo tee --append /etc/apt/sources.list.d/ros2-latest.list
+
+    sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654
+
+    sudo apt update
+    sudo apt install -y python3-rosdep
+    sudo rosdep init
+   ```
+
+4. Install all underlay packages' dependencies:
+
+   ```sh
+   export ROS_DISTRO=dashing
    rosdep update
    rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 pybind11" --from-paths /opt/dsim-desktop/*
    ```
 
-1. When exiting the workspace, make sure changes are saved!
+5. Install drake.
 
-  TODO
+     ```sh
+     cd /opt/dsim-desktop
+     ./drake_vendor/bin/drake_installer -f drake_vendor/share/VERSION.TXT
+     ```
+
+6. Install ignition binaries
+
+   ```sh
+    echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | \
+          sudo tee --append /etc/apt/sources.list.d/gazebo-stable.list
+    sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
+
+    sudo apt update
+    sudo apt -y install --no-install-recommends \
+                    libignition-common3-dev \
+                    libignition-math6-dev \
+                    libignition-msgs4-dev \
+                    libignition-tools-dev \
+                    libignition-cmake2-dev \
+                    libignition-cmake1-dev \
+                    libignition-rendering2-dev \
+                    libignition-gui2-dev \
+                    libignition-transport7-dev
+   ```
 
 From then on, before building the workspace, you must source the underlay as follows:
 
