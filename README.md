@@ -387,7 +387,6 @@ and `drake_vendor` capabilities.
   cd ~/maliput_ws/src/drake_vendor
   git checkout -b username/migrate_to_X_Y_Z
   ```
-
   where `X_Y_Z` is the `major.minor.patch` version of `drake`. Follow these [instructions](https://github.com/ToyotaResearchInstitute/drake_vendor#requiring-a-different-version) to install such version alongside the others in your workspace.
 1. Create a branch with the same name in all dependent repositories (see [How to use CI](#how-to-use-ci) for more
    details).
@@ -397,7 +396,6 @@ and `drake_vendor` capabilities.
    ```xml
    <depend version_eq="X.Y.Z">drake_vendor</depend>
    ```
-
 1. [Build](#build-your-workspace) and [test](#test-your-workspace) your workspace. Fix the downstream package migrations
    when necessary.
 1. Make pull requests using the branching scheme and make sure to leave the `package.xml` as it was before
