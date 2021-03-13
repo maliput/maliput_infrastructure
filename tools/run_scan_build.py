@@ -4,7 +4,7 @@
 import os
 import sys
 
-EXTRA_EXCLUDE_ARGS = " --exclude src/pybind11 --exclude /usr/include/eigen3 --exclude src/ign-gui0 --exclude /usr/include/x86_64-linux-gnu/qt5 "
+EXTRA_EXCLUDE_ARGS = " --exclude src/pybind11 --exclude /usr/include/eigen3 --exclude src/ign-gui0 --exclude src/ign-gui2 --exclude /usr/include/x86_64-linux-gnu/qt5 "
 
 def get_package_dependencies_names(packages_up_to = None):
   '''

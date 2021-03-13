@@ -7,6 +7,10 @@ repositories:
     type: git
     url: https://github.com/scpeters/ign-gui
     version: gui0_blueprint
+  ign-gui2:
+    type: git
+    url: https://github.com/ignitionrobotics/ign-gui
+    version: scpeters/port_mesh_material_fixes_2
   pybind11:
     type: git
     url: https://github.com/RobotLocomotion/pybind11.git
