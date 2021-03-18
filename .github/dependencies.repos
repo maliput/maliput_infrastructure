@@ -6,7 +6,7 @@ repositories:
   ign-gui0:
     type: git
     url: https://github.com/scpeters/ign-gui
-    version: gui0_blueprint
+    version: gui0_citadel
   pybind11:
     type: git
     url: https://github.com/RobotLocomotion/pybind11.git
