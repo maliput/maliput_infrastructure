@@ -4,8 +4,9 @@ repositories:
   ign_tools       : { type: 'git',  url: 'https://github.com/ignitionrobotics/ign-tools.git',         version: 'ign-tools0' }
   ign_math        : { type: 'git',  url: 'https://github.com/ignitionrobotics/ign-math.git',          version: 'ign-math6' }
   ign_common      : { type: 'git',  url: 'https://github.com/ignitionrobotics/ign-common.git',        version: 'ign-common3' }
-  ign_msgs        : { type: 'git',  url: 'https://github.com/ignitionrobotics/ign-msgs.git',          version: 'ign-msgs4' }
-  ign_transport   : { type: 'git',  url: 'https://github.com/ignitionrobotics/ign-transport.git',     version: 'ign-transport7' }
-  ign_rendering   : { type: 'git',  url: 'https://github.com/ignitionrobotics/ign-rendering.git',     version: 'ign-rendering2' }
-  ign_gui0        : { type: 'git',  url: 'https://github.com/scpeters/ign-gui.git',                   version: 'gui0_blueprint' }
+  ign_msgs        : { type: 'git',  url: 'https://github.com/ignitionrobotics/ign-msgs.git',          version: 'ign-msgs5' }
+  ign_transport   : { type: 'git',  url: 'https://github.com/ignitionrobotics/ign-transport.git',     version: 'ign-transport8' }
+  ign_rendering   : { type: 'git',  url: 'https://github.com/ignitionrobotics/ign-rendering.git',     version: 'ign-rendering3' }
+  ign_gui0        : { type: 'git',  url: 'https://github.com/scpeters/ign-gui.git',                   version: 'gui0_citadel' }
+  ign_gui3        : { type: 'git',  url: 'https://github.com/ignitionrobotics/ign-gui.git',           version: 'ign-gui3' }
   ign_plugin      : { type: 'git',  url: 'https://github.com/ignitionrobotics/ign-plugin.git',        version: 'ign-plugin1' }
