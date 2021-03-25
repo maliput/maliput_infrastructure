@@ -88,7 +88,7 @@ and satisfy their dependencies.
    **Important**: If you would like to bring the `delphyne` repositories too.
                   It is `dsim.repos` the name of the file you should copy instead.
    ```sh
-   cp dsim-repos-index/maliput.repos maliput_ws/
+   cp dsim-repos-index/dsim.repos maliput_ws/
    ```
 
 3. Install dependencies:
@@ -96,7 +96,7 @@ and satisfy their dependencies.
       sudo ./dsim-repos-index/tools/install_dependencies.sh
     ```
 
-4. #### Bring/update all the repositories in your workspace:
+4. #### Update all the repositories in your workspace:
    Bring all the repositories listed in `maliput.repos` file.
 
    **Important**: `maliput.repos` should be changed by `dsim.repos` depending on which file you copied
@@ -184,7 +184,7 @@ and satisfy their dependencies.
    ---
 
 2. [Create the workspace folder](#create-the-workspace-folder)
-3. [Copy .repos file](#copy-.repos-file)
+3. [Copy .repos file](#copy-repos-file)
 
 4. #### Run the container:
    ```sh
@@ -208,7 +208,7 @@ and satisfy their dependencies.
    sudo ./../install_dependencies.sh
    ```
 
-6. [Bring/update all the repositories in your workspace](#bring/update-all-the-repositories-in-your-workspace)
+6. [Update all the repositories in your workspace](#update-all-the-repositories-in-your-workspace)
 7. [Install all packages' dependencies](#install-all-packages'-dependencies)
 8. [Install Drake](#install-drake)
 9. [Source ROS environment](#source-ros-environment)
