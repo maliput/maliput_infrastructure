@@ -89,7 +89,7 @@ and satisfy their dependencies.
    **Important**: If you would like to bring the `delphyne` repositories too.
                   It is `dsim.repos` the name of the file you should copy instead.
    ```sh
-   cp dsim-repos-index/maliput.repos maliput_ws/
+   cp dsim-repos-index/dsim.repos maliput_ws/
    ```
 
 3. Install dependencies:
@@ -97,7 +97,7 @@ and satisfy their dependencies.
       sudo ./dsim-repos-index/tools/install_dependencies.sh
     ```
 
-4. #### Bring/update all the repositories in your workspace:
+4. #### Update all the repositories in your workspace:
    Bring all the repositories listed in `maliput.repos` file.
 
    **Important**: `maliput.repos` should be changed by `dsim.repos` depending on which file you copied
@@ -126,7 +126,7 @@ and satisfy their dependencies.
    Install dependencies via `rosdep`:
    ```sh
    rosdep update
-   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 pybind11" --from-paths src
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport8 ignition-msgs5 ignition-math6 ignition-common3 ignition-gui0 ignition-gui3 ignition-rendering3 pybind11" --from-paths src
    ```
 
    Warning
@@ -145,13 +145,13 @@ and satisfy their dependencies.
       sudo apt -y install --no-install-recommends \
                       libignition-common3-dev \
                       libignition-math6-dev \
-                      libignition-msgs4-dev \
+                      libignition-msgs5-dev \
                       libignition-tools-dev \
                       libignition-cmake1-dev \
                       libignition-cmake2-dev \
-                      libignition-rendering2-dev \
-                      libignition-gui2-dev \
-                      libignition-transport7-dev
+                      libignition-rendering3-dev \
+                      libignition-gui3-dev \
+                      libignition-transport8-dev
     ```
 
 6. #### Install drake:
@@ -185,7 +185,7 @@ and satisfy their dependencies.
    ---
 
 2. [Create the workspace folder](#create-the-workspace-folder)
-3. [Copy .repos file](#copy-.repos-file)
+3. [Copy .repos file](#copy-repos-file)
 
 4. #### Run the container:
    ```sh
@@ -209,7 +209,7 @@ and satisfy their dependencies.
    sudo ./../install_dependencies.sh
    ```
 
-6. [Bring/update all the repositories in your workspace](#bring/update-all-the-repositories-in-your-workspace)
+6. [Update all the repositories in your workspace](#update-all-the-repositories-in-your-workspace)
 7. [Install all packages' dependencies](#install-all-packages'-dependencies)
 8. [Install Drake](#install-drake)
 9. [Source ROS environment](#source-ros-environment)
@@ -243,7 +243,7 @@ necessary to build and execute. And we can easily inspect repositories.
 3. To see if (most of) our versioned packages' dependencies have been met, run:
 
    ```sh
-   rosdep check --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math5 ignition-common2 ignition-gui0 ignition-rendering0 pybind11" --from-paths src
+   rosdep check --rosdistro $ROS_DISTRO --skip-keys "ignition-transport8 ignition-msgs5 ignition-math6 ignition-common3 ignition-gui0 ignition-gui3 ignition-rendering3 pybind11" --from-paths src
    ```
 
    Note though that currently not all workspace prerequisites are nor can be dealt with using `rosdep`
@@ -490,7 +490,7 @@ your intended purpose.
    ```sh
    export ROS_DISTRO=dashing
    rosdep update
-   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport7 ignition-msgs4 ignition-math6 ignition-common3 ignition-gui0 ignition-rendering2 pybind11" --from-paths /opt/dsim-desktop/*
+   rosdep install -i -y --rosdistro $ROS_DISTRO --skip-keys "ignition-transport8 ignition-msgs5 ignition-math6 ignition-common3 ignition-gui0 ignition-gui3 ignition-rendering3 pybind11" --from-paths /opt/dsim-desktop/*
    ```
 
 5. Install drake.
@@ -511,13 +511,13 @@ your intended purpose.
     sudo apt -y install --no-install-recommends \
                     libignition-common3-dev \
                     libignition-math6-dev \
-                    libignition-msgs4-dev \
+                    libignition-msgs5-dev \
                     libignition-tools-dev \
                     libignition-cmake2-dev \
                     libignition-cmake1-dev \
-                    libignition-rendering2-dev \
-                    libignition-gui2-dev \
-                    libignition-transport7-dev
+                    libignition-rendering3-dev \
+                    libignition-gui3-dev \
+                    libignition-transport8-dev
    ```
 
 From then on, before building the workspace, you must source the underlay as follows:
