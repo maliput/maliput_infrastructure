@@ -391,12 +391,6 @@ and `drake_vendor` capabilities.
 1. Update the version tag in the `package.xml` (for more context, refer to the `drake_vendor` [instructions](https://github.com/ToyotaResearchInstitute/drake_vendor#requiring-a-different-version)).
 1. Create a branch with the same name in all dependent repositories (see [How to use CI](#how-to-use-ci) for more
    details).
-1. In all packages, look for the `package.xml` and identify the `<depend>drake_vendor</depend>` tag. Edit it so it looks
-   like the following:
-
-   ```xml
-   <depend version_eq="X.Y.Z">drake_vendor</depend>
-   ```
 1. [Build](#build-your-workspace) and [test](#test-your-workspace) your workspace. Fix the downstream package migrations
    when necessary.
 1. Make pull requests using the branching scheme and make sure to leave the `package.xml` as it was before
