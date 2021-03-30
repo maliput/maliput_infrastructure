@@ -13,6 +13,7 @@
     - [Build your workspace using Static Analyzer](#build-your-workspace-using-static-analyzer)
     - [Build doxygen documentation](#build-doxygen-documentation)
     - [Delete your workspace](#delete-your-workspace)
+    - [Testing a new drake version](#testing-a-new-drake-version)
 - [Contributing](#contributing)
   - [Usual workflow](#usual-workflow)
   - [Using binary underlays](#using-binary-underlays)
@@ -374,6 +375,26 @@ To run scan-build up to malidrive:
     docker rmi maliput_ws_ubuntu
    ```
   Consider replacing `maliput_ws_ubuntu` by your image name when using a custom one.
+
+### Testing a new drake version
+
+To evaluate a new drake install, follow these steps which rely on package manifest infrastructure
+and `drake_vendor` capabilities.
+
+1. Create a new branch in `drake_vendor` that reflects the new release number:
+
+  ```sh
+  cd ~/maliput_ws/src/drake_vendor
+  git checkout -b username/migrate_to_X_Y_Z
+  ```
+  where `X_Y_Z` is the `major.minor.patch` version of `drake`.
+1. Update the version tag in the `package.xml` (for more context, refer to the `drake_vendor` [instructions](https://github.com/ToyotaResearchInstitute/drake_vendor#requiring-a-different-version)).
+1. Create a branch with the same name in all dependent repositories (see [How to use CI](#how-to-use-ci) for more
+   details).
+1. [Build](#build-your-workspace) and [test](#test-your-workspace) your workspace. Fix the downstream package migrations
+   when necessary.
+1. Make pull requests using the branching scheme and make sure to leave the `package.xml` as it was before
+   (i.e. `<depend>drake_vendor</depend>` ). Migrations should be pull requested only.
 
 # Contributing
 
