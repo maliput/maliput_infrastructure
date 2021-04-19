@@ -10,7 +10,7 @@ function show_help() {
   \t-n --nvidia\t\t Selects nvidia runtime. \n
   \t-i --image_name\t\t Name of the image to be run (default maliput_ws_ubuntu)\n
   \t-c --container_name\t Name of the container(default maliput_ws)\n
-  \t-w --workspace\t\t Relative or absolute path to the workspace you want to bind. (default to location of dsim-repos-index folder)\n
+  \t-w --workspace\t\t Relative or absolute path to the workspace you want to bind. (default to location of maliput_infrastructure folder)\n
   Examples:\n
   \trun.sh --nvidia --image_name custom_image_name --container_name custom_container_name \n
   \trun.sh --workspace /path/to/your/ws_folder \n'

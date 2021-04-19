@@ -7,7 +7,7 @@ on:
     - cron:  '0 9 * * *' # 9:00am UTC, 1:00am PST.
 
 env:
-  PACKAGE_NAME: dsim-repos-index
+  PACKAGE_NAME: maliput_infrastructure
   ROS_DISTRO: dashing
   ROS_WS: maliput_ws
   # We want zero interaction while installing or upgrading the system via apt.
@@ -32,7 +32,7 @@ jobs:
         apt install -y git;
     - uses: actions/checkout@v2
       with:
-        path: dsim-repos-index
+        path: maliput_infrastructure
     - name: install dependencies
       shell: bash
       run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/tools/install_dependencies.sh
