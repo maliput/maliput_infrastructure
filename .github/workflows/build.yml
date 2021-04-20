@@ -147,6 +147,19 @@ jobs:
         . /opt/ros/${ROS_DISTRO}/setup.bash;
         colcon test --event-handlers=console_direct+;
         colcon test-result --verbose;
+    - name: Generate repos filename with current date
+      id: filename
+      shell: bash
+      run: echo "::set-output name=filename::workspace-exact-$(date -I).repos"
+    - name: Create repos file with exact commit sha values
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: vcs export --exact src > ${{ steps.filename.outputs.filename }}
+    - name: Archive workspace-exact.repos
+      uses: actions/upload-artifact@v2
+      with:
+        name: workspace-exact.repos
+        path: ${{ env.ROS_WS}}/${{ steps.filename.outputs.filename }}
     # create tarball to push to aws s3 bucket
     # Note that a file with the name of the bundle is created to pass the value
     # step to step.
