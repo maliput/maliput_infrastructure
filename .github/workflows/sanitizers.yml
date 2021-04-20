@@ -5,7 +5,7 @@ on:
     - cron:  '0 9 * * 1' # 9:00am UTC, 1:00am PST every Monday.
 
 env:
-  PACKAGE_NAME: dsim-repos-index
+  PACKAGE_NAME: maliput_infrastructure
   ROS_DISTRO: dashing
   ROS_WS: maliput_ws
   UBSAN_OPTIONS: halt_on_error=1
@@ -44,7 +44,7 @@ jobs:
         apt install -y git;
     - uses: actions/checkout@v2
       with:
-        path: dsim-repos-index
+        path: maliput_infrastructure
     # clone private dependencies
     - uses: actions/checkout@v2
       with:
@@ -115,25 +115,25 @@ jobs:
     - name: check if dependencies have a matching branch
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src
-      run: ${GITHUB_WORKSPACE}/dsim-repos-index/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
-    # install drake_vendor prereqs using dsim-repos-index/tools/prereqs.lib
+      run: ${GITHUB_WORKSPACE}/maliput_infrastructure/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
+    # install drake_vendor prereqs using maliput_infrastructure/tools/prereqs.lib
     - name: install drake_vendor prereqs
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
-      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t drake .
-    # install delphyne prereqs using dsim-repos-index/tools/prereqs.lib
+      run: ${GITHUB_WORKSPACE}/maliput_infrastructure/tools/prereqs-install -t drake .
+    # install delphyne prereqs using maliput_infrastructure/tools/prereqs.lib
     - name: install delphyne prereqs
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/delphyne
-      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
-    # install delphyne-gui prereqs using dsim-repos-index/tools/prereqs.lib
+      run: ${GITHUB_WORKSPACE}/maliput_infrastructure/tools/prereqs-install -t ignition .
+    # install delphyne-gui prereqs using maliput_infrastructure/tools/prereqs.lib
     - name: install delphyne-gui prereqs
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/delphyne-gui
-      run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
+      run: ${GITHUB_WORKSPACE}/maliput_infrastructure/tools/prereqs-install -t ignition .
     - name: clang 8 install
       shell: bash
-      run: ${GITHUB_WORKSPACE}/dsim-repos-index/.github/clang_suite_installation.sh
+      run: ${GITHUB_WORKSPACE}/maliput_infrastructure/.github/clang_suite_installation.sh
     # clone public dependencies
     - name: vcs import
       shell: bash
