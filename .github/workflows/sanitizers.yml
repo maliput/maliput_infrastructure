@@ -1,6 +1,8 @@
 name: clang
 
 on:
+  pull_request:
+    types: [labeled]
   schedule:
     - cron:  '0 9 * * 1' # 9:00am UTC, 1:00am PST every Monday.
 
@@ -12,7 +14,8 @@ env:
 
 jobs:
   compile_and_test:
-    name: Compile and test
+    if: contains(github.event.pull_request.labels.*.name, 'do-clang-test')
+    name: Compile and test with sanitizer
     runs-on: ubuntu-18.04
     container:
       image: ubuntu:18.04
@@ -162,6 +165,6 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
-        . /opt/ros/${ROS_DISTRO}/setup.bash;
+        . install/setup.bash;
         colcon test --event-handlers=console_direct+;
         colcon test-result --verbose;
