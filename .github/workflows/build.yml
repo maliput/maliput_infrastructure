@@ -83,6 +83,12 @@ jobs:
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
       with:
+        repository: ToyotaResearchInstitute/delphyne_demos
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/delphyne_demos
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
         repository: ToyotaResearchInstitute/drake-vendor
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/drake_vendor
