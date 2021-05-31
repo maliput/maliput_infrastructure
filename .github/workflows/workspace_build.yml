@@ -81,7 +81,7 @@ jobs:
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
       with:
-        repository: ToyotaResearchInstitute/maliput-documentation
+        repository: ToyotaResearchInstitute/maliput_documentation
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/maliput_documentation
         token: ${{ secrets.MALIPUT_TOKEN }}
