@@ -77,9 +77,9 @@ jobs:
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
       with:
-        repository: ToyotaResearchInstitute/delphyne-gui
+        repository: ToyotaResearchInstitute/delphyne_gui
         fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/delphyne-gui
+        path: ${{ env.ROS_WS }}/src/delphyne_gui
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
       with:
@@ -125,10 +125,10 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/delphyne
       run: ${GITHUB_WORKSPACE}/maliput_infrastructure/tools/prereqs-install -t ignition .
-    # install delphyne-gui prereqs using maliput_infrastructure/tools/prereqs.lib
-    - name: install delphyne-gui prereqs
+    # install delphyne_gui prereqs using maliput_infrastructure/tools/prereqs.lib
+    - name: install delphyne_gui prereqs
       shell: bash
-      working-directory: ${{ env.ROS_WS }}/src/delphyne-gui
+      working-directory: ${{ env.ROS_WS }}/src/delphyne_gui
       run: ${GITHUB_WORKSPACE}/maliput_infrastructure/tools/prereqs-install -t ignition .
     # clone public dependencies
     - name: vcs import
