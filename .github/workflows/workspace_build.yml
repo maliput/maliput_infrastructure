@@ -93,7 +93,7 @@ jobs:
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
       with:
-        repository: ToyotaResearchInstitute/maliput-integration-tests
+        repository: ToyotaResearchInstitute/maliput_integration_tests
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/maliput_integration_tests
         token: ${{ secrets.MALIPUT_TOKEN }}
