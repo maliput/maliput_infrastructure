@@ -4,44 +4,27 @@
 set -e pipefail
 
 #######################################
-# Pulls apt keys from a few well known keyservers.
-#
-# We've seen the "default" keyserver (p80.pool.sks-keyservers.net) fail somewhat
-# often.  This function will try the default, followed by some alternates to
-# reduce the number of times builds fail because of key problems.
-#
-# Arguments
-#    $1 -> apt key
-# Asserts
-#    That apt key pulling was successful.
-#######################################
-pull_apt_keys() {
-    success=0
-    for keyserver in hkp://p80.pool.sks-keyservers.net:80 hkp://pgp.mit.edu:80 hkp://keyserver.ubuntu.com:80 ; do
-        apt-key adv --keyserver $keyserver --recv-keys $1 || continue
-        success=1
-        return 0
-    done
-    return 1
-}
-
-#######################################
 # Installs apt repository into system wide sources list.
 #
 # Arguments
 #   $1 -> name of the repository, to be used as sources list prefix.
 #   $2 -> url of the repository.
-#   $3 -> apt key for the repository.
 #######################################
 install_apt_repo() {
     REPO_NAME=$1
     REPO_URL=$2
-    REPO_KEY=$3
+    KEY_PATH=/usr/share/keyrings/ros-archive-keyring.gpg
+
+    if [ ! -f ${KEY_PATH} ]; then
+        apt update
+        apt install -y curl
+        curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
+             -o ${KEY_PATH}
+    fi
 
     if ! grep -q "^deb .*$REPO_URL" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
-        echo "deb $REPO_URL $(lsb_release -cs) main" | \
+        echo "deb [signed-by=${KEY_PATH}] $REPO_URL $(lsb_release -cs) main" | \
         tee --append /etc/apt/sources.list.d/$REPO_NAME.list > /dev/null
-        pull_apt_keys $REPO_KEY
         echo "Apt Repo '$REPO_NAME'..........................installed"
     else
         echo "Apt Repo '$REPO_NAME'..........................found"
@@ -101,7 +84,7 @@ ROS_DISTRO_MAP[xenial]=bouncy
 ROS_DISTRO=${ROS_DISTRO_MAP[$(lsb_release -sc)]}
 # TODO: Exit if ROS DISTRO is unknown.
 
-install_apt_repo "ros2-latest" "http://packages.ros.org/ros2/ubuntu" "C1CF6E31E6BADE8868B172B4F42ED6FBAB17C654"
+install_apt_repo "ros2-latest" "http://packages.ros.org/ros2/ubuntu"
 apt update
 
 # Define clang version.
