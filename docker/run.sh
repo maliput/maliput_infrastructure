@@ -78,6 +78,7 @@ sudo docker run -it --runtime=$RUNTIME \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -v ${WORKSPACE}:$WORKSPACE_CONTAINER \
        -v $SSH_PATH:$SSH_PATH \
+       --privileged \
        --name $CONTAINER_NAME $IMAGE_NAME
 xhost -
 
