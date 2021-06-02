@@ -115,11 +115,6 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src
       run: ${GITHUB_WORKSPACE}/maliput_infrastructure/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
-    # install drake_vendor prereqs using maliput_infrastructure/tools/prereqs.lib
-    - name: install drake_vendor prereqs
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}/src/drake_vendor
-      run: ${GITHUB_WORKSPACE}/maliput_infrastructure/tools/prereqs-install -t drake .
     # install delphyne prereqs using maliput_infrastructure/tools/prereqs.lib
     - name: install delphyne prereqs
       shell: bash
@@ -149,6 +144,10 @@ jobs:
         rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
           --skip-keys "ignition-transport8 ignition-msgs5 ignition-math6 ignition-common3 ignition-gui0 ignition-gui3 ignition-rendering3 pybind11" \
           --from-paths src
+    - name: install drake
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}/src/drake_vendor
+      run: ./drake_installer
     - name: scan_build
       shell: bash
       working-directory: ${{ env.ROS_WS }}

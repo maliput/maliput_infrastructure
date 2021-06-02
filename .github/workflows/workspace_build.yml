@@ -121,10 +121,10 @@ jobs:
         rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
           --skip-keys "ignition-transport8 ignition-msgs5 ignition-math6 ignition-common3 ignition-gui0 ignition-gui3 ignition-rendering3 pybind11" \
           --from-paths src
-    - name: install drake via drake_vendor
+    - name: install drake
       shell: bash
-      working-directory: ${{ env.ROS_WS }}
-      run: ./src/drake_vendor/drake_installer
+      working-directory: ${{ env.ROS_WS }}/src/drake_vendor
+      run: ./drake_installer
     - name: colcon build libraries
       shell: bash
       working-directory: ${{ env.ROS_WS }}
