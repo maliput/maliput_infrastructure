@@ -114,17 +114,7 @@ jobs:
     - name: check if dependencies have a matching branch
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src
-      run: ${GITHUB_WORKSPACE}/maliput_infrastructure/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
-    # install delphyne prereqs using maliput_infrastructure/tools/prereqs.lib
-    - name: install delphyne prereqs
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}/src/delphyne
-      run: ${GITHUB_WORKSPACE}/maliput_infrastructure/tools/prereqs-install -t ignition .
-    # install delphyne_gui prereqs using maliput_infrastructure/tools/prereqs.lib
-    - name: install delphyne_gui prereqs
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}/src/delphyne_gui
-      run: ${GITHUB_WORKSPACE}/maliput_infrastructure/tools/prereqs-install -t ignition .
+      run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
     # clone public dependencies
     - name: vcs import
       shell: bash
@@ -145,6 +135,9 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
       run: ./drake_installer
+    - name: install ignition packages
+      shell: bash
+      run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/ignition_packages_installation.sh
     - name: colcon build libraries
       shell: bash
       working-directory: ${{ env.ROS_WS }}
