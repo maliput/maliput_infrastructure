@@ -79,6 +79,7 @@ function install_clang_suite() {
 
 # Get correspondant ROS DISTRO.
 declare -A ROS_DISTRO_MAP
+ROS_DISTRO_MAP[focal]=foxy
 ROS_DISTRO_MAP[bionic]=dashing
 ROS_DISTRO_MAP[xenial]=bouncy
 ROS_DISTRO=${ROS_DISTRO_MAP[$(lsb_release -sc)]}
