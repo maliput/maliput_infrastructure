@@ -63,7 +63,7 @@ WORKSPACE_CONTAINER=/home/$(whoami)/$WORKSPACE_FOLDER/
 SSH_AUTH_SOCK_USER=$SSH_AUTH_SOCK
 
 # Check if name container is already taken.
-if sudo -g docker docker container ls -a | grep $CONTAINER_NAME -c &> /dev/null; then
+if sudo -g docker docker container ls -a | grep "${CONTAINER_NAME}$" -c &> /dev/null; then
    printf "Error: Docker container called $CONTAINER_NAME is already opened.     \
    \n\nTry removing the old container by doing: \n\t docker rm $CONTAINER_NAME   \
    \nor just initialize it with a different name.\n"
