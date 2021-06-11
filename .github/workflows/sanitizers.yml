@@ -146,7 +146,7 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
-        rosdep update;
+        rosdep update --include-eol-distros;
         rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
           --skip-keys "ignition-transport8 ignition-msgs5 ignition-math6 ignition-common3 ignition-gui0 ignition-gui3 ignition-rendering3 pybind11" \
           --from-paths src
