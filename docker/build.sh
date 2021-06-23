@@ -32,7 +32,7 @@ done
 
 # Update the arguments to default values if needed.
 IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu}
-DOCKERFILE_PATH=$SCRIPT_FOLDER_PATH/${DOCKERFILE:-Dockerfile}
+DOCKERFILE_PATH=$SCRIPT_FOLDER_PATH/dashing/${DOCKERFILE:-Dockerfile}
 WORKSPACE_NAME=${WORKSPACE_NAME:-maliput_ws}
 
 USERID=$(id -u)
