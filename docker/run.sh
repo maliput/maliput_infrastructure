@@ -7,10 +7,11 @@ set -e
 function show_help() {
   echo $'\nUsage:\t run.sh [OPTIONS] \n
   Options:\n
-  \t-n --nvidia\t\t Selects nvidia runtime. \n
-  \t-i --image_name\t\t Name of the image to be run (default maliput_ws_ubuntu)\n
-  \t-c --container_name\t Name of the container(default maliput_ws)\n
-  \t-w --workspace\t\t Relative or absolute path to the workspace you want to bind. (default to location of maliput_infrastructure folder)\n
+  \t-n --nvidia\t\t Selects nvidia runtime.\n
+  \t-i --image_name\t\t Name of the image to be run (default maliput_ws_ubuntu_bionic).\n
+  \t-c --container_name\t Name of the container(default maliput_ws_bionic).\n
+  \t-o --os\t\t\t OS version. It could be bionic or focal (default is bionic).\n
+  \t-w --workspace\t\t Relative or absolute path to the workspace you want to bind (default to location of maliput_infrastructure folder).\n
   Examples:\n
   \trun.sh --nvidia --image_name custom_image_name --container_name custom_container_name \n
   \trun.sh --workspace /path/to/your/ws_folder \n'
@@ -39,6 +40,7 @@ while [[ "$#" -gt 0 ]]; do
         -n|--nvidia) RUNTIME="nvidia" ;;
         -i|--image_name) IMAGE_NAME="${2}"; shift ;;
         -c|--container_name) CONTAINER_NAME="${2}"; shift ;;
+        -o|--os) OS_VERSION="${2}"; shift ;;
         -w|--workspace) WORKSPACE="${2}"; shift ;;
         -h|--help) show_help ; exit 1 ;;
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
@@ -55,8 +57,15 @@ fi
 WORKSPACE_FOLDER=$( basename $WORKSPACE )
 
 # Update the arguments to default values if needed.
-IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu}
-CONTAINER_NAME=${CONTAINER_NAME:-maliput_ws}
+OS_VERSION=${OS_VERSION:-bionic}
+
+if [ "$OS_VERSION" = "bionic" ] || [ "$OS_VERSION" = "focal" ]; then
+  IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu_${OS_VERSION}}
+  CONTAINER_NAME=${CONTAINER_NAME:-maliput_ws_${OS_VERSION}}
+else
+  echo "Selected OS_VERSION: <${OS_VERSION}> is not supported."
+  exit 1
+fi
 
 SSH_PATH=/home/$USER/.ssh
 WORKSPACE_CONTAINER=/home/$(whoami)/$WORKSPACE_FOLDER/
