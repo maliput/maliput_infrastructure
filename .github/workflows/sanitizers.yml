@@ -32,7 +32,7 @@ jobs:
     env:
       CC: clang-8
       CXX: clang++-8
-      LINKER_PATH: /usr/bin/lld-8
+      LDFLAGS: -fuse-ld=lld-8
     steps:
     # setup-ros first since it installs git, which is needed to fetch all branches from actions/checkout
     - uses: ros-tooling/setup-ros@0.2.1
@@ -162,9 +162,8 @@ jobs:
       working-directory: ${{ env.ROS_WS }}
       run: |
         . /opt/ros/${ROS_DISTRO}/setup.bash;
-        colcon build --cmake-args -DCMAKE_LINKER=${LINKER_PATH} \
-          --event-handlers=console_direct+ \
-          ${COMPILER_FLAG}
+        colcon build --event-handlers=console_direct+ \
+          --cmake-args ${COMPILER_FLAG}
     - name: colcon test
       shell: bash
       working-directory: ${{ env.ROS_WS }}
