@@ -8,21 +8,37 @@ on:
 
 env:
   PACKAGE_NAME: maliput_infrastructure
-  ROS_DISTRO: dashing
   ROS_WS: maliput_ws
 
 jobs:
   compile_and_test:
     name: Compile and test
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ubuntu: [18.04, 20.04]
+        include:
+          - ubuntu: 18.04
+            UBUNTU_NAME: bionic
+            ROS_DISTRO: dashing
+            PUBLIC_DEPS_REPOS_FILE: dashing_dependencies.repos
+          - ubuntu: 20.04
+            UBUNTU_NAME: focal
+            ROS_DISTRO: foxy
+            PUBLIC_DEPS_REPOS_FILE: foxy_dependencies.repos
     container:
-      image: ubuntu:18.04
+      image: ubuntu:${{ matrix.ubuntu }}
+    env:
+      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
     steps:
     # setup-ros first since it installs git, which is needed to fetch all branches from actions/checkout
     - uses: ros-tooling/setup-ros@0.2.1
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     # install git from ppa since git 2.18+ is needed to fetch all branches from actions/checkout
     # this step can be removed on 20.04
     - name: install git from ppa
+      if: matrix.ubuntu == '18.04'
       shell: bash
       run: |
         apt update;
@@ -78,12 +94,14 @@ jobs:
     - uses: actions/checkout@v2
       with:
         repository: ToyotaResearchInstitute/delphyne_gui
+        if: matrix.ubuntu == '18.04'
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/delphyne_gui
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
       with:
         repository: ToyotaResearchInstitute/delphyne_demos
+        if: matrix.ubuntu == '18.04'
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/delphyne_demos
         token: ${{ secrets.MALIPUT_TOKEN }}
@@ -119,11 +137,12 @@ jobs:
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos
+      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/${matrix.PUBLIC_DEPS_REPOS_FILE}
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
     - name: rosdep install
+      if: matrix.ubuntu == '18.04'
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
@@ -131,11 +150,19 @@ jobs:
         rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
           --skip-keys "ignition-transport8 ignition-msgs5 ignition-math6 ignition-common3 ignition-gui0 ignition-gui3 ignition-rendering3 pybind11" \
           --from-paths src
+    - name: rosdep install
+      if: matrix.ubuntu == '20.04'
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: |
+        rosdep update;
+        rosdep install  -i -y --rosdistro ${ROS_DISTRO} --skip-keys "pybind11" --from-paths src
     - name: install drake
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
       run: ./drake_installer
     - name: install ignition packages
+      if: matrix.ubuntu == '18.04'
       shell: bash
       run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/ignition_packages_installation.sh
     - name: colcon build libraries
@@ -163,7 +190,7 @@ jobs:
       run: |
         echo "Moving install space to ${BUNDLE_NAME}";
         mv install ${BUNDLE_NAME};
-        CURRENT_BUNDLE_TARBALL_NAME="${BUNDLE_NAME}_$(date +%Y%m%d)_bionic.tar.gz"
+        CURRENT_BUNDLE_TARBALL_NAME="${BUNDLE_NAME}_$(date +%Y%m%d)_${matrix.UBUNTU_NAME}.tar.gz"
         echo $CURRENT_BUNDLE_TARBALL_NAME > bundle_file_name
         echo "Compressing tarball ${CURRENT_BUNDLE_TARBALL_NAME}";
         tar -czvf ${CURRENT_BUNDLE_TARBALL_NAME} ${BUNDLE_NAME};
@@ -186,7 +213,7 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       env:
-        LATEST_BUNDLE_TARBALL_NAME: dsim_desktop_latest_bionic.tar.gz
+        LATEST_BUNDLE_TARBALL_NAME: dsim_desktop_latest_${matrix.UBUNTU_NAME}.tar.gz
         BUCKET_NAME: driving-sim/projects/maliput/packages/nightlies
       run: |
         echo "Pushing current tarball."
