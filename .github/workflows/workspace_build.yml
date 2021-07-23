@@ -108,7 +108,7 @@ jobs:
       # ign-gui0 is removed because it is only necessary for delphyne* packages, not for
       # the others.
       run: |
-        vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos;
+        vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dashing_dependencies.repos;
         rm -rf src/ign-gui0;
     - run: colcon graph
       shell: bash

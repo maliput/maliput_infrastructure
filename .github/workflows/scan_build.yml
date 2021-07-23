@@ -124,7 +124,7 @@ jobs:
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos
+      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dashing_dependencies.repos
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
