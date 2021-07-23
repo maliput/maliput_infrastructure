@@ -92,16 +92,16 @@ jobs:
         path: ${{ env.ROS_WS }}/src/delphyne
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
+      if: matrix.ubuntu == '18.04'
       with:
         repository: ToyotaResearchInstitute/delphyne_gui
-        if: matrix.ubuntu == '18.04'
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/delphyne_gui
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
+      if: matrix.ubuntu == '18.04'
       with:
         repository: ToyotaResearchInstitute/delphyne_demos
-        if: matrix.ubuntu == '18.04'
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/delphyne_demos
         token: ${{ secrets.MALIPUT_TOKEN }}
