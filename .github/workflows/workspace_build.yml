@@ -105,11 +105,8 @@ jobs:
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      # ign-gui0 is removed because it is only necessary for delphyne* packages, not for
-      # the others.
       run: |
         vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos;
-        rm -rf src/ign-gui0;
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
@@ -118,9 +115,7 @@ jobs:
       working-directory: ${{ env.ROS_WS }}
       run: |
         rosdep update --include-eol-distros;
-        rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
-          --skip-keys "ignition-transport8 ignition-msgs5 ignition-math6 ignition-common3 ignition-gui0 ignition-gui3 ignition-rendering3 pybind11" \
-          --from-paths src
+        rosdep install  -i -y --rosdistro ${ROS_DISTRO} --skip-keys "pybind11" --from-paths src
     - name: install drake
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
