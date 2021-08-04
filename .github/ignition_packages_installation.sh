@@ -58,7 +58,6 @@ function install_ignition_packages() {
 
   apt update
   apt install -y \
-    libignition-cmake1-dev \
     libignition-cmake2-dev \
     libignition-common3-dev \
     libignition-math6-dev \
