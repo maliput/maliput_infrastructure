@@ -2,7 +2,7 @@ name: gcc-workspace-build
 
 on:
   push:
-  pull_request:
+#  pull_request:
   schedule:
     - cron:  '0 9 * * *' # 9:00am UTC, 1:00am PST.
 
@@ -121,8 +121,8 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
-        rosdep update --include-eol-distros;
-        rosdep install  -i -y --rosdistro ${ROS_DISTRO} --skip-keys "pybind11" --from-paths src
+        rosdep update --include-eol-distros --verbose;
+        rosdep install  -i -y --rosdistro ${ROS_DISTRO} --skip-keys "pybind11" --from-paths src --verbose
     - name: install drake
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
