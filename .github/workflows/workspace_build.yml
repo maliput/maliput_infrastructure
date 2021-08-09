@@ -121,7 +121,8 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
-        rosdep update --include-eol-distros --verbose;
+        ls -l src ;
+        rosdep update --include-eol-distros --verbose ;
         rosdep install  -i -y --rosdistro ${ROS_DISTRO} --skip-keys "pybind11" --from-paths src --verbose
     - name: install drake
       shell: bash
