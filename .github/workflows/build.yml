@@ -84,21 +84,21 @@ jobs:
         path: ${{ env.ROS_WS }}/src/malidrive
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
-      if: matrix.ubuntu == '18.04'
+      if: matrix.ubuntu == '20.04'
       with:
         repository: ToyotaResearchInstitute/delphyne
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/delphyne
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
-      if: matrix.ubuntu == '18.04'
+      if: matrix.ubuntu == '20.04'
       with:
         repository: ToyotaResearchInstitute/delphyne_gui
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/delphyne_gui
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
-      if: matrix.ubuntu == '18.04'
+      if: matrix.ubuntu == '20.04'
       with:
         repository: ToyotaResearchInstitute/delphyne_demos
         fetch-depth: 0
