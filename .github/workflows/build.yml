@@ -21,11 +21,9 @@ jobs:
           - ubuntu: 18.04
             UBUNTU_NAME: bionic
             ROS_DISTRO: dashing
-            PUBLIC_DEPS_REPOS_FILE: dashing_dependencies.repos
           - ubuntu: 20.04
             UBUNTU_NAME: focal
             ROS_DISTRO: foxy
-            PUBLIC_DEPS_REPOS_FILE: foxy_dependencies.repos
     container:
       image: ubuntu:${{ matrix.ubuntu }}
     env:
@@ -86,6 +84,7 @@ jobs:
         path: ${{ env.ROS_WS }}/src/malidrive
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
+      if: matrix.ubuntu == '18.04'
       with:
         repository: ToyotaResearchInstitute/delphyne
         fetch-depth: 0
@@ -137,34 +136,20 @@ jobs:
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/${{ matrix.PUBLIC_DEPS_REPOS_FILE }}
+      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
     - name: rosdep install
-      if: matrix.ubuntu == '18.04'
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
         rosdep update --include-eol-distros;
-        rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
-          --skip-keys "ignition-transport8 ignition-msgs5 ignition-math6 ignition-common3 ignition-gui0 ignition-gui3 ignition-rendering3 pybind11" \
-          --from-paths src
-    - name: rosdep install
-      if: matrix.ubuntu == '20.04'
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}
-      run: |
-        rosdep update;
         rosdep install  -i -y --rosdistro ${ROS_DISTRO} --skip-keys "pybind11" --from-paths src
     - name: install drake
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
       run: ./drake_installer
-    - name: install ignition packages
-      if: matrix.ubuntu == '18.04'
-      shell: bash
-      run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/ignition_packages_installation.sh
     - name: colcon build libraries
       shell: bash
       working-directory: ${{ env.ROS_WS }}

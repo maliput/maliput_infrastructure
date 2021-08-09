@@ -12,9 +12,9 @@ env:
 jobs:
   static_analysis:
     name: Static analysis
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     container:
-      image: ubuntu:18.04
+      image: ubuntu:20.04
     env:
       CC: clang-8
       CXX: clang++-8
@@ -22,15 +22,8 @@ jobs:
     steps:
     # setup-ros first since it installs git, which is needed to fetch all branches from actions/checkout
     - uses: ros-tooling/setup-ros@0.2.1
-    # install git from ppa since git 2.18+ is needed to fetch all branches from actions/checkout
-    # this step can be removed on 20.04
-    - name: install git from ppa
-      shell: bash
-      run: |
-        apt update;
-        apt install -y software-properties-common;
-        add-apt-repository -y -u ppa:git-core/ppa;
-        apt install -y git;
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     - uses: actions/checkout@v2
       with:
         path: maliput_infrastructure
@@ -124,7 +117,7 @@ jobs:
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dashing_dependencies.repos
+      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
@@ -133,16 +126,11 @@ jobs:
       working-directory: ${{ env.ROS_WS }}
       run: |
         rosdep update --include-eol-distros;
-        rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
-          --skip-keys "ignition-transport8 ignition-msgs5 ignition-math6 ignition-common3 ignition-gui0 ignition-gui3 ignition-rendering3 pybind11" \
-          --from-paths src
+        rosdep install  -i -y --rosdistro ${ROS_DISTRO} --skip-keys "pybind11" --from-paths src
     - name: install drake
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
       run: ./drake_installer
-    - name: install ignition packages
-      shell: bash
-      run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/ignition_packages_installation.sh
     - name: scan_build
       shell: bash
       working-directory: ${{ env.ROS_WS }}
