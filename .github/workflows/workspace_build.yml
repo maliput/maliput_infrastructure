@@ -117,12 +117,17 @@ jobs:
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-    - name: rosdep install
+    - name: rosdep update
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
         ls -l src ;
         rosdep update --include-eol-distros --verbose ;
+    - name: rosdep install
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: |
+        ls -l src ;
         rosdep install  -i -y --rosdistro ${ROS_DISTRO} --skip-keys "pybind11" --from-paths src --verbose
     - name: install drake
       shell: bash
