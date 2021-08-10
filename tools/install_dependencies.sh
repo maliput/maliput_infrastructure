@@ -47,7 +47,6 @@ function install_workspace_tools() {
               curl \
               gdb \
               git \
-              lsb_release \
               mercurial \
               python3  \
               python3-setuptools \
@@ -77,6 +76,9 @@ function install_clang_suite() {
               libc++-${version}-dev \
               libc++abi-${version}-dev
 }
+
+# In focal docker image, lsb_release is not available
+apt update && apt install -y lsb_release
 
 # Get correspondant ROS DISTRO.
 declare -A ROS_DISTRO_MAP
