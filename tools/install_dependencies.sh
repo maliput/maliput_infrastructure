@@ -77,6 +77,9 @@ function install_clang_suite() {
               libc++abi-${version}-dev
 }
 
+# In focal docker image, lsb_release is not available
+apt update && apt install -y lsb-release
+
 # Get correspondant ROS DISTRO.
 declare -A ROS_DISTRO_MAP
 ROS_DISTRO_MAP[focal]=foxy
