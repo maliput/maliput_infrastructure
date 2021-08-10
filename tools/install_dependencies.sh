@@ -78,7 +78,7 @@ function install_clang_suite() {
 }
 
 # In focal docker image, lsb_release is not available
-apt update && apt install -y lsb_release
+apt update && apt install -y lsb-release
 
 # Get correspondant ROS DISTRO.
 declare -A ROS_DISTRO_MAP
