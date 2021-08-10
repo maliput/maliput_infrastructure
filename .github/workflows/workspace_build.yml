@@ -2,7 +2,7 @@ name: gcc-workspace-build
 
 on:
   push:
-#  pull_request:
+  pull_request:
   schedule:
     - cron:  '0 9 * * *' # 9:00am UTC, 1:00am PST.
 
@@ -19,14 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ubuntu: [18.04]
+        ubuntu: [18.04, 20.04]
         include:
           - ubuntu: 18.04
             UBUNTU_NAME: bionic
             ROS_DISTRO: dashing
-#          - ubuntu: 20.04
-#             UBUNTU_NAME: focal
-#             ROS_DISTRO: foxy
+         - ubuntu: 20.04
+            UBUNTU_NAME: focal
+            ROS_DISTRO: foxy
     container:
       image: ubuntu:${{ matrix.ubuntu }}
     env:
@@ -117,22 +117,17 @@ jobs:
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos
+      run: |
+        vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos;
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-    - name: rosdep update
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}
-      run: |
-        ls -l src ;
-        rosdep update --include-eol-distros --verbose ;
     - name: rosdep install
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
-        echo ${{ env.ROS_DISTRO }};
-        rosdep install  -i -y --rosdistro ${{ env.ROS_DISTRO }} --skip-keys=pybind11 --from-paths src --verbose
+        rosdep update --include-eol-distros;
+        rosdep install  -i -y --rosdistro ${ROS_DISTRO} --skip-keys "pybind11" --from-paths src
     - name: install drake
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
@@ -141,5 +136,5 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
-        . /opt/ros/${{ env.ROS_DISTRO }}/setup.bash;
+        . /opt/ros/${ROS_DISTRO}/setup.bash;
         colcon build --event-handlers=console_direct+
