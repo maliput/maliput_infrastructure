@@ -2,7 +2,7 @@ name: gcc-workspace-build
 
 on:
   push:
-  pull_request:
+  # pull_request:
   schedule:
     - cron:  '0 9 * * *' # 9:00am UTC, 1:00am PST.
 
@@ -19,11 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ubuntu: [18.04, 20.04]
+        # ubuntu: [18.04, 20.04]
+        ubuntu: [20.04]
         include:
-          - ubuntu: 18.04
-            UBUNTU_NAME: bionic
-            ROS_DISTRO: dashing
+#          - ubuntu: 18.04
+#            UBUNTU_NAME: bionic
+#            ROS_DISTRO: dashing
           - ubuntu: 20.04
             UBUNTU_NAME: focal
             ROS_DISTRO: foxy
