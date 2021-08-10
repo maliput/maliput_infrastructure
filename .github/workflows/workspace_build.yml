@@ -24,7 +24,7 @@ jobs:
           - ubuntu: 18.04
             UBUNTU_NAME: bionic
             ROS_DISTRO: dashing
-         - ubuntu: 20.04
+          - ubuntu: 20.04
             UBUNTU_NAME: focal
             ROS_DISTRO: foxy
     container:
