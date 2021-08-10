@@ -127,8 +127,8 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
-        ls -l src ;
-        rosdep install  -i -y --rosdistro ${ROS_DISTRO} --skip-keys=pybind11 --from-paths src --verbose
+        echo ${{ env.ROS_DISTRO }};
+        rosdep install  -i -y --rosdistro ${{ env.ROS_DISTRO }} --skip-keys=pybind11 --from-paths src --verbose
     - name: install drake
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
@@ -137,5 +137,5 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
-        . /opt/ros/${ROS_DISTRO}/setup.bash;
+        . /opt/ros/${{ env.ROS_DISTRO }}/setup.bash;
         colcon build --event-handlers=console_direct+
