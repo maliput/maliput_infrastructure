@@ -27,6 +27,10 @@ jobs:
 #          - ubuntu: 20.04
 #             UBUNTU_NAME: focal
 #             ROS_DISTRO: foxy
+    container:
+      image: ubuntu:${{ matrix.ubuntu }}
+    env:
+      ROS_DISTRO: ${{ matrix.ROS_DISTRO }}
     steps:
     # install git from ppa since git 2.18+ is needed to fetch all branches from actions/checkout
     # this step can be removed on 20.04
