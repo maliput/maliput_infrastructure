@@ -47,6 +47,7 @@ function install_workspace_tools() {
               curl \
               gdb \
               git \
+              lsb_release \
               mercurial \
               python3  \
               python3-setuptools \
