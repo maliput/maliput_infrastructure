@@ -74,12 +74,6 @@ jobs:
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
       with:
-        repository: ToyotaResearchInstitute/malidrive
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/malidrive
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
         repository: ToyotaResearchInstitute/delphyne
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/delphyne
