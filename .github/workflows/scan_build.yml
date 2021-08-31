@@ -8,12 +8,12 @@ on:
 
 env:
   PACKAGE_NAME: maliput_infrastructure
-  ROS_DISTRO: dashing
+  ROS_DISTRO: foxy
   ROS_WS: maliput_ws
 
 jobs:
   static_analysis:
-    if: contains(github.event.pull_request.labels.*.name, 'do-static-analyzer-test')
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'do-static-analyzer-test') || github.event_name == 'schedule' }}
     name: Static analysis
     runs-on: ubuntu-latest
     container:
