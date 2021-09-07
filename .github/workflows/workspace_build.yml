@@ -87,12 +87,6 @@ jobs:
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
       with:
-        repository: ToyotaResearchInstitute/maliput_documentation
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/maliput_documentation
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
         repository: ToyotaResearchInstitute/maliput_integration
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/maliput_integration
@@ -102,6 +96,34 @@ jobs:
         repository: ToyotaResearchInstitute/maliput_integration_tests
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/maliput_integration_tests
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      if: matrix.ubuntu == '20.04'
+      with:
+        repository: ToyotaResearchInstitute/delphyne
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/delphyne
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      if: matrix.ubuntu == '20.04'
+      with:
+        repository: ToyotaResearchInstitute/delphyne_gui
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/delphyne_gui
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      if: matrix.ubuntu == '20.04'
+      with:
+        repository: ToyotaResearchInstitute/delphyne_demos
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/delphyne_demos
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      if: matrix.ubuntu == '20.04'
+      with:
+        repository: ToyotaResearchInstitute/maliput_documentation
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/maliput_documentation
         token: ${{ secrets.MALIPUT_TOKEN }}
     - name: check if dependencies have a matching branch
       shell: bash

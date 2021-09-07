@@ -105,6 +105,7 @@ jobs:
         path: ${{ env.ROS_WS }}/src/drake_vendor
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
+      if: matrix.ubuntu == '20.04'
       with:
         repository: ToyotaResearchInstitute/maliput_documentation
         fetch-depth: 0
