@@ -92,6 +92,12 @@ jobs:
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
       with:
+        repository: ToyotaResearchInstitute/maliput_drake
+        fetch-depth: 0
+        path: ${{ env.ROS_WS }}/src/maliput_drake
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
         repository: ToyotaResearchInstitute/drake-vendor
         fetch-depth: 0
         path: ${{ env.ROS_WS }}/src/drake_vendor
