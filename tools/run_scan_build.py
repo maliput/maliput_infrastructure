@@ -4,7 +4,8 @@
 import os
 import sys
 
-EXTRA_EXCLUDE_ARGS = " --exclude src/pybind11 --exclude /usr/include/eigen3 --exclude src/ign-gui0 --exclude /usr/include/x86_64-linux-gnu/qt5 "
+# Environment variable name holding extra exclude arguments.
+EXTRA_EXCLUDE_ARGS_ENV = "SCAN_BUILD_EXTRA_EXCLUDE_ARGS"
 
 def get_package_dependencies_names(packages_up_to = None):
   '''
@@ -98,10 +99,12 @@ def generate_exclude_args(argv):
       get_exclusion_paths_from_file(filepath, exclusion_paths)
   return convert_in_exclude_argument(exclusion_paths)
 
+def get_extra_exclude_args(extra_args):
+  return (" " + extra_args.replace(":", " ")).replace(" ", " --exclude ") if(extra_args is not None) else ""
+
 def main(argv):
   excludes_args = generate_exclude_args(argv)
-  excludes_args += EXTRA_EXCLUDE_ARGS
-
+  excludes_args += get_extra_exclude_args(os.getenv(EXTRA_EXCLUDE_ARGS_ENV))
   colcon_extra_build_args = " ".join(argv[1:]) if(len(argv) > 1) else ""
   cmd = "scan-build-8 --status-bugs --use-cc=clang-8 --use-c++=clang++-8 {} colcon build {} ".format(excludes_args, colcon_extra_build_args)
   print("scan-build command...\n--> " + cmd)
