@@ -141,3 +141,10 @@ jobs:
         . /opt/ros/${ROS_DISTRO}/setup.bash;
         ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/tools/run_scan_build.py \
           --event-handlers=console_direct+;
+    # upload artifact
+    - uses: actions/upload-artifact@v2
+      if: failure()
+      with:
+        name: scan-build-output
+        path: /tmp/scan-build*/*
+        retention-days: 6
