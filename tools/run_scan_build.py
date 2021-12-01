@@ -4,7 +4,7 @@
 import os
 import sys
 
-EXTRA_EXCLUDE_ARGS = " --exclude src/pybind11 --exclude /usr/include/eigen3 --exclude src/maliput_drake --exclude /usr/include/c++
+EXTRA_EXCLUDE_ARGS = " --exclude src/pybind11 --exclude /usr/include/eigen3 --exclude src/maliput_drake --exclude /usr/include/c++ "
 
 def get_package_dependencies_names(packages_up_to = None):
   '''
