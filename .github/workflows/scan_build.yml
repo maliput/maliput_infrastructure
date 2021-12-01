@@ -137,8 +137,6 @@ jobs:
     - name: scan_build
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      env:
-        SCAN_BUILD_EXTRA_EXCLUDE_ARGS: src/pybind11:src/maliput_drake:/usr/include/eigen3:/usr/include/c++
       run: |
         . /opt/ros/${ROS_DISTRO}/setup.bash;
         ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/tools/run_scan_build.py \
