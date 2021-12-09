@@ -3,6 +3,7 @@ name: clang
 on:
   pull_request:
     types: [labeled]
+  workflow_dispatch:
   schedule:
     - cron:  '0 9 * * 1' # 9:00am UTC, 1:00am PST every Monday.
 
