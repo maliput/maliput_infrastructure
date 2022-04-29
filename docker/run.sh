@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright 2021 Toyota Research Institute
 
-set -e
+set +e
 
 # Prints information about usage.
 function show_help() {
