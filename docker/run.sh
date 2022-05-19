@@ -8,9 +8,9 @@ function show_help() {
   echo $'\nUsage:\t run.sh [OPTIONS] \n
   Options:\n
   \t-n --nvidia\t\t Selects nvidia runtime.\n
-  \t-i --image_name\t\t Name of the image to be run (default maliput_ws_ubuntu_bionic).\n
-  \t-c --container_name\t Name of the container(default maliput_ws_bionic).\n
-  \t-o --os\t\t\t OS version. It could be bionic or focal (default is bionic).\n
+  \t-i --image_name\t\t Name of the image to be run (default maliput_ws_ubuntu_focal).\n
+  \t-c --container_name\t Name of the container(default maliput_ws_focal).\n
+  \t-o --os\t\t\t OS version. It could be bionic or focal (default is focal).\n
   \t-w --workspace\t\t Relative or absolute path to the workspace you want to bind (default to location of maliput_infrastructure folder).\n
   Examples:\n
   \trun.sh --nvidia --image_name custom_image_name --container_name custom_container_name \n
@@ -57,7 +57,7 @@ fi
 WORKSPACE_FOLDER=$( basename $WORKSPACE )
 
 # Update the arguments to default values if needed.
-OS_VERSION=${OS_VERSION:-bionic}
+OS_VERSION=${OS_VERSION:-focal}
 
 if [ "$OS_VERSION" = "bionic" ] || [ "$OS_VERSION" = "focal" ]; then
   IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu_${OS_VERSION}}

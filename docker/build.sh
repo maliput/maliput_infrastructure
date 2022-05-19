@@ -8,11 +8,11 @@ function show_help() {
   echo $'\nUsage:\t build.sh [OPTIONS] \n
   Options:\n
   \t-n --nvidia\t\t Image should have NVIDIA capabilities.\n
-  \t-i --image_name\t\t Name of the image to be built (default maliput_ws_ubuntu_bionic).\n
+  \t-i --image_name\t\t Name of the image to be built (default maliput_ws_ubuntu_focal).\n
   \t-w --workspace_name\t Name of the workspace folder (default is maliput_ws).\n
-  \t-o --os\t\t\t OS version. It could be bionic or focal (default is bionic).\n
+  \t-o --os\t\t\t OS version. It could be bionic or focal (default is focal).\n
   Example:\n
-  \tbuild.sh --nvidia --image_name custom_image_name --workspace_name maliput_ws -o bionic\n'
+  \tbuild.sh --nvidia --image_name custom_image_name --workspace_name maliput_ws -o focal\n'
 }
 
 echo "Building the docker image"
@@ -33,7 +33,7 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 # Update the arguments to default values if needed.
-OS_VERSION=${OS_VERSION:-bionic}
+OS_VERSION=${OS_VERSION:-focal}
 
 if [ "$OS_VERSION" = "bionic" ] || [ "$OS_VERSION" = "focal" ]; then
   IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu_${OS_VERSION}}
