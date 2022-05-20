@@ -1,6 +1,5 @@
 repositories:
   ament_cmake_doxygen       : { type: 'git', url: 'https://github.com/ToyotaResearchInstitute/ament_cmake_doxygen.git',   version: 'main' }
-  dsim_docs_bundler         : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/dsim_docs_bundler.git',         version: 'main' }
   maliput                   : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput.git',                   version: 'main' }
   maliput_object            : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_object.git',            version: 'main' }
   maliput_drake             : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_drake.git',             version: 'main' }
