@@ -164,6 +164,7 @@ jobs:
         echo "Compressing tarball ${CURRENT_BUNDLE_TARBALL_NAME}";
         tar -czvf ${CURRENT_BUNDLE_TARBALL_NAME} ${BUNDLE_NAME};
     - uses: actions/upload-artifact@v2
+      if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'  }}
       with:
         name: binary_underlay
         path: ${{ env.ROS_WS}}/${{ env.bundle_file_name }}
