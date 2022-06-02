@@ -147,10 +147,10 @@ jobs:
         . install/setup.bash;
         colcon test --event-handlers=console_direct+;
         colcon test-result --verbose;
-    # create tarball to push to aws s3 bucket and as a github artifact
+    # create tarball to push it as a github artifact
     # Note that a file with the name of the bundle is created to pass the value
     # step to step.
-    - name: Create tarball to store in AWS S3 bucket.
+    - name: Create tarball.
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       env:
@@ -168,29 +168,3 @@ jobs:
       with:
         name: binary_underlay
         path: ${{ env.ROS_WS}}/${{ env.bundle_file_name }}
-    # configure AWS credentials to push the install space when the schedule event triggers the job.
-    - name: Configure AWS credentials
-      if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-    - name: Install aws cli
-      if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'  }}
-      shell: bash
-      run: |
-        apt update;
-        apt install -y software-properties-common awscli;
-    - name: Push tarball to AWS S3
-      if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'  }}
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}
-      env:
-        LATEST_BUNDLE_TARBALL_NAME: dsim_desktop_latest_${{ env.UBUNTU_NAME }}.tar.gz
-        BUCKET_NAME: driving-sim/projects/maliput/packages/nightlies
-      run: |
-        echo "Pushing current tarball."
-        aws s3 cp $(cat bundle_file_name) s3://${BUCKET_NAME}/$(cat bundle_file_name);
-        echo "Pushing and overwriting latest nightly build tarball ${LATEST_BUNDLE_TARBALL_NAME}";
-        aws s3 cp s3://${BUCKET_NAME}/$(cat bundle_file_name) s3://${BUCKET_NAME}/${LATEST_BUNDLE_TARBALL_NAME};
