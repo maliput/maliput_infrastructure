@@ -1,6 +1,6 @@
 repositories:
-  drake_vendor              : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/drake_vendor.git',   version: 'main' }
-  delphyne                  : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',       version: 'main' }
-  delphyne_demos            : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne_demos.git', version: 'main' }
-  delphyne_gui              : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne_gui.git',   version: 'main' }
-  maliput_documentation     : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_documentation.git',     version: 'main' }
+  drake_vendor              : { type: 'git', url: 'https://github.com/ToyotaResearchInstitute/drake_vendor.git',   version: 'main' }
+  delphyne                  : { type: 'git', url: 'https://github.com/maliput/delphyne.git',                       version: 'main' }
+  delphyne_demos            : { type: 'git', url: 'https://github.com/maliput/delphyne_demos.git',                 version: 'main' }
+  delphyne_gui              : { type: 'git', url: 'https://github.com/maliput/delphyne_gui.git',                   version: 'main' }
+  maliput_documentation     : { type: 'git', url: 'https://github.com/maliput/maliput_documentation.git',          version: 'main' }
