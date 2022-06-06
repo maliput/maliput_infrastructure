@@ -1,12 +1,12 @@
 repositories:
   ament_cmake_doxygen       : { type: 'git', url: 'https://github.com/ToyotaResearchInstitute/ament_cmake_doxygen.git',   version: 'main' }
-  maliput                   : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput.git',                   version: 'main' }
-  maliput_object            : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_object.git',            version: 'main' }
-  maliput_drake             : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_drake.git',             version: 'main' }
-  maliput_integration       : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_integration.git',       version: 'main' }
-  maliput_integration_tests : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_integration_tests.git', version: 'main' }
-  maliput_malidrive         : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_malidrive.git',         version: 'main' }
-  maliput_py                : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_py.git',                version: 'main' }
-  maliput_dragway           : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_dragway.git',           version: 'main' }
-  maliput_multilane         : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/maliput_multilane.git',         version: 'main' }
+  maliput                   : { type: 'git', url: 'https://github.com/maliput/maliput.git',                               version: 'main' }
+  maliput_object            : { type: 'git', url: 'https://github.com/maliput/maliput_object.git',                        version: 'main' }
+  maliput_drake             : { type: 'git', url: 'https://github.com/maliput/maliput_drake.git',                         version: 'main' }
+  maliput_integration       : { type: 'git', url: 'https://github.com/maliput/maliput_integration.git',                   version: 'main' }
+  maliput_integration_tests : { type: 'git', url: 'https://github.com/maliput/maliput_integration_tests.git',             version: 'main' }
+  maliput_malidrive         : { type: 'git', url: 'https://github.com/maliput/maliput_malidrive.git',                     version: 'main' }
+  maliput_py                : { type: 'git', url: 'https://github.com/maliput/maliput_py.git',                            version: 'main' }
+  maliput_dragway           : { type: 'git', url: 'https://github.com/maliput/maliput_dragway.git',                       version: 'main' }
+  maliput_multilane         : { type: 'git', url: 'https://github.com/maliput/maliput_multilane.git',                     version: 'main' }
   pybind11                  : { type: 'git', url: 'https://github.com/RobotLocomotion/pybind11.git',                      version: 'c39ede1eedd4f39aa167d7b30b53ae45967c39b7'  }
