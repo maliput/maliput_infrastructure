@@ -1,5 +1,5 @@
 repositories:
-  drake_vendor              : { type: 'git', url: 'https://github.com/ToyotaResearchInstitute/drake_vendor.git',   version: 'main' }
+  drake_vendor              : { type: 'git', url: 'https://github.com/maliput/drake_vendor.git',   version: 'main' }
   delphyne                  : { type: 'git', url: 'https://github.com/maliput/delphyne.git',                       version: 'main' }
   delphyne_demos            : { type: 'git', url: 'https://github.com/maliput/delphyne_demos.git',                 version: 'main' }
   delphyne_gui              : { type: 'git', url: 'https://github.com/maliput/delphyne_gui.git',                   version: 'main' }

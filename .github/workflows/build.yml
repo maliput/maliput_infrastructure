@@ -27,100 +27,15 @@ jobs:
     - uses: actions/checkout@v2
       with:
         path: maliput_infrastructure
-    # clone private dependencies
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/maliput
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/maliput
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/maliput_object
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/maliput_object
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/maliput_py
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/maliput_py
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/maliput_dragway
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/maliput_dragway
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/maliput_multilane
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/maliput_multilane
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/maliput_malidrive
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/maliput_malidrive
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/delphyne
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/delphyne
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/delphyne_gui
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/delphyne_gui
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/delphyne_demos
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/delphyne_demos
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/maliput_drake
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/maliput_drake
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/drake-vendor
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/drake_vendor
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/maliput_documentation
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/maliput_documentation
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/maliput_integration
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/maliput_integration
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - uses: actions/checkout@v2
-      with:
-        repository: ToyotaResearchInstitute/maliput_integration_tests
-        fetch-depth: 0
-        path: ${{ env.ROS_WS }}/src/maliput_integration_tests
-        token: ${{ secrets.MALIPUT_TOKEN }}
-    - name: check if dependencies have a matching branch
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}/src
-      run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
     # clone public dependencies
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos
+    - name: check if dependencies have a matching branch
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}/src
+      run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
