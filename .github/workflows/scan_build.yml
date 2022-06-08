@@ -30,19 +30,20 @@ jobs:
         ACTIONS_ALLOW_UNSECURE_COMMANDS: true
     - uses: actions/checkout@v2
       with:
-        path: maliput_infrastructure
+        path: ${{ env.ROS_WS }}/src/${{ env.PACKAGE_NAME }}
     - name: clang 8 install
       shell: bash
-      run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/clang_suite_installation.sh
+      working-directory: ${{ env.ROS_WS }}/src
+      run: ./${PACKAGE_NAME}/.github/clang_suite_installation.sh
     # clone public dependencies
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      run: vcs import src < ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/dependencies.repos
+      run: vcs import src < src/${PACKAGE_NAME}/.github/dependencies.repos
     - name: check if dependencies have a matching branch
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src
-      run: ${GITHUB_WORKSPACE}/${PACKAGE_NAME}/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
+      run: ./${PACKAGE_NAME}/.github/try_vcs_checkout ${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}} .
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
