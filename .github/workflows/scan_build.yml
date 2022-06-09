@@ -59,10 +59,10 @@ jobs:
       run: ./drake_installer
     - name: scan_build
       shell: bash
-      working-directory: ${{ env.ROS_WS }}
+      working-directory: ${{ env.ROS_WS }}/src
       run: |
         . /opt/ros/${ROS_DISTRO}/setup.bash;
-        ${GITHUB_WORKSPACE}/tools/run_scan_build.py \
+        ${PACKAGE_NAME}/tools/run_scan_build.py \
           --event-handlers=console_direct+;
     # upload artifact
     - uses: actions/upload-artifact@v2
