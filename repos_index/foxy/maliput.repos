@@ -10,4 +10,3 @@ repositories:
   maliput_py                : { type: 'git', url: 'https://github.com/maliput/maliput_py.git',                            version: 'main' }
   maliput_dragway           : { type: 'git', url: 'https://github.com/maliput/maliput_dragway.git',                       version: 'main' }
   maliput_multilane         : { type: 'git', url: 'https://github.com/maliput/maliput_multilane.git',                     version: 'main' }
-  pybind11                  : { type: 'git', url: 'https://github.com/RobotLocomotion/pybind11.git',                      version: 'c39ede1eedd4f39aa167d7b30b53ae45967c39b7'  }
