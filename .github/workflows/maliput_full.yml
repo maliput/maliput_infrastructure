@@ -27,3 +27,4 @@ jobs:
       with:
         package-name: ${{ env.PACKAGE_NAME }}
         target-ros2-distro: ${{ env.ROS_DISTRO }}
+        vcs-repo-file-url: ${GITHUB_WORKSPACE}/.github/maliput_full.repos

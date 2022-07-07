@@ -1,0 +1,10 @@
+repositories:
+  maliput                   : { type: 'git', url: 'https://github.com/maliput/maliput.git',                               version: 'main' }
+  maliput_dragway           : { type: 'git', url: 'https://github.com/maliput/maliput_dragway.git',                       version: 'main' }
+  maliput_drake             : { type: 'git', url: 'https://github.com/maliput/maliput_drake.git',                         version: 'main' }
+  maliput_integration       : { type: 'git', url: 'https://github.com/maliput/maliput_integration.git',                   version: 'main' }
+  maliput_malidrive         : { type: 'git', url: 'https://github.com/maliput/maliput_malidrive.git',                     version: 'main' }
+  maliput_multilane         : { type: 'git', url: 'https://github.com/maliput/maliput_multilane.git',                     version: 'main' }
+  maliput_object            : { type: 'git', url: 'https://github.com/maliput/maliput_object.git',                        version: 'main' }
+  maliput_object_py         : { type: 'git', url: 'https://github.com/maliput/maliput_object_py.git',                     version: 'main' }
+  maliput_py                : { type: 'git', url: 'https://github.com/maliput/maliput_py.git',                            version: 'main' }
