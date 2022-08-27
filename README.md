@@ -12,7 +12,7 @@ This repository contains basic workspace infrastructure for dsim repositories.
 ## Where is my README?
 
 As part of [#182](https://github.com/ToyotaResearchInstitute/maliput_infrastructure/issues/182),
-the README was migrated to [maliput_documentation](https://github.com/ToyotaResearchInstitute/maliput_documentation/blob/main/docs/installation_quickstart.rst).
+the README was migrated to [maliput_documentation](https://github.com/maliput/maliput_documentation/blob/main/docs/developer_setup.rst).
 
 ## Where is my old and deprecated README?
 
