@@ -13,5 +13,7 @@ repositories:
   maliput_malidrive         : { type: 'git', url: 'https://github.com/maliput/maliput_malidrive.git',                     version: 'main' }
   maliput_py                : { type: 'git', url: 'https://github.com/maliput/maliput_py.git',                            version: 'main' }
   maliput_dragway           : { type: 'git', url: 'https://github.com/maliput/maliput_dragway.git',                       version: 'main' }
+  maliput_sparse            : { type: 'git', url: 'https://github.com/maliput/maliput_sparse.git',                        version: 'main' }
+  maliput_osm               : { type: 'git', url: 'https://github.com/maliput/maliput_osm.git',                           version: 'main' }
   maliput_multilane         : { type: 'git', url: 'https://github.com/maliput/maliput_multilane.git',                     version: 'main' }
   maliput_documentation     : { type: 'git', url: 'https://github.com/maliput/maliput_documentation.git',                 version: 'main' }
