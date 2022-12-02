@@ -7,4 +7,7 @@ repositories:
   maliput_multilane         : { type: 'git', url: 'https://github.com/maliput/maliput_multilane.git',                     version: 'main' }
   maliput_object            : { type: 'git', url: 'https://github.com/maliput/maliput_object.git',                        version: 'main' }
   maliput_object_py         : { type: 'git', url: 'https://github.com/maliput/maliput_object_py.git',                     version: 'main' }
+  maliput_osm               : { type: 'git', url: 'https://github.com/maliput/maliput_osm.git',                           version: 'main' }
   maliput_py                : { type: 'git', url: 'https://github.com/maliput/maliput_py.git',                            version: 'main' }
+  maliput_sparse            : { type: 'git', url: 'https://github.com/maliput/maliput_sparse.git',                        version: 'main' }
+  maliput_viz               : { type: 'git', url: 'https://github.com/maliput/maliput_viz.git',                           version: 'main' }
