@@ -2,8 +2,8 @@
 Changelog for package maliput_full
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.2.0 (2022-12-19)
+------------------
 * Adds maliput_sparse, maliput_osm and maliput_viz to maliput_full package. (`#294 <https://github.com/maliput/maliput_infrastructure/issues/294>`_)
 * Contributors: Franco Cipollone
 
