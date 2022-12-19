@@ -5,7 +5,7 @@
   <version>0.1.0</version>
   <description>Meta package that concentrates all maliput-related packages</description>
   <maintainer email="daniel.stonier@tri.global">Daniel Stonier</maintainer>
-  <license file="LICENSE">BSD 3-Clause</license>
+  <license file="LICENSE">BSD-3-Clause</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
@@ -13,11 +13,14 @@
   <exec_depend>maliput_dragway</exec_depend>
   <exec_depend>maliput_drake</exec_depend>
   <exec_depend>maliput_integration</exec_depend>
-  <exec_depend>maliput_object</exec_depend>
-  <exec_depend>maliput_object_py</exec_depend>
   <exec_depend>maliput_malidrive</exec_depend>
   <exec_depend>maliput_multilane</exec_depend>
+  <exec_depend>maliput_object</exec_depend>
+  <exec_depend>maliput_object_py</exec_depend>
+  <exec_depend>maliput_osm</exec_depend>
   <exec_depend>maliput_py</exec_depend>
+  <exec_depend>maliput_sparse</exec_depend>
+  <exec_depend>maliput_viz</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
