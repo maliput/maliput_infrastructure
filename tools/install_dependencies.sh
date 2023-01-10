@@ -105,6 +105,10 @@ fi
 if ! grep -q "^export ROS_DISTRO=" ~/.bashrc; then
     cat >> ~/.bashrc <<< "export ROS_DISTRO=$ROS_DISTRO"
 fi
+# Source colcon argcomplete
+if ! grep -q "^source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" ~/.bashrc; then
+    cat >> ~/.bashrc <<< "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash"
+fi
 
 # We initialize rosdep and discard the stdout message
 # that recommends to run rosdep update.
