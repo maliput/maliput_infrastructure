@@ -8,8 +8,9 @@ function show_help() {
   echo $'\nUsage:\t run.sh [OPTIONS] \n
   Options:\n
   \t-n --nvidia\t\t Selects nvidia runtime.\n
-  \t-i --image_name\t\t Name of the image to be run (default maliput_ws_ubuntu_focal).\n
-  \t-c --container_name\t Name of the container (default maliput_ws_focal).\n
+  \t-o --os_version\t\t Name of the OS Version (default focal).\n
+  \t-i --image_name\t\t Name of the image to be run (default maliput_ws_ubuntu_{OS_VERSION}).\n
+  \t-c --container_name\t Name of the container (default maliput_ws_{OS_VERSION}).\n
   \t-w --workspace\t\t Relative or absolute path to the workspace you want to bind (default to location of maliput_infrastructure folder).\n
   Examples:\n
   \trun.sh --nvidia --image_name custom_image_name --container_name custom_container_name \n
@@ -37,6 +38,7 @@ RUN_LOCATION="$(pwd)"
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         -n|--nvidia) RUNTIME="nvidia" ;;
+        -o|--os_vesrion) OS_VERSION="${2}"; shift ;;
         -i|--image_name) IMAGE_NAME="${2}"; shift ;;
         -c|--container_name) CONTAINER_NAME="${2}"; shift ;;
         -w|--workspace) WORKSPACE="${2}"; shift ;;
@@ -54,7 +56,7 @@ if is_relative_path $WORKSPACE ; then
 fi
 WORKSPACE_FOLDER=$( basename $WORKSPACE )
 
-OS_VERSION=focal
+OS_VERSION=${OS_VERSION:-focal}
 IMAGE_NAME=${IMAGE_NAME:-maliput_ws_ubuntu_${OS_VERSION}}
 CONTAINER_NAME=${CONTAINER_NAME:-maliput_ws_${OS_VERSION}}
 

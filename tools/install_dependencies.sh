@@ -82,17 +82,20 @@ apt update && apt install -y lsb-release
 
 # Get correspondant ROS DISTRO.
 declare -A ROS_DISTRO_MAP
+ROS_DISTRO_MAP[jammy]=humble
 ROS_DISTRO_MAP[focal]=foxy
-ROS_DISTRO_MAP[bionic]=dashing
-ROS_DISTRO_MAP[xenial]=bouncy
 ROS_DISTRO=${ROS_DISTRO_MAP[$(lsb_release -sc)]}
 # TODO: Exit if ROS DISTRO is unknown.
 
 install_apt_repo "ros2-latest" "http://packages.ros.org/ros2/ubuntu"
 apt update
 
-# Define clang version.
-CLANG_SUITE_VERSION=8
+# Get correspondant Clan version.
+declare -A CLANG_SUITE_VERSION_MAP
+CLANG_SUITE_VERSION_MAP[jammy]=14
+CLANG_SUITE_VERSION_MAP[focal]=8
+CLANG_SUITE_VERSION=${CLANG_SUITE_VERSION_MAP[$(lsb_release -sc)]}
+
 
 # Install dependencies.
 install_workspace_tools ${ROS_DISTRO}
