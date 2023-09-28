@@ -11,7 +11,6 @@
 
   <exec_depend>maliput</exec_depend>
   <exec_depend>maliput_dragway</exec_depend>
-  <exec_depend>maliput_drake</exec_depend>
   <exec_depend>maliput_integration</exec_depend>
   <exec_depend>maliput_malidrive</exec_depend>
   <exec_depend>maliput_multilane</exec_depend>
