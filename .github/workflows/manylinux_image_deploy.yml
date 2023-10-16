@@ -1,4 +1,4 @@
-name: Build manylinux-maliput image and push
+name: manylinux-maliput image
 
 on:
   workflow_dispatch:
@@ -6,7 +6,7 @@ on:
     types: [labeled]
 
 jobs:
-  build:
+  build_and_push:
     if: ${{ contains(github.event.pull_request.labels.*.name, 'do-manylinux-image-build') || github.event_name == 'workflow_dispatch'}}
     runs-on: ubuntu-latest
 
@@ -20,7 +20,7 @@ jobs:
     - name: Build and tag Docker image
       working-directory: wheel_generation/
       run: |
-        docker build -t ghcr.io/manylinux2014_maliput_$(date +%Y%m%d):latest .
+        docker build -t ghcr.io/${{ github.repository_owner }}/manylinux2014_maliput_$(date +%Y%m%d):latest .
 
     - name: Push Docker image to GHCR
-      run: docker push ghcr.io/manylinux2014_maliput_$(date +%Y%m%d):latest
+      run: docker push ghcr.io/${{ github.repository_owner }}/manylinux2014_maliput_$(date +%Y%m%d):latest
