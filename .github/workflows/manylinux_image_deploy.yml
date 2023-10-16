@@ -20,7 +20,7 @@ jobs:
     - name: Build and tag Docker image
       working-directory: wheel_generation/
       run: |
-        docker build -t ghcr.io/${{ github.repository_owner }}/manylinux2014_maliput_$(date +%Y%m%d):latest .
+        docker build -t ghcr.io/${{ github.repository_owner }}/manylinux2014_maliput:latest .
 
     - name: Push Docker image to GHCR
-      run: docker push ghcr.io/${{ github.repository_owner }}/manylinux2014_maliput_$(date +%Y%m%d):latest
+      run: docker push ghcr.io/${{ github.repository_owner }}/manylinux2014_maliput:latest
