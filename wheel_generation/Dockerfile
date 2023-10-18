@@ -3,7 +3,7 @@ FROM quay.io/pypa/manylinux2014_x86_64
 ##########################################################################
 # General setup
 ##########################################################################
-RUN echo "export PATH=/opt/python/cp38-cp38/bin:$PATH" >> /root/.bashrc
+RUN echo "export PATH=/opt/python/cp38-cp38/bin:\$PATH" >> /root/.bashrc
 RUN export PATH=/opt/python/cp38-cp38/bin:$PATH
 
 ##########################################################################
@@ -12,6 +12,7 @@ RUN export PATH=/opt/python/cp38-cp38/bin:$PATH
 
 # colcon.
 RUN /opt/python/cp38-cp38/bin/pip install colcon-common-extensions
+RUN /opt/python/cp38-cp38/bin/pip install python-dev-tools
 
 ##########################################################################
 # Install CMake dependencies
