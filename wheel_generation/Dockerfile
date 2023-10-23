@@ -18,12 +18,6 @@ RUN /opt/python/cp38-cp38/bin/pip install python-dev-tools
 # Install CMake dependencies
 ##########################################################################
 
-# fmt
-WORKDIR /source_builds/
-RUN git clone -b 6.1.2 https://github.com/fmtlib/fmt.git fmt
-WORKDIR /source_builds/fmt/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc) && make install
-
 # yaml-cpp
 WORKDIR /source_builds/
 RUN git clone -b yaml-cpp-0.7.0 https://github.com/jbeder/yaml-cpp.git yaml-cpp
