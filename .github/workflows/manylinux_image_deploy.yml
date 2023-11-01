@@ -1,0 +1,26 @@
+name: manylinux-maliput image
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  build_and_push:
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'do-manylinux-image-build') || github.event_name == 'workflow_dispatch'}}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Login to GitHub Container Registry
+      run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+    - name: Build and tag Docker image
+      working-directory: wheel_generation/
+      run: |
+        docker build -t ghcr.io/${{ github.repository_owner }}/manylinux2014_maliput:latest .
+
+    - name: Push Docker image to GHCR
+      run: docker push ghcr.io/${{ github.repository_owner }}/manylinux2014_maliput:latest

@@ -2,6 +2,8 @@ name: maliput_full_build
 
 on:
   push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -12,6 +14,11 @@ on:
 env:
   PACKAGE_NAME: maliput_full
   ROS_DISTRO: foxy
+
+# Cancel previously running PR jobs
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
 
 jobs:
   compile_and_test:
