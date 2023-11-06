@@ -15,7 +15,7 @@ env:
 
 jobs:
   compile_and_test:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'do-clang-test') || github.event_name == 'schedule' }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'do-clang-test') || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'}}
     name: Compile and test with sanitizer
     runs-on: ubuntu-latest
     container:

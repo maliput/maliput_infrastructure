@@ -14,7 +14,7 @@ env:
 
 jobs:
   static_analysis:
-    if: ${{ contains(github.event.pull_request.labels.*.name, 'do-static-analyzer-test') || github.event_name == 'schedule' }}
+    if: ${{ contains(github.event.pull_request.labels.*.name, 'do-static-analyzer-test') || github.event_name == 'schedule'  || github.event_name == 'workflow_dispatch'}}
     name: Static analysis
     runs-on: ubuntu-latest
     container:
