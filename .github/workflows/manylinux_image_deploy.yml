@@ -11,8 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    # TODO: The container has installed glibc-2.17-326.el7_9.x86_64 and v4 requires 2.25 and above. Need to stick with an old version.
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
 
     - name: Login to GitHub Container Registry
       run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
