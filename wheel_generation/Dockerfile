@@ -62,7 +62,7 @@ RUN echo "source /colcon_builds/install/setup.bash" >> /root/.bashrc
 ##########################################################################
 # Install vcstool
 ##########################################################################
-RUN /opt/_internal/cpython-3.8.18/bin/pip install vcstool
+RUN /opt/python/cp38-cp38/bin/pip install vcstool
 
 ##########################################################################
 # Final config
