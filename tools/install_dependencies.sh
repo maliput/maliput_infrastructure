@@ -4,31 +4,14 @@
 set -e pipefail
 
 #######################################
-# Installs apt repository into system wide sources list.
-#
-# Arguments
-#   $1 -> name of the repository, to be used as sources list prefix.
-#   $2 -> url of the repository.
+# Installs ros2 apt source.
 #######################################
-install_apt_repo() {
-    REPO_NAME=$1
-    REPO_URL=$2
-    KEY_PATH=/usr/share/keyrings/ros-archive-keyring.gpg
 
-    if [ ! -f ${KEY_PATH} ]; then
-        apt update
-        apt install -y curl
-        curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
-             -o ${KEY_PATH}
-    fi
-
-    if ! grep -q "^deb .*$REPO_URL" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
-        echo "deb [signed-by=${KEY_PATH}] $REPO_URL $(lsb_release -cs) main" | \
-        tee --append /etc/apt/sources.list.d/$REPO_NAME.list > /dev/null
-        echo "Apt Repo '$REPO_NAME'..........................installed"
-    else
-        echo "Apt Repo '$REPO_NAME'..........................found"
-    fi
+install_ros2_apt_source() {
+    apt update && apt install curl -y
+    export ROS_APT_SOURCE_VERSION=$(curl -s https://api.github.com/repos/ros-infrastructure/ros-apt-source/releases/latest | grep -F "tag_name" | awk -F\" '{print $4}')
+    curl -L -o /tmp/ros2-apt-source.deb "https://github.com/ros-infrastructure/ros-apt-source/releases/download/${ROS_APT_SOURCE_VERSION}/ros2-apt-source_${ROS_APT_SOURCE_VERSION}.$(. /etc/os-release && echo $VERSION_CODENAME)_all.deb"
+    apt install /tmp/ros2-apt-source.deb
 }
 
 #######################################
@@ -80,15 +63,9 @@ function install_clang_suite() {
 # In focal docker image, lsb_release is not available
 apt update && apt install -y lsb-release
 
-# Get correspondant ROS DISTRO.
-declare -A ROS_DISTRO_MAP
-ROS_DISTRO_MAP[focal]=foxy
-ROS_DISTRO_MAP[bionic]=dashing
-ROS_DISTRO_MAP[xenial]=bouncy
-ROS_DISTRO=${ROS_DISTRO_MAP[$(lsb_release -sc)]}
-# TODO: Exit if ROS DISTRO is unknown.
+ROS_DISTRO=foxy
 
-install_apt_repo "ros2-latest" "http://packages.ros.org/ros2/ubuntu"
+install_ros2_apt_source
 apt update
 
 # Define clang version.
