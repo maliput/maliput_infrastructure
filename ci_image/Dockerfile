@@ -52,6 +52,8 @@ RUN apt install -y \
     python3-vcstool \
     python3-rosdep \
     python3-colcon-common-extensions \
+    python3-colcon-coveragepy-result \
+    python3-colcon-lcov-result \
     ros-${ROS_DISTRO}-ament-cmake \
     && rm -rf /var/lib/apt/lists/*
 
