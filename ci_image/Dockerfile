@@ -1,9 +1,9 @@
 FROM ubuntu:20.04
 
 
-ENV DEBIAN_FRONTEND noninteractive
-ENV TERM linux
-ENV LANG en_US.UTF-8
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TERM=linux
+ENV LANG=en_US.UTF-8
 ENV ROS_DISTRO=foxy
 
 ##########################################################################
@@ -54,6 +54,7 @@ RUN apt install -y \
     python3-colcon-common-extensions \
     python3-colcon-coveragepy-result \
     python3-colcon-lcov-result \
+    python3-colcon-mixin \
     ros-${ROS_DISTRO}-ament-cmake \
     && rm -rf /var/lib/apt/lists/*
 
