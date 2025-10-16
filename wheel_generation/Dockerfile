@@ -1,4 +1,6 @@
-FROM quay.io/pypa/manylinux2014_x86_64
+ARG BASE_IMAGE=quay.io/pypa/manylinux2014_x86_64
+# Or use any other manylinux image like: manylinux_2_28_x86_64
+FROM ${BASE_IMAGE}
 
 ##########################################################################
 # General setup

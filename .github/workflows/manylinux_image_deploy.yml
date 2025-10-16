@@ -2,6 +2,15 @@ name: manylinux-maliput image
 
 on:
   workflow_dispatch:
+    inputs:
+      base_image:
+        type: choice
+        description: 'Base image for Docker build'
+        required: false
+        default: 'manylinux2014_x86_64'
+        options:
+          - 'manylinux2014_x86_64'
+          - 'manylinux_2_28_x86_64'
   pull_request:
     types: [labeled]
 
@@ -20,7 +29,9 @@ jobs:
     - name: Build and tag Docker image
       working-directory: wheel_generation/
       run: |
-        docker build -t ghcr.io/${{ github.repository_owner }}/manylinux2014_maliput:latest .
+        docker build \
+          --build-arg BASE_IMAGE=quay.io/pypa/${{ github.event.inputs.base_image }} \
+          -t ghcr.io/${{ github.repository_owner }}/${{ github.event.inputs.base_image }}_maliput:latest .
 
     - name: Push Docker image to GHCR
-      run: docker push ghcr.io/${{ github.repository_owner }}/manylinux2014_maliput:latest
+      run: docker push ghcr.io/${{ github.repository_owner }}/${{ github.event.inputs.base_image }}_maliput:latest
