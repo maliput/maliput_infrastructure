@@ -17,6 +17,12 @@ RUN /opt/python/cp38-cp38/bin/pip install colcon-common-extensions
 RUN /opt/python/cp38-cp38/bin/pip install python-dev-tools
 
 ##########################################################################
+# Install CMake
+##########################################################################
+RUN pipx uninstall cmake
+RUN pipx install cmake==3.22.1
+
+##########################################################################
 # Install CMake dependencies
 ##########################################################################
 
