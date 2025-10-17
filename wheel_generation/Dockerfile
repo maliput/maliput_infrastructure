@@ -16,8 +16,8 @@ RUN export PATH=/opt/python/${CP_PY_VERSION}/bin:$PATH
 RUN pipx uninstall cmake
 
 # colcon.
+RUN /opt/python/${CP_PY_VERSION}/bin/pip install --upgrade pip
 RUN /opt/python/${CP_PY_VERSION}/bin/pip install colcon-common-extensions
-RUN /opt/python/${CP_PY_VERSION}/bin/pip install python-dev-tools
 
 # cmake
 RUN /opt/python/${CP_PY_VERSION}/bin/pip install cmake==3.22.1
