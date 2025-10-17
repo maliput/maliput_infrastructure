@@ -7,10 +7,18 @@ on:
         type: choice
         description: 'Base image for Docker build'
         required: false
-        default: 'manylinux2014_x86_64'
+        default: 'manylinux_2_28_x86_64'
         options:
           - 'manylinux2014_x86_64'
           - 'manylinux_2_28_x86_64'
+      cp_python_version:
+        type: choice
+        description: 'Python version'
+        required: false
+        default: 'cp310-cp310'
+        options:
+          - 'cp38-cp38'
+          - 'cp310-cp310'
   pull_request:
     types: [labeled]
 
@@ -31,7 +39,8 @@ jobs:
       run: |
         docker build \
           --build-arg BASE_IMAGE=quay.io/pypa/${{ github.event.inputs.base_image }} \
-          -t ghcr.io/${{ github.repository_owner }}/${{ github.event.inputs.base_image }}_maliput:latest .
+          --build-arg CP_PY_VERSION=${{ github.event.inputs.cp_python_version }} \
+          -t ghcr.io/${{ github.repository_owner }}/${{ github.event.inputs.base_image }}_${{ github.event.inputs.cp_python_version }}_maliput:latest .
 
     - name: Push Docker image to GHCR
-      run: docker push ghcr.io/${{ github.repository_owner }}/${{ github.event.inputs.base_image }}_maliput:latest
+      run: docker push ghcr.io/${{ github.repository_owner }}/${{ github.event.inputs.base_image }}_${{ github.event.inputs.cp_python_version }}_maliput:latest
