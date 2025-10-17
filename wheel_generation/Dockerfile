@@ -13,15 +13,14 @@ RUN export PATH=/opt/python/${CP_PY_VERSION}/bin:$PATH
 # Install prerequisites.
 ##########################################################################
 
+RUN pipx uninstall cmake
+
 # colcon.
 RUN /opt/python/${CP_PY_VERSION}/bin/pip install colcon-common-extensions
 RUN /opt/python/${CP_PY_VERSION}/bin/pip install python-dev-tools
 
-##########################################################################
-# Install CMake
-##########################################################################
-RUN pipx uninstall cmake
-RUN pipx install cmake==3.22.1
+# cmake
+RUN /opt/python/${CP_PY_VERSION}/bin/pip install cmake==3.22.1
 
 ##########################################################################
 # Install CMake dependencies
@@ -31,13 +30,13 @@ RUN pipx install cmake==3.22.1
 WORKDIR /source_builds/
 RUN git clone -b yaml-cpp-0.7.0 https://github.com/jbeder/yaml-cpp.git yaml-cpp
 WORKDIR /source_builds/yaml-cpp/build
-RUN cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc) && make install
+RUN /opt/python/${CP_PY_VERSION}/bin/cmake -DBUILD_SHARED_LIBS=ON -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc) && make install
 
 # tinyxml2
 WORKDIR /source_builds/
 RUN git clone -b 7.1.0 https://github.com/leethomason/tinyxml2.git tinyxml2
 WORKDIR /source_builds/tinyxml2/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc) && make install
+RUN /opt/python/${CP_PY_VERSION}/bin/cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc) && make install
 
 # pybind11
 # See https://pybind11.readthedocs.io/en/stable/installing.html#include-with-pypi
