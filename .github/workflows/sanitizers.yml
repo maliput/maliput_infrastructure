@@ -57,6 +57,8 @@ jobs:
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
+    - run: apt update -y
+      shell: bash
     - name: rosdep install
       shell: bash
       working-directory: ${{ env.ROS_WS }}
