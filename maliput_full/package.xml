@@ -20,6 +20,7 @@
   <exec_depend>maliput_py</exec_depend>
   <exec_depend>maliput_sparse</exec_depend>
   <exec_depend>maliput_viz</exec_depend>
+  <exec_depend>maliput_geopackage</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

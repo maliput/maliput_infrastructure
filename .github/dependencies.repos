@@ -17,3 +17,4 @@ repositories:
   maliput_viz               : { type: 'git', url: 'https://github.com/maliput/maliput_viz.git',                           version: 'main' }
   maliput_multilane         : { type: 'git', url: 'https://github.com/maliput/maliput_multilane.git',                     version: 'main' }
   maliput_documentation     : { type: 'git', url: 'https://github.com/maliput/maliput_documentation.git',                 version: 'main' }
+  maliput_geopackage        : { type: 'git', url: 'https://github.com/maliput/maliput_geopackage.git',                    version: 'main' }

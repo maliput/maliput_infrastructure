@@ -10,3 +10,4 @@ repositories:
   maliput_py                : { type: 'git', url: 'https://github.com/maliput/maliput_py.git',                            version: 'main' }
   maliput_sparse            : { type: 'git', url: 'https://github.com/maliput/maliput_sparse.git',                        version: 'main' }
   maliput_viz               : { type: 'git', url: 'https://github.com/maliput/maliput_viz.git',                           version: 'main' }
+  maliput_geopackage        : { type: 'git', url: 'https://github.com/maliput/maliput_geopackage.git',                    version: 'main' }
