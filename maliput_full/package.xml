@@ -5,6 +5,7 @@
   <version>0.2.0</version>
   <description>Meta package that concentrates all maliput-related packages</description>
   <maintainer email="daniel.stonier@tri.global">Daniel Stonier</maintainer>
+  <maintainer email="santiago.lopez@ekumenlabs.com">Santiago Lopez</maintainer>
   <license file="LICENSE">BSD-3-Clause</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
